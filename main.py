@@ -73,7 +73,6 @@ async def discord_event(request):
 
 async def init_telegram(api):
     await api.set_webhook("https://7ca8-178-69-250-141.ngrok.io/telegram_callback")
-    await api.delete_webhook()
 
 
 if __name__ == "__main__":
@@ -84,7 +83,7 @@ if __name__ == "__main__":
     # init messangers
     vk_api = Vk(tokens.VK_API, event_loop)
     telegram_api = Telegram(tokens.TELEGRAM_API, event_loop)
-    # event_loop.run_until_complete(init_telegram(telegram_api))
+    event_loop.run_until_complete(init_telegram(telegram_api))
 
     # init server
     app = web.Application()
