@@ -135,5 +135,5 @@ if __name__ == "__main__":
     # init server
     app = web.Application()
     app.add_routes(routes)
-    web.run_app(app, port=5050, host="0.0.0.0", loop=event_loop)
+    web.run_app(app, port=8080, host="0.0.0.0", loop=event_loop)
     # web.run_app(app, port=80, host="localhost", loop=event_loop)
