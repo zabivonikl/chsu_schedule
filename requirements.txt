@@ -1,3 +1,4 @@
 aiovk~=4.0.0
 motor~=2.5.1
 aiohttp~=3.8.1
+pynacl~=1.4.0
