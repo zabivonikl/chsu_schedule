@@ -58,7 +58,7 @@ async def telegram_event(request):
             "from_id": data['message']['from']['id'],
             "text": data['message']['text']
         }
-        print(f"Event in telegram: {event}")
+        await EventHandler(telegram_api, mongo_db_api, chsu_api).handle_event(event, get_time())
         return web.Response(text="ok")
     except KeyError:
         return web.Response(text="ok")
@@ -72,7 +72,8 @@ async def discord_event(request):
 
 
 async def init_telegram(api):
-    await api.set_webhook("https://7ca8-178-69-250-141.ngrok.io/telegram_callback")
+    await api.set_webhook("https://4079-178-69-250-141.ngrok.io/telegram_callback")
+    await api.delete_webhook()
 
 
 if __name__ == "__main__":
@@ -83,7 +84,7 @@ if __name__ == "__main__":
     # init messangers
     vk_api = Vk(tokens.VK_API, event_loop)
     telegram_api = Telegram(tokens.TELEGRAM_API, event_loop)
-    event_loop.run_until_complete(init_telegram(telegram_api))
+    # event_loop.run_until_complete(init_telegram(telegram_api))
 
     # init server
     app = web.Application()
