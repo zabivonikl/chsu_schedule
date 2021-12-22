@@ -31,8 +31,7 @@ class MongoDB:
             "professor_name": bot_user["professor_name"]
         }
 
-    async def set_user_data(self, user_id, api_name,
-                      group_name=None, mailing_time=None, professor_name=None):
+    async def set_user_data(self, user_id, api_name, group_name=None, mailing_time=None, professor_name=None):
         await self._users_collection.find_one_and_delete({"id": user_id, "platform": api_name})
         await self._users_collection.insert_one({
             "id": user_id,
@@ -53,7 +52,7 @@ class MongoDB:
         })
 
     async def get_mailing_subscribers_by_time(self, time):
-        subscribers = await self._users_collection.find({"mailing_time": time})
+        subscribers = await self._users_collection.find({"mailing_time": time}).to_list(1000)
         simplified_subscribers = []
         for subscriber in subscribers:
             simplified_subscribers.append([subscriber["id"], subscriber["platform"]])

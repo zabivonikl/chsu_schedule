@@ -72,8 +72,24 @@ async def discord_event(request):
 
 
 async def init_telegram(api):
-    await api.set_webhook("https://4079-178-69-250-141.ngrok.io/telegram_callback")
-    await api.delete_webhook()
+    await api.set_webhook("46.229.212.112/telegram_callback")
+
+
+async def mailing():
+    while True:
+        users = await mongo_db_api.get_mailing_subscribers_by_time(get_time().strftime("%H:%M"))
+        for user in users:
+            if user[1] == telegram_api.get_api_name():
+                await EventHandler(telegram_api, mongo_db_api, chsu_api).handle_event({
+                    "from_id": user[0],
+                    "text": "Расписание на завтра"
+                }, get_time())
+            elif user[1] == vk_api.get_api_name():
+                await EventHandler(vk_api, mongo_db_api, chsu_api).handle_event({
+                    "from_id": user[0],
+                    "text": "Расписание на завтра"
+                }, get_time())
+        await asyncio.sleep(60)
 
 
 if __name__ == "__main__":
@@ -84,7 +100,10 @@ if __name__ == "__main__":
     # init messangers
     vk_api = Vk(tokens.VK_API, event_loop)
     telegram_api = Telegram(tokens.TELEGRAM_API, event_loop)
-    # event_loop.run_until_complete(init_telegram(telegram_api))
+    event_loop.run_until_complete(init_telegram(telegram_api))
+
+    # init mailing
+    event_loop.create_task(mailing())
 
     # init server
     app = web.Application()
