@@ -6,6 +6,7 @@ from aiohttp import web
 
 import tokens
 from APIs.ChsuAPI.chsu import ChsuApi
+from APIs.DiscordAPI.discord import Discord
 from APIs.MongoDbAPI.mongo_db import MongoDB
 from APIs.TelegramAPI.telegram import Telegram
 from APIs.VkAPI.vk import Vk
@@ -30,7 +31,9 @@ async def index(request):
         f'Telegram': {
             'isWorking': await telegram_api.get_status(),
             'isSetWebhook': await telegram_api.get_webhook() != ""
-        }
+        },
+        f'Discord': await discord_api.get_status(),
+        f'Mailing': 'working' if mailing.get_name() == 'mailing' else 'not working'
     }))
 
 
@@ -86,8 +89,9 @@ async def delete_webhook(request):
 @routes.post('/discord/callback')
 async def discord_event(request):
     data = await request.json()
+    print(data)
 
-    return web.Response(text="0d238b23" if data["type"] == "confirmation" else "ok")
+    return web.Response(text="ok")
 
 
 async def mailing():
@@ -115,11 +119,14 @@ if __name__ == "__main__":
     # init messangers
     vk_api = Vk(tokens.VK_API, event_loop)
     telegram_api = Telegram(tokens.TELEGRAM_API, event_loop)
+    discord_api = Discord(tokens.DISCORD_API, event_loop)
 
     # init mailing
-    event_loop.create_task(mailing())
+    mailing = event_loop.create_task(mailing())
+    mailing.set_name("mailing")
 
     # init server
     app = web.Application()
     app.add_routes(routes)
+    # web.run_app(app, port=5050, host="0.0.0.0", loop=event_loop)
     web.run_app(app, port=80, host="localhost", loop=event_loop)
