@@ -16,8 +16,8 @@ routes = web.RouteTableDef()
 event_loop = asyncio.get_event_loop()
 
 
-def get_time():
-    return datetime.now(timezone(timedelta(hours=3.0)))
+def get_time(tz=3):
+    return datetime.now(timezone(timedelta(hours=float(tz))))
 
 
 @routes.get("/")
@@ -32,7 +32,7 @@ async def index(request):
             'isWorking': await telegram_api.get_status(),
             'isSetWebhook': await telegram_api.get_webhook() != ""
         },
-        f'Discord': await discord_api.get_status(),
+        # f'Discord': await discord_api.get_status(),
         f'Mailing': 'working' if mailing.get_name() == 'mailing' else 'not working'
     }))
 
@@ -41,7 +41,7 @@ async def index(request):
 async def vk_event(request):
     data = await request.json()
     if data["type"] == "confirmation":
-        return web.Response(text="5229efbf")
+        return web.Response(text="0471416c")
     if data['object']['message']['from_id'] not in [447828812, 89951785]:
         return web.Response(text="ok")
     event = {
@@ -76,8 +76,10 @@ async def get_webhook(request):
 async def set_webhook(request):
     if "data" in request.query:
         return web.Response(text=f"ok\n{request.query['data']}")
-    if "url" in request.query:
-        return web.Response(text='ok' if await telegram_api.set_webhook(request.query['url'] + "/telegram/callback") else "not ok")
+    if "ip" in request.query:
+        return web.Response(
+            status=200 if await telegram_api.set_webhook(request.query['ip'] + "/telegram/callback") else 500,
+            text='ok')
 
 
 @routes.get('/telegram/webhook/remove')
@@ -86,12 +88,17 @@ async def delete_webhook(request):
     return web.Response(text='ok')
 
 
-@routes.post('/discord/callback')
+# @routes.post('/discord/callback')
 async def discord_event(request):
     data = await request.json()
-    print(data)
-
-    return web.Response(text="ok")
+    print(await request.text())
+    if 'type' in data and data['type'] == 1:
+        if await discord_api.is_valid_request(request):
+            return web.Response(text=json.dumps({
+                'type': 1
+            }))
+        else:
+            return web.Response(status=401, text="Invalid request signature")
 
 
 async def mailing():
@@ -119,7 +126,7 @@ if __name__ == "__main__":
     # init messangers
     vk_api = Vk(tokens.VK_API, event_loop)
     telegram_api = Telegram(tokens.TELEGRAM_API, event_loop)
-    discord_api = Discord(tokens.DISCORD_API, event_loop)
+    discord_api = Discord(tokens.DISCORD_API, tokens.DISCORD_PUBLIC_KEY, event_loop)
 
     # init mailing
     mailing = event_loop.create_task(mailing())
@@ -128,5 +135,5 @@ if __name__ == "__main__":
     # init server
     app = web.Application()
     app.add_routes(routes)
-    # web.run_app(app, port=5050, host="0.0.0.0", loop=event_loop)
-    web.run_app(app, port=80, host="localhost", loop=event_loop)
+    web.run_app(app, port=5050, host="0.0.0.0", loop=event_loop)
+    # web.run_app(app, port=80, host="localhost", loop=event_loop)

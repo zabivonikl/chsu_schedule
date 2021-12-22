@@ -1,8 +1,11 @@
+from nacl.signing import VerifyKey
+from nacl.exceptions import BadSignatureError
+
 from Wrappers.AIOHttpWrapper import AIOHttpWrapper
 
 
 class Discord:
-    def __init__(self, token: str, event_loop):
+    def __init__(self, api_token: str, public_token: str, event_loop):
         self._base_url = f"https://discord.com/api/v9/"
         self._http_client = AIOHttpWrapper(event_loop)
         self._custom_ids = {
@@ -18,8 +21,9 @@ class Discord:
         self._base_headers = {
             "Content-Type": "application/json",
             "charset": "utf-8",
-            "Authorization": f"Bot {token}"
+            "Authorization": f"Bot {api_token}"
         }
+        self._verify_key = VerifyKey(bytes.fromhex(public_token))
 
     async def get_status(self):
         response = await self._http_client.get(self._base_url + "/users/@me", headers=self._base_headers)
@@ -27,6 +31,16 @@ class Discord:
             return "working"
         else:
             return response["message"]
+
+    async def is_valid_request(self, request):
+        signature = request.headers["X-Signature-Ed25519"]
+        timestamp = request.headers["X-Signature-Timestamp"]
+        body = await request.text()
+        try:
+            self._verify_key.verify(f'{timestamp}{body}'.encode(), bytes.fromhex(signature))
+            return True
+        except BadSignatureError:
+            return False
 
     def get_button_text(self, custom_id):
         return self._custom_ids[custom_id]

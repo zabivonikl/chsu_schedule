@@ -6,6 +6,7 @@ class Telegram:
     def __init__(self, token: str, event_loop):
         self._client = AIOHttpWrapper(event_loop)
         self._bot_link = f"https://api.telegram.org/bot{token}"
+        self._keyboard = TelegramKeyboard()
 
     async def get_status(self):
         return (await self.get_me())['ok']
@@ -26,33 +27,30 @@ class Telegram:
     def get_admins():
         return [672743407]
 
-    @staticmethod
-    def get_standard_keyboard():
-        kb = TelegramKeyboard()
-        kb.add_line()
-        kb.add_button("Расписание на сегодня")
-        kb.add_button("Расписание на завтра")
-        kb.add_line()
-        kb.add_button("Расписание на другой день")
-        kb.add_line()
-        kb.add_button("Рассылка")
-        kb.add_button("Изменить группу")
-        return kb.get_keyboard()
+    def get_standard_keyboard(self):
+        self._keyboard.clear()
+        self._keyboard.add_line()
+        self._keyboard.add_button("Расписание на сегодня")
+        self._keyboard.add_button("Расписание на завтра")
+        self._keyboard.add_line()
+        self._keyboard.add_button("Расписание на другой день")
+        self._keyboard.add_line()
+        self._keyboard.add_button("Рассылка")
+        self._keyboard.add_button("Изменить группу")
+        return self._keyboard.get_keyboard()
 
-    @staticmethod
-    def get_start_keyboard():
-        kb = TelegramKeyboard()
-        kb.add_line()
-        kb.add_button("Студент")
-        kb.add_button("Преподаватель")
-        return kb.get_keyboard()
+    def get_start_keyboard(self):
+        self._keyboard.clear()
+        self._keyboard.add_line()
+        self._keyboard.add_button("Студент")
+        self._keyboard.add_button("Преподаватель")
+        return self._keyboard.get_keyboard()
 
-    @staticmethod
-    def get_canceling_keyboard():
-        kb = TelegramKeyboard()
-        kb.add_line()
-        kb.add_button("Отмена")
-        return kb.get_keyboard()
+    def get_canceling_keyboard(self):
+        self._keyboard.clear()
+        self._keyboard.add_line()
+        self._keyboard.add_button("Отмена")
+        return self._keyboard.get_keyboard()
 
     @staticmethod
     def get_empty_keyboard():

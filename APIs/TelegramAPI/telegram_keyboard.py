@@ -2,25 +2,28 @@ from json import dumps
 
 
 class TelegramKeyboard:
-    def __init__(self, resize_keyboard=True, one_time_keyboard=True, selective=False):
-        self.__line_count = 0
+    def __init__(self):
+        self._line_count = 0
+        self._keyboard_markup = None
 
-        self.__keyboard_markup = {
+    def add_line(self):
+        self._keyboard_markup['keyboard'].append([])
+        self._line_count += 1
+
+    def add_button(self, text):
+        self._keyboard_markup['keyboard'][self._line_count - 1].append({"text": text})
+
+    def get_keyboard(self):
+        return dumps(self._keyboard_markup)
+
+    def clear(self, resize_keyboard=True, one_time_keyboard=True, selective=False):
+        self._line_count = 0
+        self._keyboard_markup = {
             'resize_keyboard': resize_keyboard,
             'one_time_keyboard': one_time_keyboard,
             'keyboard': [],
             'selective': selective
         }
-
-    def add_line(self):
-        self.__keyboard_markup['keyboard'].append([])
-        self.__line_count += 1
-
-    def add_button(self, text):
-        self.__keyboard_markup['keyboard'][self.__line_count - 1].append({"text": text})
-
-    def get_keyboard(self):
-        return dumps(self.__keyboard_markup)
 
 
 if __name__ == "__main__":
