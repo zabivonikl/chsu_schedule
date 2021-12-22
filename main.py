@@ -37,19 +37,16 @@ async def index(request):
     }))
 
 
-@routes.post('/vk/callback')
+@routes.post('/vk/callback/{returnable}')
 async def vk_event(request):
     data = await request.json()
     if data["type"] == "confirmation":
-        return web.Response(text="0471416c")
-    if data['object']['message']['from_id'] not in [447828812, 89951785]:
-        return web.Response(text="ok")
+        return web.Response(text=request.match_info['returnable'])
     event = {
         'from_id': data['object']['message']['from_id'],
         'text': data['object']['message']['text']
     }
     await EventHandler(vk_api, mongo_db_api, chsu_api).handle_event(event, get_time())
-
     return web.Response(text="ok")
 
 
