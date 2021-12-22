@@ -29,7 +29,7 @@ async def index(request):
         f'VK': f'{await vk_api.get_status()}',
         f'Telegram': {
             'isWorking': await telegram_api.get_status(),
-            'isSetWebhook': await telegram_api.get_set_webhook()
+            'isSetWebhook': await telegram_api.get_webhook() != ""
         }
     }))
 
@@ -73,6 +73,25 @@ async def discord_event(request):
 
 async def init_telegram(api):
     await api.set_webhook("46.229.212.112/telegram_callback")
+
+
+@routes.get('/telegram/webhook/get')
+async def get_webhook(request):
+    return web.Response(text=await telegram_api.get_webhook())
+
+
+@routes.get('/telegram/webhook/set')
+async def set_webhook(request):
+    if "data" in request.query:
+        return web.Response(text=f"ok\n{request.query['data']}")
+    if "url" in request.query:
+        return web.Response(text='ok' if await telegram_api.set_webhook(request.query['url']) else "not ok")
+
+
+@routes.get('/telegram/webhook/remove')
+async def delete_webhook(request):
+    await telegram_api.delete_webhook()
+    return web.Response(text='ok')
 
 
 async def mailing():

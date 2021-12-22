@@ -10,10 +10,10 @@ class Telegram:
     async def get_status(self):
         return (await self.get_me())['ok']
 
-    async def get_set_webhook(self):
+    async def get_webhook(self):
         data = await self._call_get_method("getWebhookInfo")
         if "result" in data:
-            return data["result"]["url"] != ""
+            return data["result"]["url"]
 
     async def get_me(self):
         return await self._call_get_method("getMe")
