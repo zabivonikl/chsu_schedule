@@ -34,7 +34,7 @@ async def index(request):
     }))
 
 
-@routes.post('/vk_callback')
+@routes.post('/vk/callback')
 async def vk_event(request):
     data = await request.json()
     if data["type"] == "confirmation":
@@ -50,7 +50,7 @@ async def vk_event(request):
     return web.Response(text="ok")
 
 
-@routes.post('/telegram_callback')
+@routes.post('/telegram/callback')
 async def telegram_event(request):
     data = await request.json()
     try:
@@ -64,17 +64,6 @@ async def telegram_event(request):
         return web.Response(text="ok")
 
 
-@routes.post('/discord_callback')
-async def discord_event(request):
-    data = await request.json()
-
-    return web.Response(text="0d238b23" if data["type"] == "confirmation" else "ok")
-
-
-async def init_telegram(api):
-    await api.set_webhook("46.229.212.112/telegram_callback")
-
-
 @routes.get('/telegram/webhook/get')
 async def get_webhook(request):
     return web.Response(text=await telegram_api.get_webhook())
@@ -85,13 +74,20 @@ async def set_webhook(request):
     if "data" in request.query:
         return web.Response(text=f"ok\n{request.query['data']}")
     if "url" in request.query:
-        return web.Response(text='ok' if await telegram_api.set_webhook(request.query['url']) else "not ok")
+        return web.Response(text='ok' if await telegram_api.set_webhook(request.query['url'] + "/telegram/callback") else "not ok")
 
 
 @routes.get('/telegram/webhook/remove')
 async def delete_webhook(request):
     await telegram_api.delete_webhook()
     return web.Response(text='ok')
+
+
+@routes.post('/discord/callback')
+async def discord_event(request):
+    data = await request.json()
+
+    return web.Response(text="0d238b23" if data["type"] == "confirmation" else "ok")
 
 
 async def mailing():
@@ -119,7 +115,6 @@ if __name__ == "__main__":
     # init messangers
     vk_api = Vk(tokens.VK_API, event_loop)
     telegram_api = Telegram(tokens.TELEGRAM_API, event_loop)
-    event_loop.run_until_complete(init_telegram(telegram_api))
 
     # init mailing
     event_loop.create_task(mailing())
