@@ -80,9 +80,10 @@ class Telegram:
 
     async def set_webhook(self, url):
         response = await self._call_get_method("setWebhook", {"url": url})
-        if response:
-            return
-        raise ConnectionError("Error of installation webhook")
+        if response["ok"]:
+            return {"status": 200, "text": url}
+        else:
+            return {"status": response['error_code'], "text": response['description']}
 
     async def delete_webhook(self):
         response = await self._call_get_method("deleteWebhook")

@@ -46,7 +46,8 @@ async def vk_event(request):
         'from_id': data['object']['message']['from_id'],
         'text': data['object']['message']['text']
     }
-    await EventHandler(vk_api, mongo_db_api, chsu_api).handle_event(event, get_time())
+    if "X-Retry-Counter" not in request.headers:
+        await EventHandler(vk_api, mongo_db_api, chsu_api).handle_event(event, get_time())
     return web.Response(text="ok")
 
 
@@ -69,15 +70,12 @@ async def get_webhook(request):
     return web.Response(text=await telegram_api.get_webhook())
 
 
-@routes.get('/telegram/webhook/set/{url}')
+@routes.get('/telegram/webhook/set')
 async def set_webhook(request):
-    return web.Response(
-        status=200 if await telegram_api.set_webhook(
-            f"https://{request.match_info['url']}/telegram/callback"
-        ) else 500,
-        text=json.dumps({
-            "url": f"https://{request.match_info['url']}/telegram/callback"
-        }))
+    response = await telegram_api.set_webhook(
+            f"{request.url.scheme}://{request.url.host}/telegram/callback"
+        )
+    return web.Response(status=response['status'], text=response['text'])
 
 
 @routes.get('/telegram/webhook/remove')
