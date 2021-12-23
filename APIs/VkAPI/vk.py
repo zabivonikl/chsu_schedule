@@ -40,7 +40,7 @@ class Vk:
         return self._keyboard.get_keyboard()
 
     def get_start_keyboard(self) -> str:
-        self._keyboard.clear(inline=True)
+        self._keyboard.clear()
         self._keyboard.add_line()
         self._keyboard.add_text_button("Преподаватель", "primary")
         self._keyboard.add_text_button("Студент", "primary")
@@ -52,9 +52,10 @@ class Vk:
         self._keyboard.add_text_button("Отмена", "negative")
         return self._keyboard.get_keyboard()
 
-    def get_empty_keyboard(self) -> str:
+    def get_empty_keyboard(self):
         self._keyboard.clear()
-        return VkKeyboard().get_keyboard()
+        self._keyboard.add_line()
+        return None
 
     @staticmethod
     def get_api_name() -> str:
@@ -65,9 +66,17 @@ class Vk:
             await self.send_message(element, peer_ids, keyboard)
 
     async def send_message(self, message: str, peer_ids: list, keyboard: str) -> None:
-        await self._api.messages.send(
-            message=message,
-            peer_ids=peer_ids,
-            random_id=randint(0, 4096),
-            keyboard=keyboard
-        )
+        if keyboard is not None:
+            await self._api.messages.send(
+                message=message,
+                peer_ids=peer_ids,
+                random_id=randint(0, 4096),
+                keyboard=keyboard
+            )
+        else:
+            await self._api.messages.send(
+                message=message,
+                peer_ids=peer_ids,
+                random_id=randint(0, 4096)
+            )
+

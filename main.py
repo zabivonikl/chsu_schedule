@@ -73,7 +73,7 @@ async def get_webhook(request):
 @routes.get('/telegram/webhook/set')
 async def set_webhook(request):
     response = await telegram_api.set_webhook(
-            f"{request.url.scheme}://{request.url.host}/telegram/callback"
+            f"https://{request.url.host}/telegram/callback"
         )
     return web.Response(status=response['status'], text=response['text'])
 

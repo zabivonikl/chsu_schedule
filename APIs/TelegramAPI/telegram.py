@@ -74,8 +74,9 @@ class Telegram:
             params = {
                 "chat_id": peer_id,
                 "text": message,
-                "reply_markup": keyboard
             }
+            if keyboard is not None:
+                params["reply_markup"] = keyboard
             await self._call_get_method("sendMessage", params)
 
     async def set_webhook(self, url):
@@ -83,7 +84,7 @@ class Telegram:
         if response["ok"]:
             return {"status": 200, "text": url}
         else:
-            return {"status": response['error_code'], "text": response['description']}
+            return {"status": response['error_code'], "text": f"{response['description']}\nUrl: {url}"}
 
     async def delete_webhook(self):
         response = await self._call_get_method("deleteWebhook")
