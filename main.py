@@ -117,7 +117,7 @@ async def mailing():
 if __name__ == "__main__":
     # init services
     chsu_api = ChsuApi(event_loop)
-    mongo_db_api = MongoDB()
+    mongo_db_api = MongoDB(tokens.MONGO_DB_LOGIN, tokens.MONGO_DB_PASSWORD, tokens.MONGO_DB_NAME)
 
     # init messangers
     vk_api = Vk(tokens.VK_API, event_loop)

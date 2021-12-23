@@ -111,8 +111,10 @@ class EventHandler:
 
     async def _get_schedule(self, from_id, start_date, last_date=None):
         try:
-            db_response = await self._database.get_user_data(from_id, self._chat_platform.get_api_name())
-            if db_response["group_name"]:
+            db_response = await self._database.get_user_data(
+                from_id, self._chat_platform.get_api_name(), self._current_date
+            )
+            if "group_name" in db_response:
                 response = await self._chsu_api.get_schedule(
                     university_id=int(self._id_by_groups[db_response["group_name"]]),
                     start_date=start_date,
