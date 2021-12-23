@@ -68,8 +68,9 @@ class EventHandler:
         elif match(r'^(0\d|1\d|2[0-3])[:][0-5]\d$', text):
             await self._set_mailing_time(from_id, text)
         else:
-            await self._chat_platform.send_message("Такой команды нет. Проверьте правильность ввода.", [from_id],
-                                                   self._standard_kb)
+            await self._chat_platform.send_message(
+                "Такой команды нет. Проверьте правильность ввода.", [from_id], self._standard_kb
+            )
 
     async def _send_message_to_admins(self, message, from_id):
         await self._chat_platform.send_message(
@@ -101,7 +102,7 @@ class EventHandler:
         start_date = start_date_string.split('-')[0] + f".{self._current_date.year}"
         end_date = None
         if end_date_string:
-            if end_date_string[3] < start_date_string[3]:
+            if int(end_date_string[3:5]) < int(start_date_string[3:5]):
                 end_date = end_date_string + f".{self._current_date.year + 1}"
             else:
                 end_date = end_date_string + f".{self._current_date.year}"
