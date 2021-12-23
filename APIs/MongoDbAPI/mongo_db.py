@@ -22,7 +22,7 @@ class MongoDB:
             return "not working"
 
     async def get_user_data(self, platform_id, api_name, time):
-        last_request = time.strftime("%H:%M:%S")
+        last_request = time.strftime("%d.%m.%Y %H:%M:%S")
         bot_user = await self._users_collection.find_one_and_update(
             {
                 "id": platform_id,

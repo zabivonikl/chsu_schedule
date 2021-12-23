@@ -24,7 +24,7 @@ def get_time(tz=3):
 async def index(request):
     return web.Response(text=json.dumps({
         "Server": "working",
-        "Server time:": get_time().strftime("%H:%M"),
+        "Server datetime:": get_time().strftime("%d.%m.%Y %H:%M"),
         f'CHSU API': f'{await chsu_api.get_status()}',
         f'Database': f'{await mongo_db_api.get_status()}',
         f'VK': f'{await vk_api.get_status()}',
