@@ -131,9 +131,9 @@ class EventHandler:
                     last_date=last_date
                 )
                 if response:
-                    return await self._schedule.parse_json("professor", response)
+                    return self._schedule.parse_json("professor", response)
                 else:
-                    return await self._schedule.get_empty_response()
+                    return self._schedule.get_empty_response()
         except MongoDBEmptyRespException:
             return [
                 "Пользователь не найден. "
