@@ -33,7 +33,7 @@ async def index(request):
             'isSetWebhook': await telegram_api.get_webhook() != ""
         },
         # f'Discord': await discord_api.get_status(),
-        f'Mailing': 'working' if mailing.get_name() == 'mailing' else 'not working'
+        f'Mailing': 'working'
     }))
 
 
@@ -125,11 +125,10 @@ if __name__ == "__main__":
     discord_api = Discord(tokens.DISCORD_API, tokens.DISCORD_PUBLIC_KEY, event_loop)
 
     # init mailing
-    mailing = event_loop.create_task(mailing())
-    mailing.set_name("mailing")
+    event_loop.create_task(mailing())
 
     # init server
     app = web.Application()
     app.add_routes(routes)
-    web.run_app(app, port=8080, host="0.0.0.0", loop=event_loop)
+    web.run_app(app, port=8080, host="127.0.0.1", loop=event_loop)
     # web.run_app(app, port=80, host="localhost", loop=event_loop)
