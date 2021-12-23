@@ -69,14 +69,15 @@ async def get_webhook(request):
     return web.Response(text=await telegram_api.get_webhook())
 
 
-@routes.get('/telegram/webhook/set')
+@routes.get('/telegram/webhook/set/{url}')
 async def set_webhook(request):
-    if "data" in request.query:
-        return web.Response(text=f"ok\n{request.query['data']}")
-    if "ip" in request.query:
-        return web.Response(
-            status=200 if await telegram_api.set_webhook(request.query['ip'] + "/telegram/callback") else 500,
-            text='ok')
+    return web.Response(
+        status=200 if await telegram_api.set_webhook(
+            f"https://{request.match_info['url']}/telegram/callback"
+        ) else 500,
+        text=json.dumps({
+            "url": f"https://{request.match_info['url']}/telegram/callback"
+        }))
 
 
 @routes.get('/telegram/webhook/remove')
