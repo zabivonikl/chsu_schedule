@@ -129,14 +129,14 @@ class EventHandler:
         if event['text'] != "Расписание на сегодня":
             await self._handle_schedule_for_tomorrow(event)
         else:
-            event['text'] = event['time'].strftime('%d.%m')
+            event['text'] = self._current_date.strftime('%d.%m')
             await self._handle_date(event)
 
     async def _handle_schedule_for_tomorrow(self, event):
         if event['text'] != "Расписание на завтра":
             await self._handle_another_events(event)
         else:
-            event['text'] = (event['time'] + timedelta(days=1)).strftime('%d.%m')
+            event['text'] = (self._current_date + timedelta(days=1)).strftime('%d.%m')
             await self._handle_date(event)
 
     async def _handle_another_events(self, event):
