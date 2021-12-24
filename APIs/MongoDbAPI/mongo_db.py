@@ -22,7 +22,6 @@ class MongoDB:
             return "not working"
 
     async def get_user_data(self, platform_id, api_name, time):
-        last_request = time.strftime("%Y.%m.%d %H:%M:%S")
         bot_user = await self._users_collection.find_one_and_update(
             {
                 "id": platform_id,
@@ -32,7 +31,7 @@ class MongoDB:
                     "request_count": 1
                 },
                 "$set": {
-                    "last_request_time": last_request
+                    "last_request_time": time
                 }
             },
             upsert=True
