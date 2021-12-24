@@ -38,7 +38,9 @@ class ScheduleParser:
         return f"{self._couple['startTime']}-{self._couple['endTime']}\n"
 
     def _get_discipline_string(self):
-        return f"{self._couple['abbrlessontype'] or ''}., {self._couple['discipline']['title']}\n"
+        if self._couple["abbrlessontype"]:
+            self._couple["abbrlessontype"] += "., "
+        return f'''{self._couple["abbrlessontype"] or ''}{self._couple['discipline']['title']}\n'''
 
     def _get_professors_names(self):
         response = ""
