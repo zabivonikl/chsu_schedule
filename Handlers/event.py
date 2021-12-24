@@ -1,7 +1,7 @@
 from datetime import timedelta
 from re import match
 
-from Wrappers.MongoDb import EmptyResponse as MongoDBEmptyRespException
+from Wrappers.MongoDb.exceptions import EmptyResponse as MongoDBEmptyRespException
 from Handlers.schedule import ScheduleParser
 
 
