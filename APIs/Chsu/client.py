@@ -1,8 +1,8 @@
-from APIs.ChsuAPI.chsu_exceptions import InvalidChsuId, InvalidApiKey
-from Wrappers.AIOHttpWrapper import AIOHttpWrapper
+from APIs.Chsu.exceptions import InvalidChsuId, InvalidApiKey
+from Wrappers.AIOHttp.aiohttp import AIOHttpWrapper
 
 
-class ChsuApi:
+class Chsu:
     def __init__(self, event_loop):
         self._client = AIOHttpWrapper(event_loop)
         self._base_url = "http://api.chsu.ru/api/"

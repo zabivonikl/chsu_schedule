@@ -1,7 +1,7 @@
 from nacl.signing import VerifyKey
 from nacl.exceptions import BadSignatureError
 
-from Wrappers.AIOHttpWrapper import AIOHttpWrapper
+from Wrappers.AIOHttp.aiohttp import AIOHttpWrapper
 
 
 class Discord:

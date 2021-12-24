@@ -5,12 +5,12 @@ from datetime import datetime, timezone, timedelta
 from aiohttp import web
 
 import tokens
-from APIs.ChsuAPI.chsu import ChsuApi
-from APIs.DiscordAPI.discord import Discord
-from APIs.MongoDbAPI.mongo_db import MongoDB
-from APIs.TelegramAPI.telegram import Telegram
-from APIs.VkAPI.vk import Vk
-from DataHandlers.event_handler import EventHandler
+from APIs.Chsu.client import Chsu
+from APIs.Discord.client import Discord
+from APIs.Telegram.client import Telegram
+from APIs.Vk.client import Vk
+from Wrappers.MongoDb.database import MongoDB
+from Handlers.event import EventHandler
 
 routes = web.RouteTableDef()
 event_loop = asyncio.get_event_loop()
@@ -116,7 +116,7 @@ async def mailing():
 
 if __name__ == "__main__":
     # init services
-    chsu_api = ChsuApi(event_loop)
+    chsu_api = Chsu(event_loop)
     mongo_db_api = MongoDB(tokens.MONGO_DB_LOGIN, tokens.MONGO_DB_PASSWORD, tokens.MONGO_DB_NAME)
 
     # init messangers

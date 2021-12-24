@@ -1,8 +1,8 @@
 from datetime import timedelta
 from re import match
 
-from APIs.MongoDbAPI.mongo_db_exceptions import EmptyResponse as MongoDBEmptyRespException
-from DataHandlers.schedule_parser import ScheduleParser
+from Wrappers.MongoDb import EmptyResponse as MongoDBEmptyRespException
+from Handlers.schedule import ScheduleParser
 
 
 class EventHandler:

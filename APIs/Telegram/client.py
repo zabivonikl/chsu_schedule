@@ -1,5 +1,5 @@
-from APIs.TelegramAPI.telegram_keyboard import TelegramKeyboard
-from Wrappers.AIOHttpWrapper import AIOHttpWrapper
+from APIs.Telegram.keyboard import TelegramKeyboard
+from Wrappers.AIOHttp.aiohttp import AIOHttpWrapper
 
 
 class Telegram:

@@ -4,7 +4,7 @@ from aiovk import TokenSession, API
 from aiovk.drivers import HttpDriver
 from aiovk.exceptions import VkAPIError
 
-from APIs.VkAPI.vk_keyboard import VkKeyboard
+from APIs.Vk.keyboard import VkKeyboard
 
 
 class Vk:

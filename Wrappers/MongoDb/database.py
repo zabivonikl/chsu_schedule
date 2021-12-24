@@ -1,6 +1,6 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 
-from APIs.MongoDbAPI.mongo_db_exceptions import EmptyResponse
+from Wrappers.MongoDb.exceptions import EmptyResponse
 
 
 class MongoDB:
