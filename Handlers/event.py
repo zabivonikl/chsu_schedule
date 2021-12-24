@@ -18,9 +18,8 @@ class EventHandler:
 
     async def handle_event(self, event):
         self._current_date = event['time']
-        if self._id_by_professors is None or self._id_by_groups is None:
-            self._id_by_professors = await self._chsu_api.get_id_by_professors_list()
-            self._id_by_groups = await self._chsu_api.get_id_by_groups_list()
+        self._id_by_professors = await self._chsu_api.get_id_by_professors_list()
+        self._id_by_groups = await self._chsu_api.get_id_by_groups_list()
 
         if event['text'] not in ['Начать', "/start", "Изменить группу"]:
             await self._handle_message_to_admin(event)
