@@ -44,10 +44,11 @@ async def vk_event(request):
         return web.Response(text=request.match_info['returnable'])
     event = {
         'from_id': data['object']['message']['from_id'],
-        'text': data['object']['message']['text']
+        'text': data['object']['message']['text'],
+        'time': get_time()
     }
     if "X-Retry-Counter" not in request.headers:
-        await EventHandler(vk_api, mongo_db_api, chsu_api).handle_event(event, get_time())
+        await EventHandler(vk_api, mongo_db_api, chsu_api).handle_event(event)
     return web.Response(text="ok")
 
 
@@ -57,9 +58,10 @@ async def telegram_event(request):
     try:
         event = {
             "from_id": data['message']['from']['id'],
-            "text": data['message']['text']
+            "text": data['message']['text'],
+            'time': get_time()
         }
-        await EventHandler(telegram_api, mongo_db_api, chsu_api).handle_event(event, get_time())
+        await EventHandler(telegram_api, mongo_db_api, chsu_api).handle_event(event)
         return web.Response(text="ok")
     except KeyError:
         return web.Response(text="ok")
@@ -104,13 +106,15 @@ async def mailing():
             if user[1] == telegram_api.get_api_name():
                 await EventHandler(telegram_api, mongo_db_api, chsu_api).handle_event({
                     "from_id": user[0],
-                    "text": "Расписание на завтра"
-                }, get_time())
+                    "text": "Расписание на завтра",
+                    'time': get_time()
+                })
             elif user[1] == vk_api.get_api_name():
                 await EventHandler(vk_api, mongo_db_api, chsu_api).handle_event({
                     "from_id": user[0],
-                    "text": "Расписание на завтра"
-                }, get_time())
+                    "text": "Расписание на завтра",
+                    'time': get_time()
+                })
         await asyncio.sleep(60)
 
 
