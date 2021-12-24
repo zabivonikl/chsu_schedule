@@ -102,11 +102,9 @@ class EventHandler:
         start_date = start_date_string.split('-')[0] + f".{self._current_date.year}"
         end_date = None
         if end_date_string:
-            if int(end_date_string[3:5]) < int(start_date_string[3:5]):
-                end_date = end_date_string + f".{self._current_date.year + 1}"
-            else:
-                end_date = end_date_string + f".{self._current_date.year}"
-
+            end_date = end_date_string + f".{self._current_date.year + 1}"\
+                if int(end_date_string[3:5]) < int(start_date_string[3:5])\
+                else f".{self._current_date.year}"
         return [start_date, end_date]
 
     async def _get_schedule(self, from_id, start_date, last_date=None):
@@ -115,25 +113,13 @@ class EventHandler:
                 from_id, self._chat_platform.get_api_name(), self._current_date
             )
             if "group_name" in db_response:
-                response = await self._chsu_api.get_schedule(
-                    university_id=int(self._id_by_groups[db_response["group_name"]]),
-                    start_date=start_date,
-                    last_date=last_date
-                )
-                if response:
-                    return self._schedule.parse_json("student", response)
-                else:
-                    return self._schedule.get_empty_response()
+                university_id = int(self._id_by_groups[db_response["group_name"]])
+                user_type = "student"
             else:
-                response = await self._chsu_api.get_schedule(
-                    university_id=int(self._id_by_professors[db_response["professor_name"]]),
-                    start_date=start_date,
-                    last_date=last_date
-                )
-                if response:
-                    return self._schedule.parse_json("professor", response)
-                else:
-                    return self._schedule.get_empty_response()
+                university_id = int(self._id_by_professors[db_response["professor_name"]])
+                user_type = "professor"
+            response = await self._chsu_api.get_schedule(university_id, start_date, last_date)
+            return self._schedule.parse_json(user_type, response) if response else self._schedule.get_empty_response()
         except MongoDBEmptyRespException:
             return [
                 "Пользователь не найден. "
