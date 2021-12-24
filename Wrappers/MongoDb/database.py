@@ -22,8 +22,7 @@ class MongoDB:
             return "not working"
 
     async def get_user_data(self, platform_id, api_name, time):
-        bot_user = await self._users_collection.find_one_and_update(
-            {
+        bot_user = await self._users_collection.find_one_and_update({
                 "id": platform_id,
                 "platform": api_name
             }, {
@@ -33,9 +32,7 @@ class MongoDB:
                 "$set": {
                     "last_request_time": time
                 }
-            },
-            upsert=True
-        )
+            }, upsert=True)
         if bot_user is None:
             raise EmptyResponse
         return {
