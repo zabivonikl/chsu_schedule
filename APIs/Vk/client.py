@@ -24,6 +24,10 @@ class Vk:
             return f"Error {err.error_code}: {err.error_msg}"
 
     @staticmethod
+    def get_api_name() -> str:
+        return "vk"
+
+    @staticmethod
     def get_admins() -> list:
         return [447828812, 284737850, 113688146]
 
@@ -56,10 +60,6 @@ class Vk:
         self._keyboard.clear()
         self._keyboard.add_line()
         return None
-
-    @staticmethod
-    def get_api_name() -> str:
-        return "vk"
 
     async def send_message_queue(self, queue: list, peer_ids: list, keyboard: str) -> None:
         for element in queue:

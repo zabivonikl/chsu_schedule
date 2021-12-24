@@ -94,11 +94,11 @@ class EventHandler:
         await self._chat_platform.send_message("Данные сохранены\n", [from_id], self._standard_kb)
 
     async def _handle_custom_date(self, from_id, start_date, end_date=None):
-        dates = self.__get_full_date(start_date, end_date)
+        dates = self._get_full_date(start_date, end_date)
         resp = await self._get_schedule(from_id, dates[0], dates[1])
         await self._chat_platform.send_message_queue(resp, [from_id], self._standard_kb)
 
-    def __get_full_date(self, start_date_string, end_date_string=None):
+    def _get_full_date(self, start_date_string, end_date_string=None):
         start_date = start_date_string.split('-')[0] + f".{self._current_date.year}"
         end_date = None
         if end_date_string:

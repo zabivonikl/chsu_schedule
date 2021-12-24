@@ -9,15 +9,7 @@ class Telegram:
         self._keyboard = TelegramKeyboard()
 
     async def get_status(self):
-        return (await self.get_me())['ok']
-
-    async def get_webhook(self):
-        data = await self._call_get_method("getWebhookInfo")
-        if "result" in data:
-            return data["result"]["url"]
-
-    async def get_me(self):
-        return await self._call_get_method("getMe")
+        return (await self._call_get_method("getMe"))['ok']
 
     @staticmethod
     def get_api_name():
@@ -56,15 +48,6 @@ class Telegram:
     def get_empty_keyboard():
         return None
 
-    async def _call_get_method(self, method_name, params=None):
-        try:
-            return await self._client.get(f"{self._bot_link}/{method_name}", params=params)
-        except Exception as e:
-            print(e)
-
-    async def _call_post_method(self, method_name: str, json: dict = None):
-        return await self._client.post(f"{self._bot_link}/{method_name}", json=json)
-
     async def send_message_queue(self, queue, peer_ids, keyboard):
         for element in queue:
             await self.send_message(element, peer_ids, keyboard)
@@ -79,6 +62,11 @@ class Telegram:
                 params["reply_markup"] = keyboard
             await self._call_get_method("sendMessage", params)
 
+    async def get_webhook(self):
+        data = await self._call_get_method("getWebhookInfo")
+        if "result" in data:
+            return data["result"]["url"]
+
     async def set_webhook(self, url):
         response = await self._call_get_method("setWebhook", {"url": url})
         if response["ok"]:
@@ -91,3 +79,12 @@ class Telegram:
         if response:
             return
         raise ConnectionError("Error of installation webhook")
+
+    async def _call_get_method(self, method_name, params=None):
+        try:
+            return await self._client.get(f"{self._bot_link}/{method_name}", params=params)
+        except Exception as e:
+            print(e)
+
+    async def _call_post_method(self, method_name: str, json: dict = None):
+        return await self._client.post(f"{self._bot_link}/{method_name}", json=json)
