@@ -14,6 +14,7 @@ from Handlers.event import EventHandler
 
 routes = web.RouteTableDef()
 event_loop = asyncio.get_event_loop()
+mailing_is_started = False
 
 
 def get_time(tz=3):
@@ -24,7 +25,8 @@ def get_time(tz=3):
 async def index(request):
     return web.Response(text=json.dumps({
         "Server": "working",
-        "Server datetime:": get_time().strftime("%d.%m.%Y %H:%M"),
+        "Server datetime:": get_time().strftime("%d.%m.%Y %H:%M:%S.%f"),
+        "Server start datetime:": start_time.strftime("%d.%m.%Y %H:%M:%S.%f"),
         f'CHSU API': f'{await chsu_api.get_status()}',
         f'Database': f'{await mongo_db_api.get_status()}',
         f'VK': f'{await vk_api.get_status()}',
@@ -100,6 +102,9 @@ async def discord_event(request):
 
 
 async def mailing():
+    while get_time().second != 0:
+        await asyncio.sleep(.5)
+    print(f'Mailing started at: {get_time().strftime("%d.%m.%Y %H:%M:%S.%f")}')
     while True:
         users = await mongo_db_api.get_mailing_subscribers_by_time(get_time().strftime("%H:%M"))
         for user in users:
@@ -119,19 +124,28 @@ async def mailing():
 
 
 if __name__ == "__main__":
+    start_time = get_time()
+    print(f"Start time: {start_time.strftime('%d.%m.%Y %H:%M:%S.%f')}")
+
     # init services
+    print("Starting services...")
     chsu_api = Chsu(event_loop)
     mongo_db_api = MongoDB(tokens.MONGO_DB_LOGIN, tokens.MONGO_DB_PASSWORD, tokens.MONGO_DB_NAME)
+    print("Done")
 
     # init messangers
+    print("Starting messangers...")
     vk_api = Vk(tokens.VK_API, event_loop)
     telegram_api = Telegram(tokens.TELEGRAM_API, event_loop)
     discord_api = Discord(tokens.DISCORD_API, tokens.DISCORD_PUBLIC_KEY, event_loop)
+    print("Done")
 
     # init mailing
+    print("Starting mailing...")
     event_loop.create_task(mailing())
 
     # init server
+    print("Starting web app...")
     app = web.Application()
     app.add_routes(routes)
     web.run_app(app, port=8080, host="127.0.0.1", loop=event_loop)

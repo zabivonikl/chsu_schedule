@@ -83,7 +83,10 @@ class Chsu:
             f"{self._base_url}auth/signin",
             self._login_and_password,
             self._base_headers
-        ))['data']
-        if token is None:
-            raise InvalidApiKey
-        self._base_headers["Authorization"] = f'''Bearer {token}'''
+        ))
+        if 'data' in token:
+            if token is None:
+                raise InvalidApiKey
+            self._base_headers["Authorization"] = f'''Bearer {token}'''
+        else:
+            print(token)
