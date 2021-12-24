@@ -30,12 +30,14 @@ class EventHandler:
             await self._chat_platform.send_message("Кто вы?", [event['from_id']], kb)
 
     async def _handle_message_to_admin(self, event):
-        if event['text'][0] != ';':
+        if event['text'] and event['text'][0] != ';':
             await self._handle_choice_professor(event)
         else:
             kb = self._chat_platform.get_standard_keyboard()
             await self._chat_platform.send_message(
-                f"Сообщение от {event['from_id']}: {event['text']}", self._chat_platform.get_admins(), kb
+                f"Сообщение от {event['from_id']}: {event['text'][1:]}\n\n"
+                f"Для ответа используйте \"!{event['from_id']}: %сообщение%\"",
+                self._chat_platform.get_admins(), kb
             )
             await self._chat_platform.send_message(f"Сообщение отправлено", [event['from_id']], kb)
 
@@ -134,10 +136,27 @@ class EventHandler:
 
     async def _handle_schedule_for_tomorrow(self, event):
         if event['text'] != "Расписание на завтра":
-            await self._handle_another_events(event)
+            await self._send_message_from_admin(event)
         else:
             event['text'] = (self._current_date + timedelta(days=1)).strftime('%d.%m')
             await self._handle_date(event)
+
+    async def _send_message_from_admin(self, event):
+        if len(event['text']) == 0 or event['text'][0] != "!":
+            await self._handle_another_events(event)
+
+        else:
+            to_id = int(event['text'].split(':')[0][1:])
+            message = event['text'].split(':')[1]
+            kb = self._chat_platform.get_standard_keyboard()
+            await self._chat_platform.send_message(
+                f"Сообщение отправлено",
+                [event['from_id']], kb
+            )
+            await self._chat_platform.send_message(
+                f"Сообщение от администратора: {message}\n\n"
+                f"Для ответа используйте \";\" в начале сообщения", [to_id], kb
+            )
 
     async def _handle_another_events(self, event):
         kb = self._chat_platform.get_standard_keyboard()
