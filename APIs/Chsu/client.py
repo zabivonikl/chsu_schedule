@@ -87,6 +87,6 @@ class Chsu:
         if 'data' in token:
             if token is None:
                 raise InvalidApiKey
-            self._base_headers["Authorization"] = f'''Bearer {token}'''
+            self._base_headers["Authorization"] = f'''Bearer {token['data']}'''
         else:
             print(token)
