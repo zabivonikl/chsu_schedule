@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, date
 from re import match
 
 from Wrappers.MongoDb.exceptions import EmptyResponse as MongoDBEmptyRespException
@@ -152,13 +152,18 @@ class EventHandler:
         await self._chat_platform.send_message_queue(resp, [from_id], kb)
 
     def _get_full_date(self, start_date_string, end_date_string=None):
-        start_date = start_date_string.split('-')[0] + f".{self._current_date.year}"
-        end_date = None
         if end_date_string:
-            end_date = end_date_string + f".{self._current_date.year + 1}"\
-                if int(end_date_string[3:5]) < int(start_date_string[3:5])\
-                else end_date_string + f".{self._current_date.year}"
-        return [start_date, end_date]
+            first_date = date(
+                self._current_date.year, int(start_date_string.split('.')[1]), int(start_date_string.split('.')[0])
+            )
+            second_date = date(
+                self._current_date.year, int(end_date_string.split('.')[1]), int(end_date_string.split('.')[0])
+            )
+            if (second_date - first_date).days < 0:
+                second_date = date(second_date.year + 1, second_date.month, second_date.day)
+            return [first_date.strftime("%d.%m.%Y"), second_date.strftime("%d.%m.%Y")]
+        else:
+            return [f"{start_date_string}.{self._current_date.year}", None]
 
     async def _get_schedule(self, from_id, start_date, last_date=None):
         try:
