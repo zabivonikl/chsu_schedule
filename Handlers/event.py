@@ -35,7 +35,7 @@ class EventHandler:
         else:
             kb = self._chat_platform.get_standard_keyboard()
             await self._chat_platform.send_message(
-                f"Сообщение от {event['from_id']}: {event['text'][1:]}\n\n"
+                f"Сообщение от пользователя: {event['text'][1:]}\n\n"
                 f"Для ответа используйте \"!{event['from_id']}: %сообщение%\"",
                 self._chat_platform.get_admins(), kb
             )
