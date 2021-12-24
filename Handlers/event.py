@@ -1,4 +1,4 @@
-from datetime import timedelta, date
+from datetime import timedelta, datetime
 from re import match
 
 from Wrappers.MongoDb.exceptions import EmptyResponse as MongoDBEmptyRespException
@@ -153,15 +153,10 @@ class EventHandler:
 
     def _get_full_date(self, start_date_string, end_date_string=None):
         if end_date_string:
-            first_date = date(
-                self._current_date.year, int(start_date_string.split('.')[1]), int(start_date_string.split('.')[0])
-            )
-            second_date = date(
-                self._current_date.year, int(end_date_string.split('.')[1]), int(end_date_string.split('.')[0])
-            )
-            if (second_date - first_date).days < 0:
-                second_date = date(second_date.year + 1, second_date.month, second_date.day)
-            return [first_date.strftime("%d.%m.%Y"), second_date.strftime("%d.%m.%Y")]
+            first_date = datetime.strptime(f"{start_date_string}.{self._current_date.year}", "%d.%m.%Y")
+            second_date = datetime.strptime(f"{end_date_string}.{self._current_date.year}", "%d.%m.%Y")
+            year = self._current_date.year + 1 if (second_date - first_date).days < 0 else self._current_date.year
+            return [f"{start_date_string}.{self._current_date.year}", f"{end_date_string}.{year}"]
         else:
             return [f"{start_date_string}.{self._current_date.year}", None]
 
