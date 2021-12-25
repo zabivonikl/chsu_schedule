@@ -23,16 +23,23 @@ class MongoDB:
 
     async def get_user_data(self, platform_id, api_name, time):
         bot_user = await self._users_collection.find_one_and_update({
-                "id": platform_id,
-                "platform": api_name
-            }, {
-                "$inc": {
-                    "request_count": 1
-                },
-                "$set": {
-                    "last_request_time": time
+            "id": platform_id,
+            "platform": api_name
+        }, {
+            "$push": {
+                "requests_time": {
+                    "$each": [time],
+                    "$sort": {"requests_time": -1},
+                    "$slice": 50
                 }
-            }, upsert=True)
+                },
+            "$inc": {
+                "request_count": 1
+            },
+            "$unset": {
+                "last_request_time": 1
+            }
+        }, upsert=True)
         if bot_user is None:
             raise EmptyResponse
         return {

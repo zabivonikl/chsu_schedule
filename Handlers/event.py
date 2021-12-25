@@ -171,7 +171,7 @@ class EventHandler:
 
     def _get_full_date(self, start_date_string, end_date_string=None):
         first_date = datetime.strptime(f"{start_date_string}.{self._current_date.year}", "%d.%m.%Y")
-        if (first_date - self._current_date.replace(tzinfo=None)).days < 0:
+        if (first_date - self._current_date.replace(tzinfo=None)).days < 0 and first_date.month <= 6:
             first_date = datetime(
                 year=first_date.year + 1,
                 month=first_date.month,
