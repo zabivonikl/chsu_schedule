@@ -170,13 +170,24 @@ class EventHandler:
         await self._chat_platform.send_message_queue(resp, [from_id], kb)
 
     def _get_full_date(self, start_date_string, end_date_string=None):
+        first_date = datetime.strptime(f"{start_date_string}.{self._current_date.year}", "%d.%m.%Y")
+        if (first_date - self._current_date.replace(tzinfo=None)).days < 0:
+            first_date = datetime(
+                year=first_date.year + 1,
+                month=first_date.month,
+                day=first_date.day
+            )
         if end_date_string:
-            first_date = datetime.strptime(f"{start_date_string}.{self._current_date.year}", "%d.%m.%Y")
             second_date = datetime.strptime(f"{end_date_string}.{self._current_date.year}", "%d.%m.%Y")
-            year = self._current_date.year + 1 if (second_date - first_date).days < 0 else self._current_date.year
-            return [f"{start_date_string}.{self._current_date.year}", f"{end_date_string}.{year}"]
+            if (second_date - first_date).days < 0:
+                second_date = datetime(
+                    year=second_date.year + 1,
+                    month=second_date.month,
+                    day=second_date.day
+                )
+            return [first_date.strftime("%d.%m.%Y"), second_date.strftime("%d.%m.%Y")]
         else:
-            return [f"{start_date_string}.{self._current_date.year}", None]
+            return [first_date.strftime("%d.%m.%Y"), None]
 
     async def _get_schedule(self, from_id, start_date, last_date=None):
         try:
