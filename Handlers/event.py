@@ -35,32 +35,32 @@ class EventHandler:
             kb = self._chat_platform.get_standard_keyboard()
             await self._chat_platform.send_message(
                 f"Сообщение от пользователя: {event['text'][1:]}\n\n"
-                f"Для ответа используйте \"!{event['from_id']}: %сообщение%\"",
+                f"Для ответа используйте \"!{event['from_id']}: %сообщение%\".",
                 self._chat_platform.get_admins(), kb
             )
-            await self._chat_platform.send_message(f"Сообщение отправлено", [event['from_id']], kb)
+            await self._chat_platform.send_message(f"Сообщение отправлено.", [event['from_id']], kb)
 
     async def _handle_choice_professor(self, event):
         if event['text'] != 'Преподаватель':
             await self._handle_choice_group(event)
         else:
             kb = self._chat_platform.get_empty_keyboard()
-            await self._chat_platform.send_message(f"Введите ФИО", [event['from_id']], kb)
+            await self._chat_platform.send_message(f"Введите ФИО.", [event['from_id']], kb)
 
     async def _handle_choice_group(self, event):
         if event['text'] != 'Студент':
             await self._handle_schedule_for_another_day(event)
         else:
             kb = self._chat_platform.get_empty_keyboard()
-            await self._chat_platform.send_message(f"Введите номер группы", [event['from_id']], kb)
+            await self._chat_platform.send_message(f"Введите номер группы.", [event['from_id']], kb)
 
     async def _handle_schedule_for_another_day(self, event):
         if event['text'] != "Расписание на другой день":
             await self._handle_cancel(event)
         else:
             kb = self._chat_platform.get_canceling_keyboard()
-            text = "Введите дату\n\nПример: 08.02 - запрос расписания для конкретного дня\n" \
-                   "31.10-07.11 - запрос расписания для заданного интервала дат"
+            text = "Введите дату:\nПример: 08.02 - запрос расписания для конкретного дня.\n" \
+                   "31.10-07.11 - запрос расписания для заданного интервала дат."
             await self._chat_platform.send_message(text, [event['from_id']], kb)
 
     async def _handle_cancel(self, event):
@@ -111,7 +111,7 @@ class EventHandler:
                     event['from_id'], self._chat_platform.get_api_name(), group_name=event['text']
                 )
             kb = self._chat_platform.get_standard_keyboard()
-            await self._chat_platform.send_message("Данные сохранены\n", [event['from_id']], kb)
+            await self._chat_platform.send_message("Данные сохранены.\n", [event['from_id']], kb)
 
     async def _handle_double_date(self, event):
         regex = r'^(0[1-9]|1\d|2\d|3[0-1])[.](0[1-9]|1[0-2])-(0[1-9]|1\d|2\d|3[0-1]).(0[1-9]|1[0-2])$'
@@ -154,7 +154,7 @@ class EventHandler:
             )
             await self._chat_platform.send_message(
                 f"Сообщение от администратора: {message}\n\n"
-                f"Для ответа используйте \";\" в начале сообщения", [to_id], kb
+                f"Для ответа используйте \";\" в начале сообщения.", [to_id], kb
             )
 
     async def _handle_another_events(self, event):
@@ -196,7 +196,7 @@ class EventHandler:
             else:
                 return [
                     f"Произошла ошибка при запросе расписания: {response['error']}. "
-                    f"Пожалуйста, свяжитесь с администратором"
+                    f"Пожалуйста, свяжитесь с администратором."
                 ]
         except MongoDBEmptyRespException:
             return [

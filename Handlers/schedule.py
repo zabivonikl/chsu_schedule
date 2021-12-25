@@ -62,4 +62,4 @@ class ScheduleParser:
 
     @staticmethod
     def get_empty_response():
-        return ["На текущий промежуток времени расписание не найдено\n"]
+        return ["Расписание не найдено.\n"]
