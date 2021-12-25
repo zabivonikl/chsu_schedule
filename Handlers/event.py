@@ -190,8 +190,14 @@ class EventHandler:
                 university_id = int(self._id_by_professors[db_response["professor_name"]])
                 user_type = "professor"
             response = await self._chsu_api.get_schedule(university_id, start_date, last_date)
-            return ScheduleParser().parse_json(user_type, response) \
-                if response else ScheduleParser().get_empty_response()
+            if 'error' not in response:
+                return ScheduleParser().parse_json(user_type, response) \
+                    if response else ScheduleParser().get_empty_response()
+            else:
+                return [
+                    f"Произошла ошибка при запросе расписания: {response['error']}. "
+                    f"Пожалуйста, свяжитесь с администратором"
+                ]
         except MongoDBEmptyRespException:
             return [
                 "Пользователь не найден. "
