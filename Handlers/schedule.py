@@ -5,10 +5,14 @@ class ScheduleParser:
     def parse_json(self, id_type, json):
         self._nullify_fields()
         self._response_json = json
-        for self._couple in self._response_json:
-            self._split_if_another_day()
-            self._add_couple_to_string(id_type)
-        return self._response
+        try:
+            for self._couple in self._response_json:
+                self._split_if_another_day()
+                self._add_couple_to_string(id_type)
+            return self._response
+        except Exception as err:
+            print(err, self._response_json)
+            return [f"Ошибка обработки расписания. Попробуйте запросить его ещё раз или свяжитесь с администратором."]
 
     def _nullify_fields(self):
         self._response = []
