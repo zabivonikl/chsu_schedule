@@ -1,14 +1,16 @@
-class ScheduleParser:
-    def __init__(self):
-        self._response_json = None
-
-    def parse_json(self, id_type, json):
+class Schedule:
+    def __init__(self, id_type, json):
         self._nullify_fields()
         self._response_json = json
         for self._couple in self._response_json:
             self._split_if_another_day()
             self._add_couple_to_string(id_type)
-        return self._response
+
+    def __iter__(self):
+        return (i for i in self._response or ["Расписание не найдено.\n"])
+
+    def __len__(self):
+        return len(self._response)
 
     def _nullify_fields(self):
         self._response = []
@@ -59,7 +61,3 @@ class ScheduleParser:
 
     def _get_address(self):
         return f"{self._couple['build']['title']}, аудитория {self._couple['auditory']['title']}\n"
-
-    @staticmethod
-    def get_empty_response():
-        return ["Расписание не найдено.\n"]

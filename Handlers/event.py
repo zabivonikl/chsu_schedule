@@ -2,7 +2,6 @@ from datetime import timedelta, datetime
 from re import match
 
 from Wrappers.MongoDb.exceptions import EmptyResponse as MongoDBEmptyRespException
-from Handlers.schedule import ScheduleParser
 
 
 class EventHandler:
@@ -194,15 +193,11 @@ class EventHandler:
             db_response = await self._database.get_user_data(
                 from_id, self._chat_platform.get_api_name(), self._current_date
             )
-            if "group_name" in db_response:
-                university_id = int(self._id_by_groups[db_response["group_name"]])
-                user_type = "student"
-            else:
-                university_id = int(self._id_by_professors[db_response["professor_name"]])
-                user_type = "professor"
-            response = await self._chsu_api.get_schedule(university_id, start_date, last_date)
-            return ScheduleParser().parse_json(user_type, response) \
-                if response else ScheduleParser().get_empty_response()
+            university_id = int(
+                self._id_by_groups[db_response["group_name"]] if "group_name" in db_response
+                else self._id_by_professors[db_response["professor_name"]]
+            )
+            return await self._chsu_api.get_schedule_list_string(university_id, start_date, last_date)
         except ConnectionError as err:
             kb = self._chat_platform.get_standard_keyboard()
             await self._chat_platform.send_message(
