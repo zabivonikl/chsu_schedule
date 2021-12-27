@@ -28,13 +28,8 @@ class MongoDB:
         }, {
             "$push": {
                 "requests_time": {
-                    "$each": [time],
-                    "$sort": {"requests_time": -1},
-                    "$slice": 50
+                    "$each": [time]
                 }
-                },
-            "$inc": {
-                "request_count": 1
             },
             "$unset": {
                 "last_request_time": 1

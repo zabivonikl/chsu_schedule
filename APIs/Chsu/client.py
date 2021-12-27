@@ -24,11 +24,11 @@ class Chsu:
 
     async def get_status(self):
         response = await self._client.post(f"{self._base_url}auth/signin", self._login_and_password, self._base_headers)
-        return response['error'] or 'working'
+        return response['description'] or 'working'
 
     async def get_id_by_professors_list(self):
         if self._id_by_professors is None:
-            await self._set_new_token()
+            await self.set_new_token()
             teachers = await self._get_teachers_list()
             self._id_by_professors = {}
             for teacher in teachers:
@@ -37,7 +37,7 @@ class Chsu:
 
     async def get_professors_by_id_list(self):
         if self._professors_by_id is None:
-            await self._set_new_token()
+            await self.set_new_token()
             teachers = await self._get_teachers_list()
             self._professors_by_id = {}
             for teacher in teachers:
@@ -49,7 +49,7 @@ class Chsu:
 
     async def get_id_by_groups_list(self):
         if self._id_by_groups is None:
-            await self._set_new_token()
+            await self.set_new_token()
             groups = await self._get_groups_list()
             self._id_by_groups = {}
             for group in groups:
@@ -58,7 +58,7 @@ class Chsu:
 
     async def get_groups_by_id_list(self):
         if self._groups_by_id is None:
-            await self._set_new_token()
+            await self.set_new_token()
             groups = await self._get_groups_list()
             self._groups_by_id = {}
             for group in groups:
@@ -69,16 +69,21 @@ class Chsu:
         return await self._client.get(self._base_url + "/group/v1", headers=self._base_headers)
 
     async def get_schedule(self, university_id, start_date, last_date=None):
-        await self._set_new_token()
+        await self.set_new_token()
         if university_id in await self.get_groups_by_id_list():
             query = f"/timetable/v1/from/{start_date}/to/{last_date or start_date}/groupId/{university_id}/"
         elif university_id in await self.get_professors_by_id_list():
             query = f"/timetable/v1/from/{start_date}/to/{last_date or start_date}/lecturerId/{university_id}/"
         else:
             raise InvalidChsuId
-        return await self._client.get(self._base_url + query, headers=self._base_headers)
+        response = await self._client.get(self._base_url + query, headers=self._base_headers)
+        if 'code' in response:
+            print(self._base_headers)
+            raise ConnectionError(f"{response['code']}: {response['description']}")
+        else:
+            return response
 
-    async def _set_new_token(self):
+    async def set_new_token(self):
         token = (await self._client.post(
             f"{self._base_url}auth/signin",
             self._login_and_password,
