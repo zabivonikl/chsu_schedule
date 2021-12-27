@@ -207,7 +207,7 @@ class EventHandler:
             self._chsu_api.set_new_token()
             return [
                 f"Произошла ошибка при запросе расписания: {err}. "
-                f"Пожалуйста, свяжитесь с администратором."
+                f"Попробуйте хапросить его снова или свяжитесь с администратором."
             ]
         except MongoDBEmptyRespException:
             return [
