@@ -80,11 +80,11 @@ class Chsu:
         while True:
             if "Authorization" in self._headers:
                 self._headers.pop("Authorization")
-            response = (await self._client.post(
+            response = await self._client.post(
                 f"{self._base_url}auth/signin",
                 self._login_and_password,
                 self._headers
-            ))
+            )
             if 'data' in response:
                 self._headers["Authorization"] = f'''Bearer {response['data']}'''
                 print(self._headers)
