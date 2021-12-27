@@ -204,10 +204,13 @@ class EventHandler:
             return ScheduleParser().parse_json(user_type, response) \
                 if response else ScheduleParser().get_empty_response()
         except ConnectionError as err:
-            self._chsu_api.set_new_token()
+            kb = self._chat_platform.get_standard_keyboard()
+            await self._chat_platform.send_message(
+                f"У {from_id} произошла ошибка {err}.", self._chat_platform.get_admins(), kb
+            )
             return [
                 f"Произошла ошибка при запросе расписания: {err}. "
-                f"Попробуйте хапросить его снова или свяжитесь с администратором."
+                f"Попробуйте запросить его снова или свяжитесь с администратором."
             ]
         except MongoDBEmptyRespException:
             return [
