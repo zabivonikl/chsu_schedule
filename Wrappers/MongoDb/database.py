@@ -38,7 +38,7 @@ class MongoDB:
         }
 
     async def set_user_data(self, user_id, api_name, group_name=None, professor_name=None):
-        await self.update_check_changes(user_id, api_name)
+        await self.update_check_changes(user_id, api_name, False)
         await self._users_collection.find_one_and_delete({"id": user_id, "platform": api_name})
         request = {"id": user_id, "platform": api_name}
         if group_name:
@@ -65,7 +65,8 @@ class MongoDB:
             await self._groups_collection.find_one_and_update(find_params, {"$addToSet": request}, upsert=True)
         else:
             resp = await self._groups_collection.find_one_and_update(find_params, {"$pull": request}, upsert=True)
-            if len(resp['users']) == 1:
+            if resp and 'users' in resp and len(resp['users']) == 1 and \
+                    resp['users'][0]['id'] == user_data["id"] and resp['users'][0]['platform'] == user_data["platform"]:
                 self._groups_collection.delete_one(find_params)
 
     async def get_update_schedule_hashes(self, hashes: list, group_name: str):
