@@ -67,12 +67,12 @@ class MongoDB:
             if len(resp['users']) == 1:
                 self._groups_collection.delete_one(find_params)
 
-    async def update_schedule_hashes(self, hashes: list, group_name: str):
+    async def update_schedule_hashes(self, hashes: list, group_name: str, is_daily_update: bool):
         group = await self._groups_collection.find_one({"name": group_name})
         old_hash_object = sorted(group['hashes'], key=lambda schedule_hash_object: schedule_hash_object['time'])
-        return await self._get_difference_dates_and_update_hashes(old_hash_object, hashes, group_name)
+        return await self._get_difference_dates_and_update_hashes(old_hash_object, hashes, group_name, is_daily_update)
 
-    async def _get_difference_dates_and_update_hashes(self, old_hashes, new_hashes, group_name):
+    async def _get_difference_dates_and_update_hashes(self, old_hashes, new_hashes, group_name, is_daily_update):
         different_hashes = self._get_difference(old_hashes, new_hashes)
         different_hash_objects = list(filter(lambda date_hash: date_hash['hash'] in different_hashes, new_hashes))
         for different_hash_object in different_hash_objects:
@@ -80,7 +80,8 @@ class MongoDB:
                 {"name": group_name, "hashes.time": different_hash_object['time']},
                 {"$set": {"hashes.$.hash": different_hash_object['hash']}}
             )
-        dates = list(map(lambda date_and_hash: date_and_hash['time'], different_hash_objects))
+        dates = list(map(lambda date_and_hash: date_and_hash['time'], different_hash_objects))\
+            if not is_daily_update else []
         return list(map(lambda date: date.strftime("%d.%m.%Y"), dates))
 
     @staticmethod
