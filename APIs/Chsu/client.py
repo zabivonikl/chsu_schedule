@@ -1,4 +1,6 @@
 import asyncio
+import hashlib
+from datetime import datetime
 
 from APIs.Chsu.schedule import Schedule
 from Wrappers.AIOHttp.aiohttp import AIOHttpWrapper
@@ -88,7 +90,10 @@ class Chsu:
         response = []
         schedules = await self.get_schedule_list_string(university_id, start_date, last_date)
         for schedule in schedules:
-            response.append(hash(schedule))
+            response.append({
+                "time": datetime.strptime(schedule[20:30], "%d.%m.%Y"),
+                "hash": hashlib.sha256(schedule.encode()).hexdigest()
+            })
         return response
 
     async def get_schedule_list_string(self, university_id, start_date, last_date=None):

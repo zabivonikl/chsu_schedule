@@ -1,4 +1,3 @@
-from bson import DBRef, ObjectId
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from Wrappers.MongoDb.exceptions import EmptyResponse
@@ -40,10 +39,7 @@ class MongoDB:
 
     async def set_user_data(self, user_id, api_name, group_name=None, professor_name=None):
         await self._users_collection.find_one_and_delete({"id": user_id, "platform": api_name})
-        request = {
-            "id": user_id,
-            "platform": api_name
-        }
+        request = {"id": user_id, "platform": api_name}
         if group_name:
             request['group_name'] = group_name
         if professor_name:
@@ -60,23 +56,59 @@ class MongoDB:
             "platform": api_name,
         }, update_parameter)
 
-    async def update_check_changes(self, user_id, api_name, check_changes=False):
+    async def update_check_changes(self, user_id: int, api_name: str, check_changes=False) -> None:
         user_data = await self._users_collection.find_one({"id": user_id, "platform": api_name})
         request = {"users": {"id": user_data["id"], "platform": user_data["platform"]}}
+        find_params = {"name": user_data['group_name'] if "group_name" in user_data else user_data['professor_name']}
         if check_changes:
-            if "group_name" in user_data:
-                user_group = {"group_name": user_data['group_name']}
-            else:
-                user_group = {"professor_name": user_data['professor_name']}
-            await self._groups_collection.update_one(user_group, {"$addToSet": request}, upsert=True)
+            await self._groups_collection.update_one(find_params, {"$addToSet": request}, upsert=True)
         else:
-            if "group_name" in user_data:
-                user_group = {"group_name": user_data['group_name']}
-            else:
-                user_group = {"professor_name": user_data['professor_name']}
-            await self._groups_collection.update_one(user_group, {"$pull": request}, upsert=True)
+            resp = await self._groups_collection.find_one_and_update(find_params, {"$pull": request}, upsert=True)
+            if len(resp['users']) == 1:
+                self._groups_collection.delete_one(find_params)
 
-    async def get_mailing_subscribers_by_time(self, time):
+    async def update_schedule_hashes(self, hashes: list, group_name: str):
+        group = await self._groups_collection.find_one({"name": group_name})
+        old_hash_object = sorted(group['hashes'], key=lambda schedule_hash_object: schedule_hash_object['time'])
+        return await self._get_difference_dates_and_update_hashes(old_hash_object, hashes, group_name)
+
+    async def _get_difference_dates_and_update_hashes(self, old_hashes, new_hashes, group_name):
+        different_hashes = self._get_difference(old_hashes, new_hashes)
+        different_hash_objects = list(filter(lambda date_hash: date_hash['hash'] in different_hashes, new_hashes))
+        for different_hash_object in different_hash_objects:
+            await self._groups_collection.update_one(
+                {"name": group_name, "hashes.time": different_hash_object['time']},
+                {"$set": {"hashes.$.hash": different_hash_object['hash']}}
+            )
+        dates = list(map(lambda date_and_hash: date_and_hash['time'], different_hash_objects))
+        return list(map(lambda date: date.strftime("%d.%m.%Y"), dates))
+
+    @staticmethod
+    async def _get_difference(old_hashes, new_hashes):
+        old_hashes_list = list(map(lambda date_and_hash: date_and_hash['hash'], old_hashes))
+        new_hashes_list = list(map(lambda date_and_hash: date_and_hash['hash'], new_hashes))
+        return list(set(new_hashes_list) - set(old_hashes_list))
+
+    async def get_check_changes_members(self, group: str) -> list:
+        group_members = []
+        cursor = self._groups_collection.find({"name": group})
+        while await cursor.fetch_next:
+            user = cursor.next_object()
+            group_members.append(user['users'])
+        return group_members
+
+    async def get_groups_list(self) -> list:
+        group_names = []
+        cursor = self._groups_collection.find()
+        while await cursor.fetch_next:
+            group = cursor.next_object()
+            if "group_name" in group:
+                group_names.append(group['group_name'])
+            else:
+                group_names.append(group['professor_name'])
+        return group_names
+
+    async def get_mailing_subscribers_by_time(self, time) -> list:
         simplified_subscribers = []
         cursor = self._users_collection.find({"mailing_time": time})
         while await cursor.fetch_next:
