@@ -38,6 +38,7 @@ class MongoDB:
         }
 
     async def set_user_data(self, user_id, api_name, group_name=None, professor_name=None):
+        await self.update_check_changes(user_id, api_name)
         await self._users_collection.find_one_and_delete({"id": user_id, "platform": api_name})
         request = {"id": user_id, "platform": api_name}
         if group_name:
