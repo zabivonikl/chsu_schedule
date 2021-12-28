@@ -29,12 +29,12 @@ class Schedule:
         self._response.append(f'\n=====Расписание на {self._current_date}=====\n')
 
     def _add_couple_to_string(self, id_type):
-        self._response[len(self._response) - 1] += self._get_couple_time()
-        self._response[len(self._response) - 1] += self._get_discipline_string()
-        self._response[len(self._response) - 1] += self._get_professors_names() if id_type == 'student' \
+        self._response[-1] += self._get_couple_time()
+        self._response[-1] += self._get_discipline_string()
+        self._response[-1] += self._get_professors_names() if id_type == 'student' \
             else self._get_groups_names()
-        self._response[len(self._response) - 1] += self._get_location()
-        self._response[len(self._response) - 1] += "\n"
+        self._response[-1] += self._get_location()
+        self._response[-1] += "\n"
 
     def _get_couple_time(self):
         return f"{self._couple['startTime']}-{self._couple['endTime']}\n"

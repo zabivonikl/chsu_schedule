@@ -69,6 +69,11 @@ async def telegram_event(request):
         return web.Response(text="ok")
 
 
+@routes.post('/telegram/callback/fake')
+async def telegram_event(request):
+    return web.Response(text="ok")
+
+
 @routes.get('/telegram/webhook/get')
 async def get_webhook(request):
     return web.Response(text=await telegram_api.get_webhook())
@@ -78,6 +83,14 @@ async def get_webhook(request):
 async def set_webhook(request):
     response = await telegram_api.set_webhook(
             f"https://{request.url.host}/telegram/callback"
+        )
+    return web.Response(status=response['status'], text=response['text'])
+
+
+@routes.get('/telegram/webhook/set/fake')
+async def set_webhook(request):
+    response = await telegram_api.set_webhook(
+            f"https://{request.url.host}/telegram/callback/fake"
         )
     return web.Response(status=response['status'], text=response['text'])
 
