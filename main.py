@@ -9,6 +9,7 @@ from APIs.Chsu.client import Chsu
 from APIs.Discord.client import Discord
 from APIs.Telegram.client import Telegram
 from APIs.Vk.client import Vk
+from Handlers.schedule_change_checker import ScheduleChecker
 from Wrappers.MongoDb.database import MongoDB
 from Handlers.event import EventHandler
 
@@ -156,6 +157,9 @@ if __name__ == "__main__":
     # init mailing
     print("Starting mailing...")
     event_loop.create_task(mailing())
+
+    print("Starting schedule checker...")
+    ScheduleChecker(vk_api, telegram_api, mongo_db_api, chsu_api, event_loop, get_time)
 
     # init server
     print("Starting web app...")

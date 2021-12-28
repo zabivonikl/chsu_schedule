@@ -28,6 +28,15 @@ class Keyboards:
         self._keyboard.add_button("Студент", "primary")
         return self._keyboard.get_keyboard()
 
+    def get_change_group_keyboard(self):
+        self._keyboard.clear()
+        self._keyboard.add_line()
+        self._keyboard.add_button("Преподаватель", "primary")
+        self._keyboard.add_button("Студент", "primary")
+        self._keyboard.add_line()
+        self._keyboard.add_button("Отмена", "negative")
+        return self._keyboard.get_keyboard()
+
     def get_canceling_keyboard(self) -> str:
         self._keyboard.clear()
         self._keyboard.add_line()
@@ -46,8 +55,9 @@ class Keyboards:
         self._keyboard.clear()
         self._keyboard.add_line()
         self._keyboard.add_button("Рассылка", "positive")
-        self._keyboard.add_button("Изменить группу", "negative")
+        self._keyboard.add_button("Изменения в расписании", "positive")
         self._keyboard.add_line()
+        self._keyboard.add_button("Изменить группу", "negative")
         self._keyboard.add_button("Отмена", "secondary")
         return self._keyboard.get_keyboard()
 

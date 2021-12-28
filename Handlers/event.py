@@ -32,7 +32,7 @@ class EventHandler:
         if event['text'] != "Изменить группу":
             await self._handle_message_to_admin(event)
         else:
-            kb = self._keyboard.get_canceling_keyboard()
+            kb = self._keyboard.get_change_group_keyboard()
             await self._chat_platform.send_message("Кто вы?", [event['from_id']], kb)
 
     async def _handle_message_to_admin(self, event):
@@ -110,7 +110,10 @@ class EventHandler:
             await self._handle_subscribe_on_changes(event)
         else:
             kb = self._keyboard.get_settings_keyboard()
-            await self._chat_platform.send_message(f"Настройки.", [event['from_id']], kb)
+            await self._chat_platform.send_message(
+                f"Настройки.\n\n"f"Отслеживание изменений"
+                f" - эксперементальная функция", [event['from_id']], kb
+            )
 
     async def _handle_subscribe_on_changes(self, event):
         if event['text'] != "Изменения в расписании":
@@ -241,10 +244,6 @@ class EventHandler:
                 self._id_by_groups[db_response["group_name"]] if "group_name" in db_response
                 else self._id_by_professors[db_response["professor_name"]]
             )
-            if self._chat_platform.get_api_name() == 'vk' and from_id in self._chat_platform.get_admins():
-                return await self._database.set_new_hashes(
-                    await self._chsu_api.get_schedule_list_hash(university_id, start_date, last_date), '1ПИб-01-22оп'
-                )
             return await self._chsu_api.get_schedule_list_string(university_id, start_date, last_date)
         except ConnectionError as err:
             kb = self._keyboard.get_standard_keyboard()
