@@ -16,11 +16,14 @@ class ScheduleChecker:
 
     async def _daily_updating(self):
         while True:
-            if await self._is_midnight():
-                group_list = await self._database.get_groups_list()
-                ids = await self._get_id_list()
-                for group in group_list:
-                    await self._update_group_and_get_changes(group, ids[group])
+            try:
+                if await self._is_midnight():
+                    group_list = await self._database.get_groups_list()
+                    ids = await self._get_id_list()
+                    for group in group_list:
+                        await self._update_group_and_get_changes(group, ids[group])
+            except ConnectionError as err:
+                print(err)
             await asyncio.sleep(59 * 60)
 
     async def _is_midnight(self):
@@ -40,11 +43,14 @@ class ScheduleChecker:
 
     async def _check_updates(self):
         while True:
-            if await self._is_beginning_of_the_minute():
-                group_list = await self._database.get_groups_list()
-                ids = await self._get_id_list()
-                for group in group_list:
-                    await self._check_and_send_updates_for_group(group, ids[group])
+            try:
+                if await self._is_beginning_of_the_minute():
+                    group_list = await self._database.get_groups_list()
+                    ids = await self._get_id_list()
+                    for group in group_list:
+                        await self._check_and_send_updates_for_group(group, ids[group])
+            except ConnectionError as err:
+                print(err)
             await asyncio.sleep(1)
 
     async def _is_beginning_of_the_minute(self):
