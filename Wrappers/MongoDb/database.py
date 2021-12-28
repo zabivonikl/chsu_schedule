@@ -1,3 +1,4 @@
+from bson import DBRef, ObjectId
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from Wrappers.MongoDb.exceptions import EmptyResponse
@@ -14,6 +15,7 @@ class MongoDB:
             port=27017,
         )
         self._users_collection = self._client[db_name]["Users"]
+        self._groups_collection = self._client[db_name]["Groups"]
 
     async def get_status(self):
         if (await self._users_collection.find_one({"id": 447828812}))["platform"] == 'vk':
@@ -21,20 +23,13 @@ class MongoDB:
         else:
             return "not working"
 
-    async def get_user_data(self, platform_id, api_name, time):
+    async def get_user_data(self, platform_id, api_name, time=None):
         bot_user = await self._users_collection.find_one_and_update({
-            "id": platform_id,
-            "platform": api_name
-        }, {
-            "$push": {
-                "requests_time": {
-                    "$each": [time]
-                }
-            },
-            "$unset": {
-                "last_request_time": 1
-            }
-        }, upsert=True)
+            "id": platform_id, "platform": api_name},
+            {
+                "$push": {"requests_time": {"$each": [time]}},
+                "$unset": {"last_request_time": 1}
+            }, upsert=True)
         if bot_user is None:
             raise EmptyResponse
         return {
@@ -66,14 +61,20 @@ class MongoDB:
         }, update_parameter)
 
     async def update_check_changes(self, user_id, api_name, check_changes=False):
+        user_data = await self._users_collection.find_one({"id": user_id, "platform": api_name})
+        request = {"users": {"id": user_data["id"], "platform": user_data["platform"]}}
         if check_changes:
-            update_parameter = {"$set": {"check_changes": True}}
+            if "group_name" in user_data:
+                user_group = {"group_name": user_data['group_name']}
+            else:
+                user_group = {"professor_name": user_data['professor_name']}
+            await self._groups_collection.update_one(user_group, {"$addToSet": request}, upsert=True)
         else:
-            update_parameter = {"$unset": {"check_changes": 1}}
-        await self._users_collection.update_one({
-            "id": user_id,
-            "platform": api_name,
-        }, update_parameter)
+            if "group_name" in user_data:
+                user_group = {"group_name": user_data['group_name']}
+            else:
+                user_group = {"professor_name": user_data['professor_name']}
+            await self._groups_collection.update_one(user_group, {"$pull": request}, upsert=True)
 
     async def get_mailing_subscribers_by_time(self, time):
         simplified_subscribers = []

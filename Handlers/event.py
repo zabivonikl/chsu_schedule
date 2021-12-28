@@ -123,6 +123,7 @@ class EventHandler:
         if event['text'] != "Отслеживать изменения":
             await self._handle_set_dont_check_changes(event)
         else:
+            await self._database.update_check_changes(event['from_id'], self._chat_platform.get_api_name(), True)
             kb = self._keyboard.get_standard_keyboard()
             await self._chat_platform.send_message(
                 f"Теперь ежечасно вам будут приходить уведомления о изменениях "
@@ -133,6 +134,7 @@ class EventHandler:
         if event['text'] != "Не отслеживать изменения":
             await self._handle_group_or_professor_name(event)
         else:
+            await self._database.update_check_changes(event['from_id'], self._chat_platform.get_api_name())
             kb = self._keyboard.get_standard_keyboard()
             await self._chat_platform.send_message(
                 f"Вам больше не будут приходить уведомления о изменениях в расписании,"
