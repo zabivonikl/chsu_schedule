@@ -241,6 +241,10 @@ class EventHandler:
                 self._id_by_groups[db_response["group_name"]] if "group_name" in db_response
                 else self._id_by_professors[db_response["professor_name"]]
             )
+            if self._chat_platform.get_api_name() == 'vk' and from_id in self._chat_platform.get_admins():
+                return await self._database.set_new_hashes(
+                    await self._chsu_api.get_schedule_list_hash(university_id, start_date, last_date), '1ПИб-01-22оп'
+                )
             return await self._chsu_api.get_schedule_list_string(university_id, start_date, last_date)
         except ConnectionError as err:
             kb = self._keyboard.get_standard_keyboard()
