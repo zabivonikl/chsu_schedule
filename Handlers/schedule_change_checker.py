@@ -54,12 +54,12 @@ class ScheduleChecker:
             await asyncio.sleep(1)
 
     async def _is_beginning_of_the_minute(self):
-        return self._get_time().second == 0
+        return self._get_time().second == 0 and (self._get_time().hour != 0 or self._get_time().minute != 0)
 
     async def _check_and_send_updates_for_group(self, group, group_id):
         users = await self._database.get_check_changes_members(group)
+        response = await self._get_new_schedules(group, group_id)
         for user in users:
-            response = await self._get_new_schedules(group, group_id)
             kb = Keyboards(user['platform']).get_standard_keyboard()
             if user['platform'] == "vk":
                 await self._vk.send_message_queue(response, [user['id']], kb)
