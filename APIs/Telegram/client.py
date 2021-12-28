@@ -1,4 +1,3 @@
-from APIs.Telegram.keyboard import TelegramKeyboard
 from Wrappers.AIOHttp.aiohttp import AIOHttpWrapper
 
 
@@ -6,7 +5,6 @@ class Telegram:
     def __init__(self, token: str, event_loop):
         self._client = AIOHttpWrapper(event_loop)
         self._bot_link = f"https://api.telegram.org/bot{token}"
-        self._keyboard = TelegramKeyboard()
 
     async def get_status(self):
         return (await self._call_get_method("getMe"))['ok']
@@ -18,35 +16,6 @@ class Telegram:
     @staticmethod
     def get_admins():
         return [672743407]
-
-    def get_standard_keyboard(self):
-        self._keyboard.clear()
-        self._keyboard.add_line()
-        self._keyboard.add_button("Расписание на сегодня")
-        self._keyboard.add_button("Расписание на завтра")
-        self._keyboard.add_line()
-        self._keyboard.add_button("Расписание на другой день")
-        self._keyboard.add_line()
-        self._keyboard.add_button("Рассылка")
-        self._keyboard.add_button("Изменить группу")
-        return self._keyboard.get_keyboard()
-
-    def get_start_keyboard(self):
-        self._keyboard.clear()
-        self._keyboard.add_line()
-        self._keyboard.add_button("Студент")
-        self._keyboard.add_button("Преподаватель")
-        return self._keyboard.get_keyboard()
-
-    def get_canceling_keyboard(self):
-        self._keyboard.clear()
-        self._keyboard.add_line()
-        self._keyboard.add_button("Отмена")
-        return self._keyboard.get_keyboard()
-
-    @staticmethod
-    def get_empty_keyboard():
-        return None
 
     async def send_message_queue(self, queue, peer_ids, keyboard):
         for element in queue:

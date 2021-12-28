@@ -1,6 +1,7 @@
 from datetime import timedelta, datetime
 from re import match
 
+from Keyboards.keyboards import Keyboards
 from Wrappers.MongoDb.exceptions import EmptyResponse as MongoDBEmptyRespException
 
 
@@ -9,6 +10,7 @@ class EventHandler:
         self._chat_platform = api
         self._database = database
         self._chsu_api = chsu_api
+        self._keyboard = Keyboards(api.get_api_name())
 
         self._id_by_professors = None
         self._id_by_groups = None
@@ -20,18 +22,24 @@ class EventHandler:
         self._id_by_professors = await self._chsu_api.get_id_by_professors_list()
         self._id_by_groups = await self._chsu_api.get_id_by_groups_list()
 
-        if event['text'] not in ['Начать', "/start", "Изменить группу"]:
-            await self._handle_message_to_admin(event)
-
+        if event['text'] not in ['Начать', "/start"]:
+            await self._handle_change_group(event)
         else:
-            kb = self._chat_platform.get_start_keyboard()
+            kb = self._keyboard.get_start_keyboard()
+            await self._chat_platform.send_message("Кто вы?", [event['from_id']], kb)
+
+    async def _handle_change_group(self, event):
+        if event['text'] != "Изменить группу":
+            await self._handle_message_to_admin(event)
+        else:
+            kb = self._keyboard.get_canceling_keyboard()
             await self._chat_platform.send_message("Кто вы?", [event['from_id']], kb)
 
     async def _handle_message_to_admin(self, event):
         if event['text'] and event['text'][0] != ';':
             await self._handle_choice_professor(event)
         else:
-            kb = self._chat_platform.get_standard_keyboard()
+            kb = self._keyboard.get_standard_keyboard()
             await self._chat_platform.send_message(
                 f"Сообщение от пользователя: {event['text'][1:]}\n\n"
                 f"Для ответа используйте \"!{event['from_id']}: %сообщение%\".",
@@ -43,21 +51,21 @@ class EventHandler:
         if event['text'] != 'Преподаватель':
             await self._handle_choice_group(event)
         else:
-            kb = self._chat_platform.get_empty_keyboard()
+            kb = self._keyboard.get_empty_keyboard()
             await self._chat_platform.send_message(f"Введите ФИО.", [event['from_id']], kb)
 
     async def _handle_choice_group(self, event):
         if event['text'] != 'Студент':
             await self._handle_schedule_for_another_day(event)
         else:
-            kb = self._chat_platform.get_empty_keyboard()
+            kb = self._keyboard.get_empty_keyboard()
             await self._chat_platform.send_message(f"Введите номер группы.", [event['from_id']], kb)
 
     async def _handle_schedule_for_another_day(self, event):
         if event['text'] != "Расписание на другой день":
             await self._handle_cancel(event)
         else:
-            kb = self._chat_platform.get_canceling_keyboard()
+            kb = self._keyboard.get_canceling_keyboard()
             text = "Введите дату:\nПример: 08.02 - запрос расписания для конкретного дня.\n" \
                    "31.10-07.11 - запрос расписания для заданного интервала дат."
             await self._chat_platform.send_message(text, [event['from_id']], kb)
@@ -66,15 +74,15 @@ class EventHandler:
         if event['text'] != "Отмена":
             await self._handle_mailing(event)
         else:
-            kb = self._chat_platform.get_standard_keyboard()
+            kb = self._keyboard.get_standard_keyboard()
             await self._chat_platform.send_message(f"Действие отменено", [event['from_id']], kb)
 
     async def _handle_mailing(self, event):
         if event['text'] != "Рассылка":
             await self._handle_time_stamp(event)
         else:
-            kb = self._chat_platform.get_canceling_keyboard()
-            text = "Введите время рассылки\nПример: 08:36\n\nДля отписки напишите \"Отписаться\" (соблюдая регистр)."
+            kb = self._keyboard.get_canceling_subscribe_keyboard()
+            text = "Введите время рассылки\nПример: 08:36"
             await self._chat_platform.send_message(text, [event['from_id']], kb)
 
     async def _handle_time_stamp(self, event):
@@ -86,16 +94,23 @@ class EventHandler:
             )
             text = f"Вы подписались на рассылку расписания. Теперь, ежедневно в {event['text']}, " \
                    f"Вы будете получать расписание на следующий день."
-            kb = self._chat_platform.get_standard_keyboard()
+            kb = self._keyboard.get_standard_keyboard()
             await self._chat_platform.send_message(text, [event['from_id']], kb)
 
     async def _handle_unsubscribe(self, event):
         if event['text'] != "Отписаться":
-            await self._handle_group_or_professor_name(event)
+            await self._handle_settings(event)
         else:
             await self._database.update_mailing_time(event['from_id'], self._chat_platform.get_api_name())
-            kb = self._chat_platform.get_standard_keyboard()
+            kb = self._keyboard.get_standard_keyboard()
             await self._chat_platform.send_message(f"Вы отписались от рассылки.", [event['from_id']], kb)
+
+    async def _handle_settings(self, event):
+        if event['text'] != "Настройки":
+            await self._handle_group_or_professor_name(event)
+        else:
+            kb = self._keyboard.get_settings_keyboard()
+            await self._chat_platform.send_message(f"Настройки", [event['from_id']], kb)
 
     async def _handle_group_or_professor_name(self, event):
         if event['text'] not in {**self._id_by_groups, **self._id_by_professors}:
@@ -109,7 +124,7 @@ class EventHandler:
                 await self._database.set_user_data(
                     event['from_id'], self._chat_platform.get_api_name(), group_name=event['text']
                 )
-            kb = self._chat_platform.get_standard_keyboard()
+            kb = self._keyboard.get_standard_keyboard()
             await self._chat_platform.send_message("Данные сохранены.\n", [event['from_id']], kb)
 
     async def _handle_double_date(self, event):
@@ -146,7 +161,7 @@ class EventHandler:
         else:
             to_id = int(event['text'].split(':')[0][1:])
             message = event['text'].split(':')[1]
-            kb = self._chat_platform.get_standard_keyboard()
+            kb = self._keyboard.get_standard_keyboard()
             await self._chat_platform.send_message(
                 f"Сообщение отправлено",
                 [event['from_id']], kb
@@ -157,7 +172,7 @@ class EventHandler:
             )
 
     async def _handle_another_events(self, event):
-        kb = self._chat_platform.get_standard_keyboard()
+        kb = self._keyboard.get_standard_keyboard()
         await self._chat_platform.send_message(
             "Такой команды нет. Проверьте правильность ввода.", [event['from_id']], kb
         )
@@ -165,7 +180,7 @@ class EventHandler:
     async def _handle_custom_date(self, from_id, start_date, end_date=None):
         dates = self._get_full_date(start_date, end_date)
         resp = await self._get_schedule(from_id, dates[0], dates[1])
-        kb = self._chat_platform.get_standard_keyboard()
+        kb = self._keyboard.get_standard_keyboard()
         await self._chat_platform.send_message_queue(resp, [from_id], kb)
 
     def _get_full_date(self, start_date_string, end_date_string=None):
@@ -199,7 +214,7 @@ class EventHandler:
             )
             return await self._chsu_api.get_schedule_list_string(university_id, start_date, last_date)
         except ConnectionError as err:
-            kb = self._chat_platform.get_standard_keyboard()
+            kb = self._keyboard.get_standard_keyboard()
             await self._chat_platform.send_message(
                 f"У {from_id} произошла ошибка {err}.", self._chat_platform.get_admins(), kb
             )

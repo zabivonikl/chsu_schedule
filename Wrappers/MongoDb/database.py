@@ -65,9 +65,20 @@ class MongoDB:
             "platform": api_name,
         }, update_parameter)
 
+    async def update_check_changes(self, user_id, api_name, check_changes=False):
+        if check_changes:
+            update_parameter = {"$set": {"check_changes": True}}
+        else:
+            update_parameter = {"$unset": {"check_changes": 1}}
+        await self._users_collection.update_one({
+            "id": user_id,
+            "platform": api_name,
+        }, update_parameter)
+
     async def get_mailing_subscribers_by_time(self, time):
-        subscribers = await self._users_collection.find({"mailing_time": time}).to_list(1000)
         simplified_subscribers = []
-        for subscriber in subscribers:
+        cursor = self._users_collection.find({"mailing_time": time})
+        while await cursor.fetch_next:
+            subscriber = cursor.next_object()
             simplified_subscribers.append([subscriber["id"], subscriber["platform"]])
         return simplified_subscribers
