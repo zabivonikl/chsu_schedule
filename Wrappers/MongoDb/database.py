@@ -70,23 +70,16 @@ class MongoDB:
 
     async def get_update_schedule_hashes(self, hashes: list, group_name: str):
         group = await self._groups_collection.find_one({"name": group_name})
-        if 'hashes' in group:
-            return await self._get_difference_dates_and_update_hashes(group, hashes, group_name)
-        else:
-            await self._groups_collection.update_one(
-                {"name": group_name},
-                {"$set": {"hashes": hashes}}
-            )
+        response = await self._get_difference_dates_and_update_hashes(group['hashes'], hashes)\
+            if 'hashes' in group else []
+        await self._groups_collection.update_one({"name": group_name}, {"$set": {"hashes": hashes}})
+        return response
 
-    async def _get_difference_dates_and_update_hashes(self, old_hashes, new_hashes, group_name):
-        different_hashes = await self._get_difference(old_hashes['hashes'], new_hashes)
+    async def _get_difference_dates_and_update_hashes(self, old_hashes, new_hashes):
+        different_hashes = await self._get_difference(old_hashes, new_hashes)
         different_hash_objects = list(filter(lambda date_hash: date_hash['hash'] in different_hashes, new_hashes))
-        await self._groups_collection.update_one(
-            {"name": group_name},
-            {"$set": {"hashes": new_hashes}}
-        )
         dates = list(map(lambda date_and_hash: date_and_hash['time'], different_hash_objects))
-        return list(map(lambda date: date.strftime("%d.%m.%Y"), dates)) if 'hashes' in old_hashes else []
+        return list(map(lambda date: date.strftime("%d.%m.%Y"), dates))
 
     @staticmethod
     async def _get_difference(old_hashes, new_hashes):
