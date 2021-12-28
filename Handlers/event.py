@@ -111,8 +111,7 @@ class EventHandler:
         else:
             kb = self._keyboard.get_settings_keyboard()
             await self._chat_platform.send_message(
-                f"Настройки.\n\n"f"Отслеживание изменений"
-                f" - эксперементальная функция", [event['from_id']], kb
+                f"Настройки.", [event['from_id']], kb
             )
 
     async def _handle_subscribe_on_changes(self, event):
@@ -120,7 +119,10 @@ class EventHandler:
             await self._handle_set_check_changes(event)
         else:
             kb = self._keyboard.get_set_check_changes_keyboard()
-            await self._chat_platform.send_message(f"Изменения.", [event['from_id']], kb)
+            await self._chat_platform.send_message(
+                f"Изменения.\n\n"f"Отслеживание изменений - эксперементальная "
+                f"функция", [event['from_id']], kb
+            )
 
     async def _handle_set_check_changes(self, event):
         if event['text'] != "Отслеживать изменения":
