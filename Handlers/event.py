@@ -75,7 +75,7 @@ class EventHandler:
             await self._handle_mailing(event)
         else:
             kb = self._keyboard.get_standard_keyboard()
-            await self._chat_platform.send_message(f"Действие отменено", [event['from_id']], kb)
+            await self._chat_platform.send_message(f"Действие отменено.", [event['from_id']], kb)
 
     async def _handle_mailing(self, event):
         if event['text'] != "Рассылка":
@@ -107,10 +107,37 @@ class EventHandler:
 
     async def _handle_settings(self, event):
         if event['text'] != "Настройки":
-            await self._handle_group_or_professor_name(event)
+            await self._handle_subscribe_on_changes(event)
         else:
             kb = self._keyboard.get_settings_keyboard()
-            await self._chat_platform.send_message(f"Настройки", [event['from_id']], kb)
+            await self._chat_platform.send_message(f"Настройки.", [event['from_id']], kb)
+
+    async def _handle_subscribe_on_changes(self, event):
+        if event['text'] != "Изменения в расписании":
+            await self._handle_set_check_changes(event)
+        else:
+            kb = self._keyboard.get_set_check_changes_keyboard()
+            await self._chat_platform.send_message(f"Изменения.", [event['from_id']], kb)
+
+    async def _handle_set_check_changes(self, event):
+        if event['text'] != "Отслеживать изменения":
+            await self._handle_set_dont_check_changes(event)
+        else:
+            kb = self._keyboard.get_standard_keyboard()
+            await self._chat_platform.send_message(
+                f"Теперь ежечасно вам будут приходить уведомления о изменениях "
+                f"в расписании, если они будут.", [event['from_id']], kb
+            )
+
+    async def _handle_set_dont_check_changes(self, event):
+        if event['text'] != "Не отслеживать изменения":
+            await self._handle_group_or_professor_name(event)
+        else:
+            kb = self._keyboard.get_standard_keyboard()
+            await self._chat_platform.send_message(
+                f"Вам больше не будут приходить уведомления о изменениях в расписании,"
+                f" однако их всегда можно включить в настройках.", [event['from_id']], kb
+            )
 
     async def _handle_group_or_professor_name(self, event):
         if event['text'] not in {**self._id_by_groups, **self._id_by_professors}:

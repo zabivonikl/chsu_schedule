@@ -51,6 +51,13 @@ class Keyboards:
         self._keyboard.add_button("Отмена", "secondary")
         return self._keyboard.get_keyboard()
 
+    def get_set_check_changes_keyboard(self) -> str:
+        self._keyboard.clear()
+        self._keyboard.add_line()
+        self._keyboard.add_button("Отслеживать изменения", "positive")
+        self._keyboard.add_button("Не отслеживать изменения", "negative")
+        return self._keyboard.get_keyboard()
+
     @staticmethod
     def get_empty_keyboard():
         return None
