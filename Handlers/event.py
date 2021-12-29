@@ -120,7 +120,7 @@ class EventHandler:
         else:
             kb = self._keyboard.get_set_check_changes_keyboard()
             await self._chat_platform.send_message(
-                f"Изменения.\n\n"f"Отслеживание изменений - эксперементальная "
+                f"Изменения.\n\n"f"Отслеживание изменений - экспериментальная "
                 f"функция", [event['from_id']], kb
             )
 
