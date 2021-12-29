@@ -1,8 +1,6 @@
 import asyncio
 from datetime import timedelta
 
-from Keyboards.keyboards import Keyboards
-
 
 class ScheduleChecker:
     def __init__(self, vk, telegram, database, chsu_api, event_loop, get_time):
@@ -60,11 +58,12 @@ class ScheduleChecker:
         users = await self._database.get_check_changes_members(group)
         response = await self._get_new_schedules(group, group_id)
         for user in users:
-            kb = Keyboards(user['platform']).get_standard_keyboard()
             if user['platform'] == "vk":
-                await self._vk.send_message_queue(response, [user['id']], kb)
-            elif user['platform'] == "telegram":
-                await self._telegram.send_message_queue(response, [user['id']], kb)
+                api = self._vk
+            else:
+                api = self._telegram
+            kb = (await api.get_keyboard_inst()).get_standart_keyboard()
+            await api.send_message_queue(response, [user['id']], kb)
 
     async def _get_new_schedules(self, group, group_id):
         update_times = await self._update_group_and_get_changes(group, group_id) or []

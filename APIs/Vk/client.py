@@ -4,6 +4,8 @@ from aiovk import TokenSession, API
 from aiovk.drivers import HttpDriver
 from aiovk.exceptions import VkAPIError
 
+from Keyboards.keyboards import Keyboards
+
 
 class Vk:
     def __init__(self, token: str, event_loop) -> None:
@@ -19,6 +21,9 @@ class Vk:
             if err.error_code == 27:
                 return "working"
             return f"Error {err.error_code}: {err.error_msg}"
+
+    async def get_keyboard_inst(self):
+        return Keyboards(self.get_api_name())
 
     @staticmethod
     def get_api_name() -> str:

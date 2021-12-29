@@ -5,6 +5,7 @@ from Wrappers.AIOHttp.aiohttp import AIOHttpWrapper
 
 
 class Discord:
+    # todo разобраться с вебсокетами и доделать
     def __init__(self, api_token: str, public_token: str, event_loop):
         self._base_url = f"https://discord.com/api/v9/"
         self._http_client = AIOHttpWrapper(event_loop)
