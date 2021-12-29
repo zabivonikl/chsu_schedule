@@ -2,7 +2,7 @@ from Keyboards.telegram import TelegramKeyboard
 from Keyboards.vk import VkKeyboard
 
 
-class Keyboards:
+class Keyboard:
     def __init__(self, api_name) -> None:
         self._line_count = 0
         if api_name == "vk":

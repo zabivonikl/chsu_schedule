@@ -1,4 +1,4 @@
-from Keyboards.keyboards import Keyboards
+from Keyboards.keyboard import Keyboard
 from Wrappers.AIOHttp.aiohttp import AIOHttpWrapper
 
 
@@ -11,7 +11,7 @@ class Telegram:
         return (await self._call_get_method("getMe"))['ok']
 
     async def get_keyboard_inst(self):
-        return Keyboards(self.get_api_name())
+        return Keyboard(self.get_api_name())
 
     @staticmethod
     def get_api_name():
