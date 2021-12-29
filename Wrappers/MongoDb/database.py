@@ -65,8 +65,15 @@ class MongoDB:
             await self._groups_collection.find_one_and_update(find_params, {"$addToSet": request}, upsert=True)
         else:
             resp = await self._groups_collection.find_one_and_update(find_params, {"$pull": request}, upsert=True)
-            if resp and 'users' in resp and len(resp['users']) == 1 and \
-                    resp['users'][0]['id'] == user_data["id"] and resp['users'][0]['platform'] == user_data["platform"]:
+            if not resp or (resp and (
+                    'users' in resp and
+                    len(resp['users']) == 1 and
+                    resp['users'][0]['id'] == user_data["id"] and
+                    resp['users'][0]['platform'] == user_data["platform"]
+            ) or (
+                    "name" in resp and
+                    "users" not in resp
+            )):
                 self._groups_collection.delete_one(find_params)
 
     async def get_update_schedule_hashes(self, hashes: list, group_name: str):
