@@ -59,6 +59,8 @@ class MongoDB:
 
     async def update_check_changes(self, user_id: int, api_name: str, check_changes=False) -> None:
         user_data = await self._users_collection.find_one({"id": user_id, "platform": api_name})
+        if not user_data:
+            return
         user_id = user_data["id"]
         chat_platform = user_data["platform"]
         request = {"users": {"id": user_id, "platform": chat_platform}}

@@ -21,7 +21,7 @@ class ScheduleChecker:
                 await self._update_hashes()
             except ConnectionError as err:
                 print(err)
-            await asyncio.sleep(59 * 60)
+            await asyncio.sleep(59)
 
     async def _update_hashes(self):
         if await self._is_midnight():
@@ -31,7 +31,7 @@ class ScheduleChecker:
                 await self._update_group_and_get_changes(group, ids[group])
 
     async def _is_midnight(self):
-        return self._get_time().hour == 0
+        return self._get_time().hour == 0 and self._get_time().minute == 0
 
     async def _get_id_list(self):
         return {
@@ -61,7 +61,7 @@ class ScheduleChecker:
                 await self._check_and_send_updates_for_group(group, ids[group])
 
     async def _is_beginning_of_the_minute(self):
-        return self._get_time().second == 0 and (self._get_time().hour != 0 or self._get_time().minute != 0)
+        return self._get_time().second == 0 and self._get_time().hour != 0
 
     async def _check_and_send_updates_for_group(self, group, group_id):
         users = await self._database.get_check_changes_members(group)
