@@ -9,8 +9,11 @@ class ScheduleChecker:
         self._database = database
         self._chsu_api = chsu_api
         self._get_time = get_time
-        event_loop.create_task(self._daily_updating_process())
-        event_loop.create_task(self._check_updates_process())
+        self.updating = event_loop.create_task(self._daily_updating_process())
+        self.checking = event_loop.create_task(self._check_updates_process())
+
+    def get_status(self):
+        return 'working' if not self.updating.done() and not self.checking.done() else 'not working'
 
     async def _daily_updating_process(self):
         while True:

@@ -35,7 +35,7 @@ class Chsu:
             )
             if 'data' in response:
                 self._headers["Authorization"] = f'''Bearer {response['data']}'''
-                print(self._headers)
+                print(f"Token updated: {self._headers['Authorization']}")
                 await asyncio.sleep(59 * 60)
             else:
                 print(response)

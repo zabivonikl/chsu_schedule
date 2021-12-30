@@ -28,6 +28,7 @@ async def index(request):
         "Server": "working",
         "Server datetime:": get_time().strftime("%d.%m.%Y %H:%M:%S.%f"),
         "Server start datetime:": start_time.strftime("%d.%m.%Y %H:%M:%S.%f"),
+        "Server uptime:": str(get_time() - start_time),
         f'CHSU API': f'{await chsu_api.get_status()}',
         f'Database': f'{await mongo_db_api.get_status()}',
         f'VK': f'{await vk_api.get_status()}',
@@ -36,7 +37,8 @@ async def index(request):
             'isSetWebhook': await telegram_api.get_webhook() != ""
         },
         # f'Discord': await discord_api.get_status(),
-        f'Mailing': 'working'
+        f'Mailing': 'working',
+        f'Update checking': checker.get_status()
     }))
 
 
@@ -152,7 +154,7 @@ if __name__ == "__main__":
     event_loop.create_task(mailing())
 
     print("Starting schedule checker...")
-    ScheduleChecker(vk_api, telegram_api, mongo_db_api, chsu_api, event_loop, get_time)
+    checker = ScheduleChecker(vk_api, telegram_api, mongo_db_api, chsu_api, event_loop, get_time)
 
     # init server
     print("Starting web app...")
