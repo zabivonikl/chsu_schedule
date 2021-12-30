@@ -122,18 +122,11 @@ async def mailing():
     while True:
         users = await mongo_db_api.get_mailing_subscribers_by_time(get_time().strftime("%H:%M"))
         for user in users:
+            event = {"from_id": user[0], "text": "Расписание на завтра", 'time': get_time()}
             if user[1] == telegram_api.get_api_name():
-                await EventHandler(telegram_api, mongo_db_api, chsu_api).handle_event({
-                    "from_id": user[0],
-                    "text": "Расписание на завтра",
-                    'time': get_time()
-                })
+                await EventHandler(telegram_api, mongo_db_api, chsu_api).handle_event(event)
             elif user[1] == vk_api.get_api_name():
-                await EventHandler(vk_api, mongo_db_api, chsu_api).handle_event({
-                    "from_id": user[0],
-                    "text": "Расписание на завтра",
-                    'time': get_time()
-                })
+                await EventHandler(vk_api, mongo_db_api, chsu_api).handle_event(event)
         await asyncio.sleep(60)
 
 

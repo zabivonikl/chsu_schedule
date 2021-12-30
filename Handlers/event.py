@@ -217,25 +217,31 @@ class EventHandler:
         kb = self._keyboard.get_standard_keyboard()
         await self._chat_platform.send_message_queue(resp, [from_id], kb)
 
-    def _get_full_date(self, start_date_string, end_date_string=None):
-        first_date = datetime.strptime(f"{start_date_string}.{self._current_date.year}", "%d.%m.%Y")
-        if (first_date - self._current_date.replace(tzinfo=None)).days < 0 and first_date.month <= 6:
-            first_date = datetime(
-                year=first_date.year + 1,
-                month=first_date.month,
-                day=first_date.day
-            )
-        if end_date_string:
-            second_date = datetime.strptime(f"{end_date_string}.{self._current_date.year}", "%d.%m.%Y")
-            if (second_date - first_date).days < 0:
-                second_date = datetime(
-                    year=second_date.year + 1,
-                    month=second_date.month,
-                    day=second_date.day
-                )
-            return [first_date.strftime("%d.%m.%Y"), second_date.strftime("%d.%m.%Y")]
+    def _get_full_date(self, initial_date_string, final_date_string=None):
+        initial_date = self._parse_date_string(initial_date_string)
+        if self._is_date_less_current(initial_date):
+            initial_date = self._add_year(initial_date)
+        if final_date_string:
+            final_date = self._parse_date_string(final_date_string)
+            if self._is_final_date_less(final_date, initial_date):
+                final_date = self._add_year(final_date)
+            return [initial_date.strftime("%d.%m.%Y"), final_date.strftime("%d.%m.%Y")]
         else:
-            return [first_date.strftime("%d.%m.%Y"), None]
+            return [initial_date.strftime("%d.%m.%Y"), None]
+
+    def _parse_date_string(self, string):
+        return datetime.strptime(f"{string}.{self._current_date.year}", "%d.%m.%Y")
+
+    def _is_date_less_current(self, date):
+        return (date - self._current_date.replace(tzinfo=None)).days < 0 and date.month <= 6
+
+    @staticmethod
+    def _is_final_date_less(final_date, initial_date):
+        return (final_date - initial_date).days < 0
+
+    @staticmethod
+    def _add_year(date):
+        return datetime(year=date.year + 1, month=date.month, day=date.day)
 
     async def _get_schedule(self, from_id, start_date, last_date=None):
         try:

@@ -9,20 +9,23 @@ class ScheduleChecker:
         self._database = database
         self._chsu_api = chsu_api
         self._get_time = get_time
-        event_loop.create_task(self._daily_updating())
-        event_loop.create_task(self._check_updates())
+        event_loop.create_task(self._daily_updating_process())
+        event_loop.create_task(self._check_updates_process())
 
-    async def _daily_updating(self):
+    async def _daily_updating_process(self):
         while True:
             try:
-                if await self._is_midnight():
-                    group_list = await self._database.get_groups_list()
-                    ids = await self._get_id_list()
-                    for group in group_list:
-                        await self._update_group_and_get_changes(group, ids[group])
+                await self._update_hashes()
             except ConnectionError as err:
                 print(err)
             await asyncio.sleep(59 * 60)
+
+    async def _update_hashes(self):
+        if await self._is_midnight():
+            group_list = await self._database.get_groups_list()
+            ids = await self._get_id_list()
+            for group in group_list:
+                await self._update_group_and_get_changes(group, ids[group])
 
     async def _is_midnight(self):
         return self._get_time().hour == 0
@@ -39,17 +42,20 @@ class ScheduleChecker:
         hash_list = await self._chsu_api.get_schedule_list_hash(group_id, start_time, end_time)
         return await self._database.get_update_schedule_hashes(hash_list, group_name)
 
-    async def _check_updates(self):
+    async def _check_updates_process(self):
         while True:
             try:
-                if await self._is_beginning_of_the_minute():
-                    group_list = await self._database.get_groups_list()
-                    ids = await self._get_id_list()
-                    for group in group_list:
-                        await self._check_and_send_updates_for_group(group, ids[group])
+                await self._check_updates()
             except ConnectionError as err:
                 print(err)
             await asyncio.sleep(1)
+
+    async def _check_updates(self):
+        if await self._is_beginning_of_the_minute():
+            group_list = await self._database.get_groups_list()
+            ids = await self._get_id_list()
+            for group in group_list:
+                await self._check_and_send_updates_for_group(group, ids[group])
 
     async def _is_beginning_of_the_minute(self):
         return self._get_time().second == 0 and (self._get_time().hour != 0 or self._get_time().minute != 0)
@@ -57,8 +63,11 @@ class ScheduleChecker:
     async def _check_and_send_updates_for_group(self, group, group_id):
         users = await self._database.get_check_changes_members(group)
         response = await self._get_new_schedules(group, group_id)
+        await self._send_response(users, response)
+
+    async def _send_response(self, users, response):
         for user in users:
-            if user['platform'] == "vk":
+            if user['platform'] == self._vk.get_api_name():
                 api = self._vk
                 kb = await self._vk.get_keyboard_inst()
             else:
