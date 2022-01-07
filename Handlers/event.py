@@ -119,10 +119,7 @@ class EventHandler:
             await self._handle_set_check_changes(event)
         else:
             kb = self._keyboard.get_set_check_changes_keyboard()
-            await self._chat_platform.send_message(
-                f"Изменения.\n\n"f"Отслеживание изменений - экспериментальная "
-                f"функция", [event['from_id']], kb
-            )
+            await self._chat_platform.send_message(f"Изменения.", [event['from_id']], kb)
 
     async def _handle_set_check_changes(self, event):
         if event['text'] != "Отслеживать изменения":
@@ -212,10 +209,15 @@ class EventHandler:
         )
 
     async def _handle_custom_date(self, from_id, start_date, end_date=None):
-        dates = self._get_full_date(start_date, end_date)
-        resp = await self._get_schedule(from_id, dates[0], dates[1])
-        kb = self._keyboard.get_standard_keyboard()
-        await self._chat_platform.send_message_queue(resp, [from_id], kb)
+        resp = None
+        try:
+            dates = self._get_full_date(start_date, end_date)
+            resp = await self._get_schedule(from_id, dates[0], dates[1])
+        except ValueError:
+            resp = ['Введена некорректная дата.']
+        finally:
+            kb = self._keyboard.get_standard_keyboard()
+            await self._chat_platform.send_message_queue(resp, [from_id], kb)
 
     def _get_full_date(self, initial_date_string, final_date_string=None):
         initial_date = self._parse_date_string(initial_date_string)
