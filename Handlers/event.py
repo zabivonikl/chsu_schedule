@@ -217,7 +217,7 @@ class EventHandler:
             resp = ['Введена некорректная дата.']
         finally:
             kb = self._keyboard.get_standard_keyboard()
-            await self._chat_platform.send_message_queue(resp or [], [from_id], kb)
+            await self._chat_platform.send_message_queue(resp, [from_id], kb)
 
     def _get_full_date(self, initial_date_string, final_date_string=None):
         initial_date = self._parse_date_string(initial_date_string)
@@ -235,7 +235,7 @@ class EventHandler:
         return datetime.strptime(f"{string}.{self._current_date.year}", "%d.%m.%Y")
 
     def _is_date_less_current(self, date):
-        return (date - self._current_date.replace(tzinfo=None)).days < 0
+        return date.month - self._current_date.month < 0
 
     @staticmethod
     def _is_final_date_less(final_date, initial_date):
