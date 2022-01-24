@@ -83,5 +83,5 @@ class ScheduleChecker:
         response = []
         for update_time in update_times:
             schedule = (await self._chsu_api.get_schedule_list_string(group_id, update_time))
-            response += list(map(lambda day: f"Обновлённое расписание:\n\n{day}", schedule))
+            response += list(map(lambda day: f"Обновленное расписание:\n\n{day}", schedule))
         return response

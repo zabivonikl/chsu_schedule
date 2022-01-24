@@ -53,33 +53,14 @@ class Discord:
     @staticmethod
     def get_standard_keyboard():
         raise NotImplementedError()
-        kb = VkKeyboard()
-        kb.add_line()
-        kb.add_text_button("Расписание на сегодня", "primary")
-        kb.add_text_button("Расписание на завтра", "secondary")
-        kb.add_line()
-        kb.add_text_button("Расписание на другой день", "secondary")
-        kb.add_line()
-        kb.add_text_button("Рассылка", "positive")
-        kb.add_text_button("Изменить группу", "negative")
-        return kb.get_keyboard()
 
     @staticmethod
     def get_start_keyboard():
         raise NotImplementedError()
-        kb = VkKeyboard()
-        kb.add_line()
-        kb.add_text_button("Преподаватель", "primary")
-        kb.add_text_button("Студент", "primary")
-        return kb.get_keyboard()
 
     @staticmethod
     def get_canceling_keyboard():
         raise NotImplementedError()
-        kb = VkKeyboard()
-        kb.add_line()
-        kb.add_text_button("Отмена", "negative")
-        return kb.get_keyboard()
 
     @staticmethod
     def get_empty_keyboard():
