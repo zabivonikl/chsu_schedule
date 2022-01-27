@@ -53,7 +53,7 @@ async def vk_event(request):
         'time': get_time()
     }
     if "X-Retry-Counter" not in request.headers:
-        await EventHandler(vk_api, mongo_db_api, chsu_api).handle_event(event)
+        event_loop.create_task(EventHandler(vk_api, mongo_db_api, chsu_api).handle_event(event))
     return web.Response(text="ok")
 
 

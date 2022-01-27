@@ -1,6 +1,7 @@
 import asyncio
 import hashlib
 from datetime import datetime
+from re import match
 
 from APIs.Chsu.schedule import Schedule
 from Wrappers.AIOHttp.aiohttp import AIOHttpWrapper
@@ -35,7 +36,6 @@ class Chsu:
             )
             if 'data' in response:
                 self._headers["Authorization"] = f'''Bearer {response['data']}'''
-                print(f"Token updated: {self._headers['Authorization']}")
                 await asyncio.sleep(59 * 60)
             else:
                 print(response)
@@ -90,10 +90,13 @@ class Chsu:
         response = []
         schedules = await self.get_schedule_list_string(university_id, start_date, last_date)
         for schedule in schedules:
-            response.append({
-                "time": datetime.strptime(schedule[20:30], "%d.%m.%Y"),
-                "hash": hashlib.sha256(schedule.encode()).hexdigest()
-            })
+            if not match(r'\d{2}.\d{2}.\d{4}', schedule[20:30]):
+                print(schedule[20:30])
+            else:
+                response.append({
+                    "time": datetime.strptime(schedule[20:30], "%d.%m.%Y"),
+                    "hash": hashlib.sha256(schedule.encode()).hexdigest()
+                })
         return response
 
     async def get_schedule_list_string(self, university_id, start_date, last_date=None):
