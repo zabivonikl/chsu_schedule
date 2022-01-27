@@ -59,7 +59,7 @@ class MongoDB:
 
     async def update_check_changes(self, user_id: int, api_name: str, check_changes=False) -> None:
         user_data = await self._users_collection.find_one({"id": user_id, "platform": api_name})
-        if not user_data or "group_name" not in user_data or "professor_name" not in user_data:
+        if user_data is None or not ("group_name" in user_data or "professor_name" in user_data):
             return
         user_id = user_data["id"]
         chat_platform = user_data["platform"]
