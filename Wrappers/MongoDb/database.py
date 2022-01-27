@@ -29,7 +29,7 @@ class MongoDB:
                 "$push": {"requests_time": {"$each": [time]}},
                 "$unset": {"last_request_time": 1}
             }, upsert=True)
-        if bot_user is None:
+        if bot_user is None or not ("group_name" in bot_user or "professor_name" in bot_user):
             raise EmptyResponse
         return {
             "group_name": bot_user["group_name"]
@@ -43,7 +43,7 @@ class MongoDB:
         request = {"id": user_id, "platform": api_name}
         if group_name:
             request['group_name'] = group_name
-        if professor_name:
+        elif professor_name:
             request['professor_name'] = professor_name
         await self._users_collection.insert_one(request)
 
@@ -59,7 +59,7 @@ class MongoDB:
 
     async def update_check_changes(self, user_id: int, api_name: str, check_changes=False) -> None:
         user_data = await self._users_collection.find_one({"id": user_id, "platform": api_name})
-        if not user_data:
+        if not user_data or "group_name" not in user_data or "professor_name" not in user_data:
             return
         user_id = user_data["id"]
         chat_platform = user_data["platform"]
