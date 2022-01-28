@@ -55,6 +55,19 @@ async def vk_event(request):
     return web.Response(text="ok")
 
 
+@routes.post('/telegram/callback/fake')
+async def telegram_event(request):
+    return web.Response(text="ok")
+
+
+@routes.get('/telegram/webhook/set/fake')
+async def set_webhook(request):
+    response = await telegram_api.set_webhook(
+            f"https://{request.url.host}/telegram/callback/fake"
+        )
+    return web.Response(status=response['status'], text=response['text'])
+
+
 @routes.post('/telegram/callback')
 async def telegram_event(request):
     data = await request.json()
@@ -70,11 +83,6 @@ async def telegram_event(request):
         return web.Response(text="ok")
 
 
-@routes.post('/telegram/callback/fake')
-async def telegram_event(request):
-    return web.Response(text="ok")
-
-
 @routes.get('/telegram/webhook/get')
 async def get_webhook(request):
     return web.Response(text=await telegram_api.get_webhook())
@@ -84,14 +92,6 @@ async def get_webhook(request):
 async def set_webhook(request):
     response = await telegram_api.set_webhook(
             f"https://{request.url.host}/telegram/callback"
-        )
-    return web.Response(status=response['status'], text=response['text'])
-
-
-@routes.get('/telegram/webhook/set/fake')
-async def set_webhook(request):
-    response = await telegram_api.set_webhook(
-            f"https://{request.url.host}/telegram/callback/fake"
         )
     return web.Response(status=response['status'], text=response['text'])
 
@@ -110,9 +110,9 @@ async def mailing():
         users = await mongo_db_api.get_mailing_subscribers_by_time(get_time().strftime("%H:%M"))
         for user in users:
             event = {"from_id": user[0], "text": "Расписание на завтра", 'time': get_time()}
-            if user[1] == telegram_api.get_api_name():
+            if user[1] == telegram_api.get_name():
                 await EventHandler(telegram_api, mongo_db_api, chsu_api).handle_event(event)
-            elif user[1] == vk_api.get_api_name():
+            elif user[1] == vk_api.get_name():
                 await EventHandler(vk_api, mongo_db_api, chsu_api).handle_event(event)
         await asyncio.sleep(60)
 
@@ -145,4 +145,3 @@ if __name__ == "__main__":
     app = web.Application()
     app.add_routes(routes)
     web.run_app(app, port=8080, host="127.0.0.1", loop=event_loop)
-    # web.run_app(app, port=80, host="localhost", loop=event_loop)

@@ -93,7 +93,7 @@ class EventHandler:
             await self._handle_unsubscribe(event)
         else:
             await self._database.set_mailing_time(
-                event['from_id'], self._chat_platform.get_api_name(), event['text']
+                event['from_id'], self._chat_platform.get_name(), event['text']
             )
             text = f"Вы подписались на рассылку расписания. Теперь, ежедневно в {event['text']}, " \
                    f"Вы будете получать расписание на следующий день."
@@ -104,7 +104,7 @@ class EventHandler:
         if event['text'] != "Отписаться":
             await self._handle_settings(event)
         else:
-            await self._database.set_mailing_time(event['from_id'], self._chat_platform.get_api_name())
+            await self._database.set_mailing_time(event['from_id'], self._chat_platform.get_name())
             kb = self._keyboard.get_standard_keyboard()
             await self._chat_platform.send_message(f"Вы отписались от рассылки.", [event['from_id']], kb)
 
@@ -128,7 +128,7 @@ class EventHandler:
         if event['text'] != "Отслеживать изменения":
             await self._handle_set_dont_check_changes(event)
         else:
-            await self._database.set_check_changes_member(event['from_id'], self._chat_platform.get_api_name(), True)
+            await self._database.set_check_changes_member(event['from_id'], self._chat_platform.get_name(), True)
             kb = self._keyboard.get_standard_keyboard()
             await self._chat_platform.send_message(
                 f"Теперь ежечасно вам будут приходить уведомления о изменениях "
@@ -139,7 +139,7 @@ class EventHandler:
         if event['text'] != "Не отслеживать изменения":
             await self._handle_group_or_professor_name(event)
         else:
-            await self._database.set_check_changes_member(event['from_id'], self._chat_platform.get_api_name())
+            await self._database.set_check_changes_member(event['from_id'], self._chat_platform.get_name())
             kb = self._keyboard.get_standard_keyboard()
             await self._chat_platform.send_message(
                 f"Вам больше не будут приходить уведомления о изменениях в расписании,"
@@ -152,11 +152,11 @@ class EventHandler:
         else:
             if event['text'] in self._id_by_professors:
                 await self._database.set_user_data(
-                    event['from_id'], self._chat_platform.get_api_name(), professor_name=event['text']
+                    event['from_id'], self._chat_platform.get_name(), professor_name=event['text']
                 )
             else:
                 await self._database.set_user_data(
-                    event['from_id'], self._chat_platform.get_api_name(), group_name=event['text']
+                    event['from_id'], self._chat_platform.get_name(), group_name=event['text']
                 )
             kb = self._keyboard.get_standard_keyboard()
             await self._chat_platform.send_message("Данные сохранены.\n", [event['from_id']], kb)
@@ -251,7 +251,7 @@ class EventHandler:
     async def _get_schedule(self, from_id, start_date, last_date=None):
         try:
             db_response = await self._database.get_user_data(
-                from_id, self._chat_platform.get_api_name(), self._current_date
+                from_id, self._chat_platform.get_name(), self._current_date
             )
             university_id = self._id_by_groups[db_response["group_name"]] if "group_name" in db_response\
                 else self._id_by_professors[db_response["professor_name"]]

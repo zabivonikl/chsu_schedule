@@ -25,7 +25,7 @@ class Vk(Messanger):
             return f"Error {err.error_code}: {err.error_msg}"
 
     @staticmethod
-    def get_api_name() -> str:
+    def get_name() -> str:
         return "vk"
 
     @staticmethod

@@ -87,7 +87,7 @@ class ScheduleChecker:
 
     async def _send_response(self, users, response):
         for user in users:
-            if user['platform'] == self._vk.get_api_name():
+            if user['platform'] == self._vk.get_name():
                 api = self._vk
                 kb = self._vk.get_keyboard_inst()
             else:

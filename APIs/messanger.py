@@ -9,10 +9,10 @@ class Messanger:
         pass
 
     def get_keyboard_inst(self) -> Keyboard:
-        return Keyboard(self.get_api_name())
+        return Keyboard(self.get_name())
 
     @staticmethod
-    def get_api_name() -> str:
+    def get_name() -> str:
         pass
 
     @staticmethod

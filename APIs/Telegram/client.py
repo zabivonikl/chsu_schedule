@@ -14,7 +14,7 @@ class Telegram(Messanger):
         return (await self._call_get_method("getMe"))['ok']
 
     @staticmethod
-    def get_api_name():
+    def get_name():
         return "telegram"
 
     @staticmethod
