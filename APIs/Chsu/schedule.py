@@ -1,5 +1,5 @@
 class Schedule:
-    def __init__(self, id_type, json):
+    def __init__(self, id_type: str, json: list):
         self._nullify_fields()
         self._response_json = json
         for self._couple in self._response_json:

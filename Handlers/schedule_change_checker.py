@@ -1,9 +1,23 @@
 import asyncio
+from asyncio import AbstractEventLoop
 from datetime import timedelta
+
+from APIs.Chsu.client import Chsu
+from APIs.Telegram.client import Telegram
+from APIs.Vk.client import Vk
+from Wrappers.MongoDb.database import MongoDB
 
 
 class ScheduleChecker:
-    def __init__(self, vk, telegram, database, chsu_api, event_loop, get_time):
+    def __init__(
+            self,
+            vk: Vk,
+            telegram: Telegram,
+            database: MongoDB,
+            chsu_api: Chsu,
+            event_loop: AbstractEventLoop,
+            get_time
+    ):
         self._vk = vk
         self._telegram = telegram
         self._database = database
@@ -42,8 +56,12 @@ class ScheduleChecker:
     async def _update_group_and_get_changes(self, group_name, group_id):
         start_time = self._get_time().strftime("%d.%m.%Y")
         end_time = (self._get_time(0) + timedelta(days=14, hours=3)).strftime("%d.%m.%Y")
-        hash_list = await self._chsu_api.get_schedule_list_hash(group_id, start_time, end_time)
-        return await self._database.get_update_schedule_hashes(hash_list, group_name)
+        new_hashes = await self._chsu_api.get_schedule_list_hash(group_id, start_time, end_time)
+        group_obj = await self._database.get_group_hashes(group_name)
+        await self._database.set_group_hashes(new_hashes, group_name)
+        response = self._get_difference_dates(new_hashes, group_obj)
+        print(response)
+        return response
 
     async def _check_updates_process(self):
         while True:
@@ -54,14 +72,14 @@ class ScheduleChecker:
             await asyncio.sleep(1)
 
     async def _check_updates(self):
-        if await self._is_beginning_of_the_minute():
+        if await self.is_beginning_of_the_hour():
             group_list = await self._database.get_groups_list()
             ids = await self._get_id_list()
             for group in group_list:
                 await self._check_and_send_updates_for_group(group, ids[group])
 
-    async def _is_beginning_of_the_minute(self):
-        return self._get_time().second == 0 and self._get_time().hour != 0
+    async def is_beginning_of_the_hour(self):
+        return self._get_time().second == 0 and self._get_time().hour != 0 and self._get_time().minute == 0
 
     async def _check_and_send_updates_for_group(self, group, group_id):
         users = await self._database.get_check_changes_members(group)
@@ -85,3 +103,29 @@ class ScheduleChecker:
             schedule = (await self._chsu_api.get_schedule_list_string(group_id, update_time))
             response += list(map(lambda day: f"Обновленное расписание:\n\n{day}", schedule))
         return response
+
+    def _get_difference_dates(self, hashes: list, group: dict) -> list:
+        if 'hashes' in group:
+            return self._get_difference_dates_and_update_hashes(group['hashes'], hashes)
+        else:
+            return []
+
+    def _get_difference_dates_and_update_hashes(self, old_hashes: list, new_hashes: list) -> list:
+        hashes = self._get_difference(old_hashes, new_hashes)
+        objects = self._find_full_objects(hashes, new_hashes)
+        return self._get_date_strings(objects)
+
+    def _get_difference(self, old_hashes: list, new_hashes: list) -> list:
+        return list(set(self._get_hashes(new_hashes)) - set(self._get_hashes(old_hashes)))
+
+    @staticmethod
+    def _get_hashes(dates_and_hashes: list) -> list:
+        return list(map(lambda date_and_hash: date_and_hash['hash'], dates_and_hashes))
+
+    @staticmethod
+    def _find_full_objects(hashes: list, object_list: list) -> list:
+        return list(filter(lambda date_hash: date_hash['hash'] in hashes, object_list))
+
+    @staticmethod
+    def _get_date_strings(object_list: list) -> list:
+        return list(map(lambda date_and_hash: date_and_hash['time'].strftime("%d.%m.%Y"), object_list))

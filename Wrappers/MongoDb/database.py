@@ -4,8 +4,8 @@ from Wrappers.MongoDb.exceptions import EmptyResponse
 
 
 class MongoDB:
-    def __init__(self, db_login, db_password, db_name):
-        self._client = AsyncIOMotorClient(
+    def __init__(self, db_login: str, db_password: str, db_name: str):
+        client = AsyncIOMotorClient(
             f"mongodb+srv://{db_login}:{db_password}"
             f"@cluster.rfoam.mongodb.net/"
             f"{db_name}?"
@@ -13,8 +13,8 @@ class MongoDB:
             f"w=majority",
             port=27017,
         )
-        self._users_collection = self._client[db_name]["Users"]
-        self._groups_collection = self._client[db_name]["Groups"]
+        self._users_collection = client[db_name]["Users"]
+        self._groups_collection = client[db_name]["Groups"]
 
     async def get_status(self):
         if (await self._users_collection.find_one({"id": 447828812}))["platform"] == 'vk':
@@ -38,7 +38,7 @@ class MongoDB:
         }
 
     async def set_user_data(self, user_id, api_name, group_name=None, professor_name=None):
-        await self.update_check_changes(user_id, api_name, False)
+        await self.set_check_changes_member(user_id, api_name, False)
         await self._users_collection.find_one_and_delete({"id": user_id, "platform": api_name})
         request = {"id": user_id, "platform": api_name}
         if group_name:
@@ -47,7 +47,12 @@ class MongoDB:
             request['professor_name'] = professor_name
         await self._users_collection.insert_one(request)
 
-    async def update_mailing_time(self, user_id, api_name, time=None):
+    async def get_mailing_subscribers_by_time(self, time: str) -> list:
+        cursor = self._users_collection.find({"mailing_time": time})
+        subscribers = await self._parse_response(cursor)
+        return list(map(lambda subscriber: [subscriber["id"], subscriber["platform"]], subscribers))
+
+    async def set_mailing_time(self, user_id, api_name, time=None):
         if time is None:
             update_parameter = {"$unset": {"mailing_time": 1}}
         else:
@@ -57,7 +62,15 @@ class MongoDB:
             "platform": api_name,
         }, update_parameter)
 
-    async def update_check_changes(self, user_id: int, api_name: str, check_changes=False) -> None:
+    async def get_groups_list(self) -> list:
+        cursor = self._groups_collection.find()
+        groups = await self._parse_response(cursor)
+        return list(map(lambda group_obj: group_obj['name'], groups))
+
+    async def get_check_changes_members(self, group: str) -> list:
+        return (await self._groups_collection.find_one({"name": group}))['users']
+
+    async def set_check_changes_member(self, user_id: int, api_name: str, check_changes=False) -> None:
         user_data = await self._users_collection.find_one({"id": user_id, "platform": api_name})
         if user_data is None or not ("group_name" in user_data or "professor_name" in user_data):
             return
@@ -85,46 +98,12 @@ class MongoDB:
                resp['users'][0]['id'] == user_id and \
                resp['users'][0]['platform'] == user_chat_platform
 
-    async def get_update_schedule_hashes(self, hashes: list, group_name: str):
+    async def get_group_hashes(self, group_name: str):
         find_parameter = {"name": group_name}
-        group = await self._groups_collection.find_one(find_parameter)
-        response = self._get_difference_dates(hashes, group)
-        await self._groups_collection.update_one(find_parameter, {"$set": {"hashes": hashes}})
-        return response
+        return await self._groups_collection.find_one(find_parameter)
 
-    def _get_difference_dates(self, hashes: list, group: dict) -> list:
-        if 'hashes' in group:
-            return self._get_difference_dates_and_update_hashes(group['hashes'], hashes)
-        else:
-            return []
-
-    def _get_difference_dates_and_update_hashes(self, old_hashes: list, new_hashes: list) -> list:
-        hashes = self._get_difference(old_hashes, new_hashes)
-        objects = self._find_full_objects(hashes, new_hashes)
-        return self._get_date_strings(objects)
-
-    def _get_difference(self, old_hashes: list, new_hashes: list) -> list:
-        return list(set(self._get_hashes(new_hashes)) - set(self._get_hashes(old_hashes)))
-
-    @staticmethod
-    def _get_hashes(dates_and_hashes: list) -> list:
-        return list(map(lambda date_and_hash: date_and_hash['hash'], dates_and_hashes))
-
-    @staticmethod
-    def _find_full_objects(hashes: list, object_list: list) -> list:
-        return list(filter(lambda date_hash: date_hash['hash'] in hashes, object_list))
-
-    @staticmethod
-    def _get_date_strings(object_list: list) -> list:
-        return list(map(lambda date_and_hash: date_and_hash['time'].strftime("%d.%m.%Y"), object_list))
-
-    async def get_check_changes_members(self, group: str) -> list:
-        return (await self._groups_collection.find_one({"name": group}))['users']
-
-    async def get_groups_list(self) -> list:
-        cursor = self._groups_collection.find()
-        groups = await self._parse_response(cursor)
-        return list(map(lambda group_obj: group_obj['name'], groups))
+    async def set_group_hashes(self, hashes: list, group_name: str):
+        await self._groups_collection.update_one({"name": group_name}, {"$set": {"hashes": hashes}})
 
     @staticmethod
     async def _parse_response(cursor):
@@ -133,8 +112,3 @@ class MongoDB:
             response = cursor.next_object()
             response_list.append(response)
         return response_list
-
-    async def get_mailing_subscribers_by_time(self, time: str) -> list:
-        cursor = self._users_collection.find({"mailing_time": time})
-        subscribers = await self._parse_response(cursor)
-        return list(map(lambda subscriber: [subscriber["id"], subscriber["platform"]], subscribers))

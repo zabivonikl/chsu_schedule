@@ -1,9 +1,11 @@
+from asyncio import AbstractEventLoop
+
 from Keyboards.keyboard import Keyboard
 from Wrappers.AIOHttp.aiohttp import AIOHttpWrapper
 
 
 class Telegram:
-    def __init__(self, token: str, event_loop):
+    def __init__(self, token: str, event_loop: AbstractEventLoop):
         self._client = AIOHttpWrapper(event_loop)
         self._bot_link = f"https://api.telegram.org/bot{token}"
 
@@ -21,11 +23,11 @@ class Telegram:
     def get_admins():
         return [672743407]
 
-    async def send_message_queue(self, queue, peer_ids, keyboard):
+    async def send_message_queue(self, queue: list, peer_ids: list, keyboard: str):
         for element in queue:
             await self.send_message(element, peer_ids, keyboard)
 
-    async def send_message(self, message, peer_ids, keyboard=None):
+    async def send_message(self, message: str, peer_ids: list, keyboard: str = None):
         for peer_id in peer_ids:
             params = {
                 "chat_id": peer_id,
@@ -40,7 +42,7 @@ class Telegram:
         if "result" in data:
             return data["result"]["url"]
 
-    async def set_webhook(self, url):
+    async def set_webhook(self, url: str):
         response = await self._call_get_method("setWebhook", {"url": url})
         if response["ok"]:
             return {"status": 200, "text": url}
@@ -53,7 +55,7 @@ class Telegram:
             return
         raise ConnectionError("Error of installation webhook")
 
-    async def _call_get_method(self, method_name, params=None):
+    async def _call_get_method(self, method_name: str, params: dict = None):
         try:
             return await self._client.get(f"{self._bot_link}/{method_name}", params=params)
         except Exception as e:

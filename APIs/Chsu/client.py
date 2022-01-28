@@ -1,5 +1,6 @@
 import asyncio
 import hashlib
+from asyncio import AbstractEventLoop
 from datetime import datetime
 from re import match
 
@@ -8,7 +9,7 @@ from Wrappers.AIOHttp.aiohttp import AIOHttpWrapper
 
 
 class Chsu:
-    def __init__(self, event_loop):
+    def __init__(self, event_loop: AbstractEventLoop):
         self._client = AIOHttpWrapper(event_loop)
         self._base_url = "http://api.chsu.ru/api/"
         self._headers = {
@@ -86,7 +87,7 @@ class Chsu:
     async def _get_groups_list(self):
         return await self._client.get(self._base_url + "/group/v1", headers=self._headers)
 
-    async def get_schedule_list_hash(self, university_id, start_date, last_date=None):
+    async def get_schedule_list_hash(self, university_id: str, start_date: str, last_date: str = None):
         response = []
         schedules = await self.get_schedule_list_string(university_id, start_date, last_date)
         for schedule in schedules:
@@ -99,13 +100,13 @@ class Chsu:
                 })
         return response
 
-    async def get_schedule_list_string(self, university_id, start_date, last_date=None):
+    async def get_schedule_list_string(self, university_id: str, start_date: str, last_date: str = None):
         return Schedule(
             'student' if university_id in await self.get_groups_by_id_list() else "professor",
             await self._get_schedule_json(university_id, start_date, last_date)
         )
 
-    async def _get_schedule_json(self, university_id, start_date, last_date=None):
+    async def _get_schedule_json(self, university_id: str, start_date: str, last_date: str = None):
         if university_id in await self.get_groups_by_id_list():
             query = f"/timetable/v1/from/{start_date}/to/{last_date or start_date}/groupId/{university_id}/"
         else:

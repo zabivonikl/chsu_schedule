@@ -1,3 +1,4 @@
+from asyncio import AbstractEventLoop
 from random import randint
 
 from aiovk import TokenSession, API
@@ -8,7 +9,7 @@ from Keyboards.keyboard import Keyboard
 
 
 class Vk:
-    def __init__(self, token: str, event_loop) -> None:
+    def __init__(self, token: str, event_loop: AbstractEventLoop) -> None:
         self._session = TokenSession(access_token=token, driver=HttpDriver(loop=event_loop))
         self._session.API_VERSION = "5.90"
         self._api = API(self._session)
