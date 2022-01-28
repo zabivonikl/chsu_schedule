@@ -5,11 +5,13 @@ from aiovk import TokenSession, API
 from aiovk.drivers import HttpDriver
 from aiovk.exceptions import VkAPIError
 
+from APIs.messanger import Messanger
 from Keyboards.keyboard import Keyboard
 
 
-class Vk:
+class Vk(Messanger):
     def __init__(self, token: str, event_loop: AbstractEventLoop) -> None:
+        super().__init__()
         self._session = TokenSession(access_token=token, driver=HttpDriver(loop=event_loop))
         self._session.API_VERSION = "5.90"
         self._api = API(self._session)
@@ -23,7 +25,7 @@ class Vk:
                 return "working"
             return f"Error {err.error_code}: {err.error_msg}"
 
-    async def get_keyboard_inst(self):
+    async def get_keyboard_inst(self) -> Keyboard:
         return Keyboard(self.get_api_name())
 
     @staticmethod
@@ -33,10 +35,6 @@ class Vk:
     @staticmethod
     def get_admins() -> list:
         return [447828812, 284737850, 113688146]
-
-    async def send_message_queue(self, queue: list, peer_ids: list, keyboard: str) -> None:
-        for element in queue:
-            await self.send_message(element, peer_ids, keyboard)
 
     async def send_message(self, message: str, peer_ids: list, keyboard: str) -> None:
         if keyboard is not None:

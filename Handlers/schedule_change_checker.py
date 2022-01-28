@@ -60,7 +60,6 @@ class ScheduleChecker:
         group_obj = await self._database.get_group_hashes(group_name)
         await self._database.set_group_hashes(new_hashes, group_name)
         response = self._get_difference_dates(new_hashes, group_obj)
-        print(response)
         return response
 
     async def _check_updates_process(self):

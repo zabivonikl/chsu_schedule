@@ -1,11 +1,13 @@
 from asyncio import AbstractEventLoop
 
+from APIs.messanger import Messanger
 from Keyboards.keyboard import Keyboard
 from Wrappers.AIOHttp.aiohttp import AIOHttpWrapper
 
 
-class Telegram:
+class Telegram(Messanger):
     def __init__(self, token: str, event_loop: AbstractEventLoop):
+        super().__init__()
         self._client = AIOHttpWrapper(event_loop)
         self._bot_link = f"https://api.telegram.org/bot{token}"
 
@@ -22,10 +24,6 @@ class Telegram:
     @staticmethod
     def get_admins():
         return [672743407]
-
-    async def send_message_queue(self, queue: list, peer_ids: list, keyboard: str):
-        for element in queue:
-            await self.send_message(element, peer_ids, keyboard)
 
     async def send_message(self, message: str, peer_ids: list, keyboard: str = None):
         for peer_id in peer_ids:

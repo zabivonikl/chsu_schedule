@@ -6,7 +6,6 @@ from aiohttp import web
 
 import tokens
 from APIs.Chsu.client import Chsu
-from APIs.Discord.client import Discord
 from APIs.Telegram.client import Telegram
 from APIs.Vk.client import Vk
 from Handlers.schedule_change_checker import ScheduleChecker
@@ -33,10 +32,9 @@ async def index(request):
         f'Database': f'{await mongo_db_api.get_status()}',
         f'VK': f'{await vk_api.get_status()}',
         f'Telegram': {
-            'isWorking': await telegram_api.get_status(),
-            'isSetWebhook': await telegram_api.get_webhook() != ""
+            'is working': await telegram_api.get_status(),
+            'is set webhook': await telegram_api.get_webhook() != ""
         },
-        # f'Discord': await discord_api.get_status(),
         f'Mailing': 'working',
         f'Update checking': checker.get_status()
     }))
@@ -66,7 +64,7 @@ async def telegram_event(request):
             "text": data['message']['text'],
             'time': get_time()
         }
-        await EventHandler(telegram_api, mongo_db_api, chsu_api).handle_event(event)
+        event_loop.create_task(EventHandler(telegram_api, mongo_db_api, chsu_api).handle_event(event))
         return web.Response(text="ok")
     except KeyError:
         return web.Response(text="ok")

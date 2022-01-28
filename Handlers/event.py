@@ -1,11 +1,14 @@
 from datetime import timedelta, datetime
 from re import match
 
+from APIs.Chsu.client import Chsu
+from APIs.messanger import Messanger
+from Wrappers.MongoDb.database import MongoDB
 from Wrappers.MongoDb.exceptions import EmptyResponse as MongoDBEmptyRespException
 
 
 class EventHandler:
-    def __init__(self, api, database, chsu_api):
+    def __init__(self, api: Messanger, database: MongoDB, chsu_api: Chsu):
         self._chat_platform = api
         self._database = database
         self._chsu_api = chsu_api
@@ -209,7 +212,7 @@ class EventHandler:
         )
 
     async def _handle_custom_date(self, from_id, start_date, end_date=None):
-        resp = None
+        resp = []
         try:
             dates = self._get_full_date(start_date, end_date)
             resp = await self._get_schedule(from_id, dates[0], dates[1])
@@ -250,10 +253,8 @@ class EventHandler:
             db_response = await self._database.get_user_data(
                 from_id, self._chat_platform.get_api_name(), self._current_date
             )
-            university_id = int(
-                self._id_by_groups[db_response["group_name"]] if "group_name" in db_response
+            university_id = self._id_by_groups[db_response["group_name"]] if "group_name" in db_response\
                 else self._id_by_professors[db_response["professor_name"]]
-            )
             return await self._chsu_api.get_schedule_list_string(university_id, start_date, last_date)
         except ConnectionError as err:
             kb = self._keyboard.get_standard_keyboard()
