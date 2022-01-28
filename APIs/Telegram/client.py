@@ -1,7 +1,6 @@
 from asyncio import AbstractEventLoop
 
 from APIs.messanger import Messanger
-from Keyboards.keyboard import Keyboard
 from Wrappers.AIOHttp.aiohttp import AIOHttpWrapper
 
 
@@ -13,9 +12,6 @@ class Telegram(Messanger):
 
     async def get_status(self):
         return (await self._call_get_method("getMe"))['ok']
-
-    async def get_keyboard_inst(self):
-        return Keyboard(self.get_api_name())
 
     @staticmethod
     def get_api_name():

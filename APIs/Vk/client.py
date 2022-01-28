@@ -6,7 +6,6 @@ from aiovk.drivers import HttpDriver
 from aiovk.exceptions import VkAPIError
 
 from APIs.messanger import Messanger
-from Keyboards.keyboard import Keyboard
 
 
 class Vk(Messanger):
@@ -24,9 +23,6 @@ class Vk(Messanger):
             if err.error_code == 27:
                 return "working"
             return f"Error {err.error_code}: {err.error_msg}"
-
-    async def get_keyboard_inst(self) -> Keyboard:
-        return Keyboard(self.get_api_name())
 
     @staticmethod
     def get_api_name() -> str:

@@ -89,10 +89,10 @@ class ScheduleChecker:
         for user in users:
             if user['platform'] == self._vk.get_api_name():
                 api = self._vk
-                kb = await self._vk.get_keyboard_inst()
+                kb = self._vk.get_keyboard_inst()
             else:
                 api = self._telegram
-                kb = await self._telegram.get_keyboard_inst()
+                kb = self._telegram.get_keyboard_inst()
             await api.send_message_queue(response, [user['id']], kb.get_standard_keyboard())
 
     async def _get_new_schedules(self, group, group_id):

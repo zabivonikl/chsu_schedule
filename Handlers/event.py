@@ -23,7 +23,7 @@ class EventHandler:
         self._current_date = event['time']
         self._id_by_professors = await self._chsu_api.get_id_by_professors_list()
         self._id_by_groups = await self._chsu_api.get_id_by_groups_list()
-        self._keyboard = await self._chat_platform.get_keyboard_inst()
+        self._keyboard = self._chat_platform.get_keyboard_inst()
 
         if event['text'] not in ['Начать', "/start"]:
             await self._handle_change_group(event)

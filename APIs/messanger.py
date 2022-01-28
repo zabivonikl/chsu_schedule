@@ -8,8 +8,8 @@ class Messanger:
     async def get_status(self) -> str:
         pass
 
-    async def get_keyboard_inst(self) -> Keyboard:
-        pass
+    def get_keyboard_inst(self) -> Keyboard:
+        return Keyboard(self.get_api_name())
 
     @staticmethod
     def get_api_name() -> str:

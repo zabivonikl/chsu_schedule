@@ -102,19 +102,6 @@ async def delete_webhook(request):
     return web.Response(text='ok')
 
 
-# @routes.post('/discord/callback')
-async def discord_event(request):
-    data = await request.json()
-    print(await request.text())
-    if 'type' in data and data['type'] == 1:
-        if await discord_api.is_valid_request(request):
-            return web.Response(text=json.dumps({
-                'type': 1
-            }))
-        else:
-            return web.Response(status=401, text="Invalid request signature")
-
-
 async def mailing():
     while get_time().second != 0:
         await asyncio.sleep(.5)
@@ -144,7 +131,6 @@ if __name__ == "__main__":
     print("Starting messangers...")
     vk_api = Vk(tokens.VK_API, event_loop)
     telegram_api = Telegram(tokens.TELEGRAM_API, event_loop)
-    discord_api = Discord(tokens.DISCORD_API, tokens.DISCORD_PUBLIC_KEY, event_loop)
     print("Done")
 
     # init mailing
