@@ -6,11 +6,7 @@ class VkKeyboard(Keyboard):
         super().__init__()
 
     def _clear(self) -> None:
-        self._keyboard = {
-            "one_time": False,
-            "buttons": [],
-            "inline": False
-        }
+        self._keyboard = {"one_time": False, "buttons": [], "inline": False}
 
     def _add_line(self) -> None:
         self._keyboard['buttons'].append([])

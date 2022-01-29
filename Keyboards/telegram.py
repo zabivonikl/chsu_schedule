@@ -6,12 +6,7 @@ class TelegramKeyboard(Keyboard):
         super().__init__()
 
     def _clear(self) -> None:
-        self._keyboard = {
-            'resize_keyboard': True,
-            'one_time_keyboard': True,
-            'keyboard': [],
-            'selective': True
-        }
+        self._keyboard = {'resize_keyboard': True, 'one_time_keyboard': True, 'keyboard': [], 'selective': True}
 
     def _add_line(self) -> None:
         self._keyboard['keyboard'].append([])
