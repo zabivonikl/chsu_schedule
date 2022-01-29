@@ -12,10 +12,4 @@ class VkKeyboard(Keyboard):
         self._keyboard['buttons'].append([])
 
     def _add_button(self, text: str, color: str) -> None:
-        self._keyboard['buttons'][-1].append({
-            "action": {
-                "type": "text",
-                "label": text
-            },
-            "color": color
-        })
+        self._keyboard['buttons'][-1].append({"action": {"type": "text", "label": text}, "color": color})

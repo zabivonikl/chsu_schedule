@@ -9,9 +9,6 @@ class Schedule:
     def __iter__(self):
         return (i for i in self._response or ["Расписание не найдено.\n"])
 
-    def __len__(self):
-        return len(self._response)
-
     def _nullify_fields(self):
         self._response = []
         self._couple = {}
