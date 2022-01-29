@@ -16,10 +16,6 @@ class Telegram(Messanger):
         return (await self._call_get_method("getMe"))['ok']
 
     @staticmethod
-    def get_name():
-        return "telegram"
-
-    @staticmethod
     def get_admins():
         return [672743407]
 

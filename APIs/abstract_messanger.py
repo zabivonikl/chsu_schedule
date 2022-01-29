@@ -11,9 +11,8 @@ class Messanger:
     def get_keyboard_inst(self) -> Keyboard:
         pass
 
-    @staticmethod
-    def get_name() -> str:
-        pass
+    def get_name(self) -> str:
+        return self.__class__.__name__.lower()
 
     @staticmethod
     def get_admins() -> list:

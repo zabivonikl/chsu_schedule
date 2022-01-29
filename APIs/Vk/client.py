@@ -27,12 +27,8 @@ class Vk(Messanger):
             return f"Error {err.error_code}: {err.error_msg}"
 
     @staticmethod
-    def get_name() -> str:
-        return "vk"
-
-    @staticmethod
     def get_admins() -> list:
-        return [447828812, 284737850, 113688146]
+        return [447828812,  113688146]
 
     def get_keyboard_inst(self) -> Keyboard:
         return VkKeyboard()
