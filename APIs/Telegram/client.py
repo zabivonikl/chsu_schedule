@@ -6,6 +6,7 @@ from Keyboards.telegram import TelegramKeyboard
 from Wrappers.AIOHttp.aiohttp import AIOHttpWrapper
 
 
+# при переименовании необходимо переопределить get_name()!!!
 class Telegram(Messanger):
     def __init__(self, token: str, event_loop: AbstractEventLoop):
         super().__init__()

@@ -10,6 +10,7 @@ from Keyboards.abstract_keyboard import Keyboard
 from Keyboards.vk import VkKeyboard
 
 
+# при переименовании необходимо переопределить get_name()!!!
 class Vk(Messanger):
     def __init__(self, token: str, event_loop: AbstractEventLoop) -> None:
         super().__init__()
