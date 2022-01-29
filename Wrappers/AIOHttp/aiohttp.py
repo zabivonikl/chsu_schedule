@@ -5,9 +5,7 @@ import aiohttp
 
 class AIOHttpWrapper:
     def __init__(self, event_loop: AbstractEventLoop):
-        self._session = aiohttp.ClientSession(
-            loop=event_loop
-        )
+        self._session = aiohttp.ClientSession(loop=event_loop)
 
     def get_client(self):
         return self._session

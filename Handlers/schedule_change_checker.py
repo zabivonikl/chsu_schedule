@@ -62,47 +62,6 @@ class ScheduleChecker:
         response = self._get_difference_dates(new_hashes, group_obj)
         return response
 
-    async def _check_updates_process(self):
-        while True:
-            try:
-                await self._check_updates()
-            except ConnectionError as err:
-                print(err)
-            await asyncio.sleep(1)
-
-    async def _check_updates(self):
-        if await self.is_beginning_of_the_hour():
-            group_list = await self._database.get_groups_list()
-            ids = await self._get_id_list()
-            for group in group_list:
-                await self._check_and_send_updates_for_group(group, ids[group])
-
-    async def is_beginning_of_the_hour(self):
-        return self._get_time().second == 0 and self._get_time().hour != 0 and self._get_time().minute == 0
-
-    async def _check_and_send_updates_for_group(self, group, group_id):
-        users = await self._database.get_check_changes_members(group)
-        response = await self._get_new_schedules(group, group_id)
-        await self._send_response(users, response)
-
-    async def _send_response(self, users, response):
-        for user in users:
-            if user['platform'] == self._vk.get_name():
-                api = self._vk
-                kb = self._vk.get_keyboard_inst()
-            else:
-                api = self._telegram
-                kb = self._telegram.get_keyboard_inst()
-            await api.send_message_queue(response, [user['id']], kb.get_standard_keyboard())
-
-    async def _get_new_schedules(self, group, group_id):
-        update_times = await self._update_group_and_get_changes(group, group_id) or []
-        response = []
-        for update_time in update_times:
-            schedule = (await self._chsu_api.get_schedule_list_string(group_id, update_time))
-            response += list(map(lambda day: f"Обновленное расписание:\n\n{day}", schedule))
-        return response
-
     def _get_difference_dates(self, hashes: list, group: dict) -> list:
         if 'hashes' in group:
             return self._get_difference_dates_and_update_hashes(group['hashes'], hashes)
@@ -128,3 +87,44 @@ class ScheduleChecker:
     @staticmethod
     def _get_date_strings(object_list: list) -> list:
         return list(map(lambda date_and_hash: date_and_hash['time'].strftime("%d.%m.%Y"), object_list))
+
+    async def _check_updates_process(self):
+        while True:
+            try:
+                await self._check_updates()
+            except ConnectionError as err:
+                print(err)
+            await asyncio.sleep(1)
+
+    async def _check_updates(self):
+        if await self.is_beginning_of_the_hour():
+            group_list = await self._database.get_groups_list()
+            ids = await self._get_id_list()
+            for group in group_list:
+                await self._check_and_send_updates_for_group(group, ids[group])
+
+    async def is_beginning_of_the_hour(self):
+        return self._get_time().second == 0 and self._get_time().hour != 0 and self._get_time().minute == 0
+
+    async def _check_and_send_updates_for_group(self, group, group_id):
+        users = await self._database.get_check_changes_members(group)
+        response = await self._get_new_schedules(group, group_id)
+        await self._send_response(users, response)
+
+    async def _get_new_schedules(self, group, group_id):
+        update_times = await self._update_group_and_get_changes(group, group_id) or []
+        response = []
+        for update_time in update_times:
+            schedule = (await self._chsu_api.get_schedule_list_string(group_id, update_time))
+            response += list(map(lambda day: f"Обновленное расписание:\n\n{day}", schedule))
+        return response
+
+    async def _send_response(self, users, response):
+        for user in users:
+            if user['platform'] == self._vk.get_name():
+                api = self._vk
+                kb = self._vk.get_keyboard_inst()
+            else:
+                api = self._telegram
+                kb = self._telegram.get_keyboard_inst()
+            await api.send_message_queue(response, [user['id']], kb.get_standard_keyboard())

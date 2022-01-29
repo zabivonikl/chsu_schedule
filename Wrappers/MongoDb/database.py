@@ -62,6 +62,14 @@ class MongoDB:
             "platform": api_name,
         }, update_parameter)
 
+    @staticmethod
+    async def _parse_response(cursor):
+        response_list = []
+        while await cursor.fetch_next:
+            response = cursor.next_object()
+            response_list.append(response)
+        return response_list
+
     async def get_groups_list(self) -> list:
         cursor = self._groups_collection.find()
         groups = await self._parse_response(cursor)
@@ -104,11 +112,3 @@ class MongoDB:
 
     async def set_group_hashes(self, hashes: list, group_name: str):
         await self._groups_collection.update_one({"name": group_name}, {"$set": {"hashes": hashes}})
-
-    @staticmethod
-    async def _parse_response(cursor):
-        response_list = []
-        while await cursor.fetch_next:
-            response = cursor.next_object()
-            response_list.append(response)
-        return response_list

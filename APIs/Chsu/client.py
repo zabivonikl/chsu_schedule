@@ -21,9 +21,7 @@ class Chsu:
             "password": "ds3m#2nn"
         }
         self._id_by_professors = None
-        self._professors_by_id = None
         self._id_by_groups = None
-        self._groups_by_id = None
         event_loop.create_task(self._updating_token())
 
     async def _updating_token(self):
@@ -51,41 +49,25 @@ class Chsu:
 
     async def get_id_by_professors_list(self):
         if self._id_by_professors is None:
-            teachers = await self._get_teachers_list()
+            teachers = await self._client.get(self._base_url + "/teacher/v1", headers=self._headers)
             self._id_by_professors = {}
             for teacher in teachers:
                 self._id_by_professors[teacher["fio"]] = teacher['id']
         return self._id_by_professors
 
-    async def get_professors_by_id_list(self):
-        if self._professors_by_id is None:
-            teachers = await self._get_teachers_list()
-            self._professors_by_id = {}
-            for teacher in teachers:
-                self._professors_by_id[teacher["id"]] = teacher['fio']
-        return self._professors_by_id
-
-    async def _get_teachers_list(self):
-        return await self._client.get(self._base_url + "/teacher/v1", headers=self._headers)
-
     async def get_id_by_groups_list(self):
         if self._id_by_groups is None:
-            groups = await self._get_groups_list()
+            groups = await self._client.get(self._base_url + "/group/v1", headers=self._headers)
             self._id_by_groups = {}
             for group in groups:
                 self._id_by_groups[group["title"]] = group['id']
         return self._id_by_groups
 
-    async def get_groups_by_id_list(self):
-        if self._groups_by_id is None:
-            groups = await self._get_groups_list()
-            self._groups_by_id = {}
-            for group in groups:
-                self._groups_by_id[group["id"]] = group['title']
-        return self._groups_by_id
-
-    async def _get_groups_list(self):
-        return await self._client.get(self._base_url + "/group/v1", headers=self._headers)
+    async def get_user_type(self, chsu_id: str):
+        if chsu_id in (await self.get_id_by_groups_list()).values():
+            return "student"
+        else:
+            return "professor"
 
     async def get_schedule_list_hash(self, university_id: str, start_date: str, last_date: str = None):
         response = []
@@ -102,15 +84,13 @@ class Chsu:
 
     async def get_schedule_list_string(self, university_id: str, start_date: str, last_date: str = None):
         return Schedule(
-            'student' if university_id in await self.get_groups_by_id_list() else "professor",
+            await self.get_user_type(university_id),
             await self._get_schedule_json(university_id, start_date, last_date)
         )
 
     async def _get_schedule_json(self, university_id: str, start_date: str, last_date: str = None):
-        if university_id in await self.get_groups_by_id_list():
-            query = f"/timetable/v1/from/{start_date}/to/{last_date or start_date}/groupId/{university_id}/"
-        else:
-            query = f"/timetable/v1/from/{start_date}/to/{last_date or start_date}/lecturerId/{university_id}/"
+        user_type = "groupId" if await self.get_user_type(university_id) == "student" else "lecturerId"
+        query = f"/timetable/v1/from/{start_date}/to/{last_date or start_date}/{user_type}/{university_id}/"
         response = await self._client.get(self._base_url + query, headers=self._headers)
         if 'description' in response:
             raise ConnectionError(f"{response['code']}: {response['description']}")
