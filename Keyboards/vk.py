@@ -18,7 +18,7 @@ class VkKeyboard(Keyboard):
         self._keyboard['buttons'].append([])
         self._line_count += 1
 
-    def _add_button(self, text: str, color: str = "primary") -> None:
+    def _add_button(self, text: str, color: str) -> None:
         self._keyboard['buttons'][self._line_count - 1].append({
             "action": {
                 "type": "text",
