@@ -6,6 +6,8 @@ from aiovk.drivers import HttpDriver
 from aiovk.exceptions import VkAPIError
 
 from APIs.messanger import Messanger
+from Keyboards.keyboard import Keyboard
+from Keyboards.vk import VkKeyboard
 
 
 class Vk(Messanger):
@@ -31,6 +33,9 @@ class Vk(Messanger):
     @staticmethod
     def get_admins() -> list:
         return [447828812, 284737850, 113688146]
+
+    def get_keyboard_inst(self) -> Keyboard:
+        return VkKeyboard()
 
     async def send_message(self, message: str, peer_ids: list, keyboard: str) -> None:
         for peer_id in peer_ids:

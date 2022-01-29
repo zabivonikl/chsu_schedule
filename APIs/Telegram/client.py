@@ -1,6 +1,8 @@
 from asyncio import AbstractEventLoop
 
 from APIs.messanger import Messanger
+from Keyboards.keyboard import Keyboard
+from Keyboards.telegram import TelegramKeyboard
 from Wrappers.AIOHttp.aiohttp import AIOHttpWrapper
 
 
@@ -20,6 +22,9 @@ class Telegram(Messanger):
     @staticmethod
     def get_admins():
         return [672743407]
+
+    def get_keyboard_inst(self) -> Keyboard:
+        return TelegramKeyboard()
 
     async def send_message(self, message: str, peer_ids: list, keyboard: str = None):
         for peer_id in peer_ids:

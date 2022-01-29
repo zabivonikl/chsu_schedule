@@ -9,7 +9,7 @@ class Messanger:
         pass
 
     def get_keyboard_inst(self) -> Keyboard:
-        return Keyboard(self.get_name())
+        pass
 
     @staticmethod
     def get_name() -> str:
