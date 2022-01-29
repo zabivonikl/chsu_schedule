@@ -98,7 +98,7 @@ async def set_webhook(request):
 
 @routes.get('/telegram/webhook/remove')
 async def delete_webhook(request):
-    await telegram_api.delete_webhook()
+    await telegram_api.set_webhook()
     return web.Response(text='ok')
 
 

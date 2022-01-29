@@ -36,18 +36,15 @@ class Telegram(Messanger):
         if "result" in data:
             return data["result"]["url"]
 
-    async def set_webhook(self, url: str):
-        response = await self._call_get_method("setWebhook", {"url": url})
+    async def set_webhook(self, url: str = None):
+        if url:
+            response = await self._call_get_method("setWebhook", {"url": url})
+        else:
+            response = await self._call_get_method("deleteWebhook")
         if response["ok"]:
             return {"status": 200, "text": url}
         else:
             return {"status": response['error_code'], "text": f"{response['description']}\nUrl: {url}"}
-
-    async def delete_webhook(self):
-        response = await self._call_get_method("deleteWebhook")
-        if response:
-            return
-        raise ConnectionError("Error of installation webhook")
 
     async def _call_get_method(self, method_name: str, params: dict = None):
         try:
