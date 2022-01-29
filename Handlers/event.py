@@ -2,7 +2,7 @@ from datetime import timedelta, datetime
 from re import match
 
 from APIs.Chsu.client import Chsu
-from APIs.messanger import Messanger
+from APIs.abstract_messanger import Messanger
 from Wrappers.MongoDb.database import MongoDB
 from Wrappers.MongoDb.exceptions import EmptyResponse as MongoDBEmptyRespException
 

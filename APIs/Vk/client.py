@@ -5,8 +5,8 @@ from aiovk import TokenSession, API
 from aiovk.drivers import HttpDriver
 from aiovk.exceptions import VkAPIError
 
-from APIs.messanger import Messanger
-from Keyboards.keyboard import Keyboard
+from APIs.abstract_messanger import Messanger
+from Keyboards.abstract_keyboard import Keyboard
 from Keyboards.vk import VkKeyboard
 
 

@@ -1,13 +1,10 @@
-from json import dumps
-
-from Keyboards.keyboard import Keyboard
+from Keyboards.abstract_keyboard import Keyboard
 
 
 class VkKeyboard(Keyboard):
     def __init__(self) -> None:
         super().__init__()
         self._line_count = 0
-        self._keyboard = None
 
     def _clear(self) -> None:
         self._line_count = 0
@@ -29,6 +26,3 @@ class VkKeyboard(Keyboard):
             },
             "color": color
         })
-
-    def _get_keyboard(self) -> str:
-        return dumps(self._keyboard)

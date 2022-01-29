@@ -1,6 +1,9 @@
+from json import dumps
+
+
 class Keyboard:
     def __init__(self) -> None:
-        pass
+        self._keyboard = None
 
     def get_standard_keyboard(self) -> str:
         self._clear()
@@ -74,4 +77,4 @@ class Keyboard:
         pass
 
     def _get_keyboard(self) -> str:
-        pass
+        return dumps(self._keyboard)

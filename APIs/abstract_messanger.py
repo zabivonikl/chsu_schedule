@@ -1,4 +1,4 @@
-from Keyboards.keyboard import Keyboard
+from Keyboards.abstract_keyboard import Keyboard
 
 
 class Messanger:
