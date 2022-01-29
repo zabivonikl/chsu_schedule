@@ -33,18 +33,8 @@ class Vk(Messanger):
         return [447828812, 284737850, 113688146]
 
     async def send_message(self, message: str, peer_ids: list, keyboard: str) -> None:
-        if keyboard is not None:
-            for peer_id in peer_ids:
-                await self._api.messages.send(
-                    message=message,
-                    peer_ids=peer_id,
-                    random_id=randint(0, 4096),
-                    keyboard=keyboard
-                )
-        else:
-            for peer_id in peer_ids:
-                await self._api.messages.send(
-                    message=message,
-                    peer_ids=peer_id,
-                    random_id=randint(0, 4096)
-                )
+        for peer_id in peer_ids:
+            args = dict(message=message, peer_ids=peer_id, random_id=randint(0, 4096))
+            if keyboard:
+                args['keyboard'] = keyboard
+            await self._api.messages.send(**args)
