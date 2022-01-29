@@ -64,10 +64,7 @@ class Chsu:
         return self._id_by_groups
 
     async def get_user_type(self, chsu_id: str):
-        if chsu_id in (await self.get_id_by_groups_list()).values():
-            return "student"
-        else:
-            return "professor"
+        return "student" if chsu_id in (await self.get_id_by_groups_list()).values() else "professor"
 
     async def get_schedule_list_hash(self, university_id: str, start_date: str, last_date: str = None):
         response = []
