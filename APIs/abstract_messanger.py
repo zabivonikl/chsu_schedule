@@ -9,7 +9,7 @@ class Messanger:
         pass
 
     def get_keyboard_inst(self) -> Keyboard:
-        pass
+        return Keyboard()
 
     def get_name(self) -> str:
         return self.__class__.__name__.lower()

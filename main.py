@@ -139,6 +139,7 @@ if __name__ == "__main__":
 
     print("Starting schedule checker...")
     checker = ScheduleChecker(vk_api, telegram_api, mongo_db_api, chsu_api, event_loop, get_time)
+    print("Done")
 
     # init server
     print("Starting web app...")
