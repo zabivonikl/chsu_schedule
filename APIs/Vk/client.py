@@ -31,7 +31,8 @@ class Vk(Messanger):
     def get_admins() -> list:
         return [447828812,  113688146]
 
-    def get_keyboard_inst(self) -> Keyboard:
+    @staticmethod
+    def get_keyboard_inst() -> Keyboard:
         return VkKeyboard()
 
     async def send_message(self, message: str, peer_ids: list, keyboard: str) -> None:
