@@ -14,7 +14,6 @@ from Handlers.event import EventHandler
 
 routes = web.RouteTableDef()
 event_loop = asyncio.get_event_loop()
-mailing_is_started = False
 
 
 def get_time(tz=3):
