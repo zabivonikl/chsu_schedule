@@ -28,8 +28,8 @@ class Schedule:
         self._current_date = datetime.datetime.strptime(self._couple['dateEvent'], "%d.%m.%Y")
         weekdays = ["Понедельник", "Вторник", "Среду", "Четверг", "Пятницу", "Субботу", "Воскресение"]
         self._response.append(
-            f'\n=====Расписание на {weekdays[self._current_date.weekday()].lower()}, '
-            f'{self._current_date.strftime("%d.%m.%Y")}=====\n'
+            f'\n==Расписание на {weekdays[self._current_date.weekday()].lower()}, '
+            f'{self._current_date.strftime("%d.%m.%Y")}==\n'
         )
 
     def _add_couple_to_string(self, id_type):
