@@ -21,7 +21,13 @@ class Messanger:
 
     async def send_message_queue(self, queue: list, peer_ids: list, keyboard: str) -> None:
         for element in queue:
-            await self.send_message(element, peer_ids, keyboard)
+            if 'text' in element:
+                await self.send_message(element['text'], peer_ids, keyboard)
+            else:
+                await self.send_message(element, peer_ids, keyboard)
 
     async def send_message(self, message: str, peer_ids: list, keyboard: str) -> None:
+        pass
+
+    async def send_coords(self, peer_ids: list, lat: int, lon: int, keyboard: str = None):
         pass

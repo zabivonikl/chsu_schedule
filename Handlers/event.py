@@ -142,8 +142,8 @@ class EventHandler:
             await self._database.set_check_changes_member(event['from_id'], self._chat_platform.get_name())
             kb = self._keyboard.get_standard_keyboard()
             await self._chat_platform.send_message(
-                f"Вам больше не будут приходить уведомления о изменениях в расписании,"
-                f" однако их всегда можно включить в настройках.", [event['from_id']], kb
+                f"Вам больше не будут приходить уведомления о изменениях в расписании, "
+                f"однако их всегда можно включить в настройках.", [event['from_id']], kb
             )
 
     async def _handle_group_or_professor_name(self, event):

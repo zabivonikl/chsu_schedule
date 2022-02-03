@@ -29,7 +29,7 @@ class Vk(Messanger):
 
     @staticmethod
     def get_admins() -> list:
-        return [447828812,  113688146]
+        return [447828812, 113688146]
 
     @staticmethod
     def get_keyboard_inst() -> Keyboard:
@@ -38,6 +38,13 @@ class Vk(Messanger):
     async def send_message(self, message: str, peer_ids: list, keyboard: str) -> None:
         for peer_id in peer_ids:
             args = dict(message=message, peer_ids=peer_id, random_id=randint(0, 4096))
+            if keyboard:
+                args['keyboard'] = keyboard
+            await self._api.messages.send(**args)
+
+    async def send_coords(self, peer_ids: list, lat: int, lon: int, keyboard: str = None):
+        for peer_id in peer_ids:
+            args = dict(peer_ids=peer_id, random_id=randint(0, 4096), lat=lat, long=lon)
             if keyboard:
                 args['keyboard'] = keyboard
             await self._api.messages.send(**args)

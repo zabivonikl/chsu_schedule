@@ -26,13 +26,17 @@ class Telegram(Messanger):
 
     async def send_message(self, message: str, peer_ids: list, keyboard: str = None):
         for peer_id in peer_ids:
-            params = {
-                "chat_id": peer_id,
-                "text": message,
-            }
+            params = {"chat_id": peer_id, "text": message}
             if keyboard is not None:
                 params["reply_markup"] = keyboard
             await self._call_get_method("sendMessage", params)
+
+    async def send_coords(self, peer_ids: list, lat: int, lon: int, keyboard: str = None):
+        for peer_id in peer_ids:
+            params = {"chat_id": peer_id, "latitude": lat, "longitude": lon}
+            if keyboard is not None:
+                params["reply_markup"] = keyboard
+            await self._call_get_method("sendLocation", params)
 
     async def get_webhook(self):
         data = await self._call_get_method("getWebhookInfo")
