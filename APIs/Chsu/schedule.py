@@ -1,3 +1,6 @@
+import datetime
+
+
 class Schedule:
     def __init__(self, id_type: str, json: list):
         self._nullify_fields()
@@ -12,18 +15,22 @@ class Schedule:
     def _nullify_fields(self):
         self._response = []
         self._couple = {}
-        self._current_date = ""
+        self._current_date = datetime.datetime(1970, 1, 1)
 
     def _split_if_another_day(self):
         if not self._is_current_date():
             self._update_current_and_add_day()
 
     def _is_current_date(self):
-        return self._current_date == self._couple['dateEvent']
+        return self._current_date.strftime("%d.%m.%Y") == self._couple['dateEvent']
 
     def _update_current_and_add_day(self):
-        self._current_date = self._couple['dateEvent']
-        self._response.append(f'\n=====Расписание на {self._current_date}=====\n')
+        self._current_date = datetime.datetime.strptime(self._couple['dateEvent'], "%d.%m.%Y")
+        weekdays = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресение"]
+        self._response.append(
+            f'\n=====Расписание на {weekdays[self._current_date.weekday()].lower()}, '
+            f'{self._current_date.strftime("%d.%m.%Y")}=====\n'
+        )
 
     def _add_couple_to_string(self, id_type):
         self._response[-1] += self._get_couple_time()
