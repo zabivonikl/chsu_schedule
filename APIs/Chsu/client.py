@@ -70,9 +70,7 @@ class Chsu:
         response = []
         schedules = await self.get_schedule_list_string(university_id, start_date, last_date)
         for schedule in schedules:
-            if not match(r'\d{2}.\d{2}.\d{4}', schedule['text'].split(', ')[1][0:10]):
-                print(schedule['text'].split(', ')[1][0:10])
-            else:
+            if len(schedule['text'].split(', ')) > 1:
                 response.append({
                     "time": datetime.strptime(schedule['text'].split(', ')[1][0:10], "%d.%m.%Y"),
                     "hash": hashlib.sha256(schedule['text'].encode()).hexdigest()
