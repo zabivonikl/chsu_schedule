@@ -104,7 +104,7 @@ class ScheduleChecker:
                 await self._check_and_send_updates_for_group(group, ids[group])
 
     async def is_beginning_of_the_hour(self):
-        return self._get_time().second == 0 and self._get_time().hour != 0  # and self._get_time().minute == 0
+        return self._get_time().second == 0 and self._get_time().hour != 0 and self._get_time().minute == 0
 
     async def _check_and_send_updates_for_group(self, group, group_id):
         users = await self._database.get_check_changes_members(group)
