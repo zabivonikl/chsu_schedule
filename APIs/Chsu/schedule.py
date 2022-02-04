@@ -10,7 +10,10 @@ class Schedule:
             self._add_couple_to_string(id_type)
 
     def __iter__(self):
-        return (i for i in self._response or ["Расписание не найдено.\n"])
+        return (i for i in self._response or [{"text": "Расписание не найдено.\n", 'callback_data': []}])
+
+    def __hash__(self):
+        return hash(self._response or [{"text": "Расписание не найдено.\n", 'callback_data': []}])
 
     def _nullify_fields(self):
         self._response = []
@@ -28,7 +31,8 @@ class Schedule:
         self._current_date = datetime.datetime.strptime(self._couple['dateEvent'], "%d.%m.%Y")
         weekdays = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресение"]
         self._response.append({
-            "text": f'\n=={weekdays[self._current_date.weekday()]}, {self._current_date.strftime("%d.%m.%Y")}==\n'
+            "text": f'\n=={weekdays[self._current_date.weekday()]}, {self._current_date.strftime("%d.%m.%Y")}==\n',
+            "callback_data": []
         })
 
     def _add_couple_to_string(self, id_type):
@@ -36,7 +40,7 @@ class Schedule:
         self._response[-1]["text"] += self._get_discipline_string()
         self._response[-1]["text"] += self._get_professors_names() if id_type == 'student' else self._get_groups_names()
         self._response[-1]["text"] += self._get_location()
-        self._response[-1]["callback_data"] = self._get_address() if self._couple['online'] != 1 else None
+        self._response[-1]["callback_data"].append(self._couple['build']['title'] if self._couple['online'] != 1 else None)
         self._response[-1]["text"] += "\n"
 
     def _get_couple_time(self):

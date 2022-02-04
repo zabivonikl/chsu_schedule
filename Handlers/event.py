@@ -12,21 +12,23 @@ class EventHandler:
         self._chat_platform = api
         self._database = database
         self._chsu_api = chsu_api
-        self._keyboard = None
+        self._keyboard = self._chat_platform.get_keyboard_inst()
 
-        self._id_by_professors = None
         self._id_by_groups = None
+        self._id_by_professors = None
 
         self._current_date = None
 
     async def handle_event(self, event):
         self._current_date = event['time']
+
         self._id_by_professors = await self._chsu_api.get_id_by_professors_list()
         self._id_by_groups = await self._chsu_api.get_id_by_groups_list()
-        self._keyboard = self._chat_platform.get_keyboard_inst()
 
-        if event['text'] not in ['Начать', "/start"]:
+        if 'text' in event and event['text'] not in ['Начать', "/start"]:
             await self._handle_change_group(event)
+        elif 'payload' in event:
+            await self._send_coords(event)
         else:
             kb = self._keyboard.get_start_keyboard()
             await self._chat_platform.send_message("Кто вы?", [event['from_id']], kb)
@@ -37,6 +39,21 @@ class EventHandler:
         else:
             kb = self._keyboard.get_change_group_keyboard()
             await self._chat_platform.send_message("Кто вы?", [event['from_id']], kb)
+
+    async def _send_coords(self, event):
+        buildings = {
+            'Учебный корпус № 1 (Советский, 8)': (59.12047482336482, 37.93102001811573),
+            'Учебный корпус № 2 (Победы, 12)': (59.133350120818704, 37.90253587101461),
+            'Учебный корпус № 3 (ул.М.Горького, 14)': (59.12470566799802, 37.92012233131044),
+            'Учебный корпус № 4 (Дзержинского, 30)': (59.12339489869266, 37.9275337655467),
+            'Мастерские (Луначарского, 5А)': (59.123787062658394, 37.92074409709377),
+            'Учебный корпус № 6 (Советский, 10)': (59.120723715241255, 37.92954511882637),
+            'Учебный корпус № 8 (Советский пр., 25)': (59.122360077173084, 37.92928885012067),
+            'Северные трибуны (ул. Труда, 3)': (59.11857069813809, 37.91983646772889),
+            'Спортивный корпус(ул.Труда, д.3)': (59.11757126831587, 37.92001688361389),
+            'Спортивно-оздоровительный комплекс (ул.Чкалова, 31А)': (59.12975151805174, 37.87396552737589)
+        }
+        await self._chat_platform.send_coords([event['from_id']], *buildings[event['payload']])
 
     async def _handle_message_to_admin(self, event):
         if event['text'] and event['text'][0] != ';':
@@ -217,10 +234,14 @@ class EventHandler:
             dates = self._get_full_date(start_date, end_date)
             resp = await self._get_schedule(from_id, dates[0], dates[1])
         except ValueError:
-            resp = ['Введена некорректная дата.']
+            resp = [{"text": "Введена некорректная дата.", 'callback_data' : []}]
         finally:
-            kb = self._keyboard.get_standard_keyboard()
-            await self._chat_platform.send_message_queue(resp, [from_id], kb)
+            for day in resp:
+                if len(set(filter(lambda x: x is not None, day['callback_data']))) > 0:
+                    kb = self._keyboard.get_geo_request_keyboard(list(set(filter(lambda x: x is not None, day['callback_data']))))
+                else:
+                    kb = self._keyboard.get_standard_keyboard()
+                await self._chat_platform.send_message(day['text'], [from_id], kb)
 
     def _get_full_date(self, initial_date_string, final_date_string=None):
         initial_date = self._parse_date_string(initial_date_string)

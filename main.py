@@ -44,11 +44,18 @@ async def vk_event(request):
     data = await request.json()
     if data["type"] == "confirmation":
         return web.Response(text=request.match_info['returnable'])
-    event = {
-        'from_id': data['object']['message']['from_id'],
-        'text': data['object']['message']['text'],
-        'time': get_time()
-    }
+    elif data["type"] == "message_event":
+        event = {
+            'from_id': data['object']['peer_id'],
+            'payload': data['object']['payload']['address'],
+            'time': get_time()
+        }
+    else:
+        event = {
+            'from_id': data['object']['message']['from_id'],
+            'text': data['object']['message']['text'],
+            'time': get_time()
+        }
     if "X-Retry-Counter" not in request.headers:
         event_loop.create_task(EventHandler(vk_api, mongo_db_api, chsu_api).handle_event(event))
     return web.Response(text="ok")
@@ -71,11 +78,20 @@ async def set_webhook(request):
 async def telegram_event(request):
     data = await request.json()
     try:
-        event = {
-            "from_id": data['message']['from']['id'],
-            "text": data['message']['text'],
-            'time': get_time()
-        }
+        if 'message' in data:
+            event = {
+                "from_id": data['message']['from']['id'],
+                "text": data['message']['text'],
+                'time': get_time()
+            }
+        elif 'callback_query' in data:
+            event = {
+                "from_id": data['callback_query']['from']['id'],
+                "payload": data['callback_query']['data'],
+                'time': get_time()
+            }
+        else:
+            event = None
         event_loop.create_task(EventHandler(telegram_api, mongo_db_api, chsu_api).handle_event(event))
         return web.Response(text="ok")
     except KeyError:

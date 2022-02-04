@@ -20,11 +20,11 @@ class Messanger:
         pass
 
     async def send_message_queue(self, queue: list, peer_ids: list, keyboard: str) -> None:
-        for element in queue:
-            if 'text' in element:
-                await self.send_message(element['text'], peer_ids, keyboard)
+        for index, message in enumerate(queue):
+            if 'text' in queue[index]:
+                await self.send_message(message['text'], peer_ids, keyboard)
             else:
-                await self.send_message(element, peer_ids, keyboard)
+                await self.send_message(message['text'], peer_ids, keyboard)
 
     async def send_message(self, message: str, peer_ids: list, keyboard: str) -> None:
         pass

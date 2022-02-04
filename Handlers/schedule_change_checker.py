@@ -104,25 +104,38 @@ class ScheduleChecker:
                 await self._check_and_send_updates_for_group(group, ids[group])
 
     async def is_beginning_of_the_hour(self):
-        return self._get_time().second == 0 and self._get_time().hour != 0 and self._get_time().minute == 0
+        return self._get_time().second == 0 and self._get_time().hour != 0  # and self._get_time().minute == 0
 
     async def _check_and_send_updates_for_group(self, group, group_id):
         users = await self._database.get_check_changes_members(group)
         response = await self._get_new_schedules(group, group_id)
-        await self._send_response(users, response)
+        await self._send_response(users, *response)
 
     async def _get_new_schedules(self, group, group_id):
         update_times = await self._update_group_and_get_changes(group, group_id) or []
         response = []
+        callbacks = []
         for update_time in update_times:
             schedule = (await self._chsu_api.get_schedule_list_string(group_id, update_time))
             response += list(map(lambda day: f"Обновленное расписание:\n\n{day['text']}", schedule))
-        return response
+            callbacks += map(
+                lambda x: list(set(filter(
+                    lambda i: i is not None, x
+                ))), map(
+                    lambda day: day['callback_data'], schedule
+                ))
+        return response, callbacks
 
-    async def _send_response(self, users, response):
+    async def _send_response(self, users, response, callbacks):
         for user in users:
             if user['platform'] == self._vk.get_name():
                 api = self._vk
             else:
                 api = self._telegram
-            await api.send_message_queue(response, [user['id']], api.get_keyboard_inst().get_standard_keyboard())
+            kb = api.get_keyboard_inst()
+            for index, message in enumerate(response):
+                await api.send_message(
+                    message, [user['id']],
+                    kb.get_geo_request_keyboard(callbacks[index]) if len(callbacks[index]) > 0
+                    else kb.get_standard_keyboard()
+                )

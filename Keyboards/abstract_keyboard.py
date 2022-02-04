@@ -63,17 +63,28 @@ class Keyboard:
         self._add_button("Не отслеживать изменения", "negative")
         return self._get_keyboard()
 
+    def get_geo_request_keyboard(self, payloads: list):
+        self._clear(True)
+        for payload in payloads:
+            if payload:
+                self._add_line()
+                self._add_payload_button(payload, payload, "primary")
+        return self._get_keyboard()
+
     @staticmethod
     def get_empty_keyboard():
         return None
 
-    def _clear(self) -> None:
+    def _clear(self, inline: bool = False) -> None:
         pass
 
     def _add_line(self) -> None:
         pass
 
     def _add_button(self, text: str, color: str) -> None:
+        pass
+
+    def _add_payload_button(self, text: str, callback_data: str, color: str) -> None:
         pass
 
     def _get_keyboard(self) -> str:
