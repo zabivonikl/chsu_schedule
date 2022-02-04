@@ -48,7 +48,8 @@ async def vk_event(request):
         event = {
             'from_id': data['object']['peer_id'],
             'payload': data['object']['payload']['address'],
-            'time': get_time()
+            'time': get_time(),
+            'event_id': data['object']["event_id"]
         }
     else:
         event = {
@@ -88,7 +89,8 @@ async def telegram_event(request):
             event = {
                 "from_id": data['callback_query']['from']['id'],
                 "payload": data['callback_query']['data'],
-                'time': get_time()
+                'time': get_time(),
+                'event_id': data['callback_query']["id"]
             }
         else:
             event = None

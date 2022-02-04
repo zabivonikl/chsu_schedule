@@ -19,12 +19,8 @@ class Messanger:
     def get_admins() -> list:
         pass
 
-    async def send_message_queue(self, queue: list, peer_ids: list, keyboard: str) -> None:
-        for index, message in enumerate(queue):
-            if 'text' in queue[index]:
-                await self.send_message(message['text'], peer_ids, keyboard)
-            else:
-                await self.send_message(message['text'], peer_ids, keyboard)
+    async def confirm_event(self, callback_query_id, peer_id = None):
+        pass
 
     async def send_message(self, message: str, peer_ids: list, keyboard: str) -> None:
         pass

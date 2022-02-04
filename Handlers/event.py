@@ -53,6 +53,7 @@ class EventHandler:
             'Спортивный корпус(ул.Труда, д.3)': (59.11757126831587, 37.92001688361389),
             'Спортивно-оздоровительный комплекс (ул.Чкалова, 31А)': (59.12975151805174, 37.87396552737589)
         }
+        await self._chat_platform.confirm_event(event['event_id'], event['from_id'])
         await self._chat_platform.send_coords([event['from_id']], *buildings[event['payload']])
 
     async def _handle_message_to_admin(self, event):
@@ -234,11 +235,13 @@ class EventHandler:
             dates = self._get_full_date(start_date, end_date)
             resp = await self._get_schedule(from_id, dates[0], dates[1])
         except ValueError:
-            resp = [{"text": "Введена некорректная дата.", 'callback_data' : []}]
+            resp = [{"text": "Введена некорректная дата.", 'callback_data': []}]
         finally:
             for day in resp:
                 if len(set(filter(lambda x: x is not None, day['callback_data']))) > 0:
-                    kb = self._keyboard.get_geo_request_keyboard(list(set(filter(lambda x: x is not None, day['callback_data']))))
+                    kb = self._keyboard.get_geo_request_keyboard(
+                        list(set(filter(lambda x: x is not None, day['callback_data'])))
+                    )
                 else:
                     kb = self._keyboard.get_standard_keyboard()
                 await self._chat_platform.send_message(day['text'], [from_id], kb)
