@@ -40,7 +40,9 @@ class Schedule:
         self._response[-1]["text"] += self._get_discipline_string()
         self._response[-1]["text"] += self._get_professors_names() if id_type == 'student' else self._get_groups_names()
         self._response[-1]["text"] += self._get_location()
-        self._response[-1]["callback_data"].append(self._couple['build']['title'] if self._couple['online'] != 1 else None)
+        self._response[-1]["callback_data"].append(
+            self._couple['build']['title'] if self._couple['online'] != 1 else None
+        )
         self._response[-1]["text"] += "\n"
 
     def _get_couple_time(self):
