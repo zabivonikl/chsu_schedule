@@ -42,13 +42,10 @@ class EventHandler:
 
     async def _send_coords(self, event):
         address = event['payload'][event['payload'].find('(') + 1:event['payload'].find(')')] \
-            .replace("ул. ", "ул.").replace("ул.", "") \
-            .replace("пр. ", "пр.").replace("пр.", "") \
-            .replace("д. ", "д.").replace("д.", "") \
-            .split(",")
+            .replace("ул.", "").replace("пр.", "").replace("д.", "").replace(' ', '').split(",")
         address_str = ""
         for address_component in address:
-            address_str += f"{address_component.strip()}, "
+            address_str += f"{address_component}, "
         buildings = {
             'Советский, 8': (59.12047482336482, 37.93102001811573),
             'Победы, 12': (59.133350120818704, 37.90253587101461),
@@ -284,7 +281,7 @@ class EventHandler:
             db_response = await self._database.get_user_data(
                 from_id, self._chat_platform.get_name(), self._current_date
             )
-            university_id = self._id_by_groups[db_response["group_name"]] if "group_name" in db_response\
+            university_id = self._id_by_groups[db_response["group_name"]] if "group_name" in db_response \
                 else self._id_by_professors[db_response["professor_name"]]
             return await self._chsu_api.get_schedule_list_string(university_id, start_date, last_date)
         except ConnectionError as err:
@@ -301,4 +298,3 @@ class EventHandler:
                 "Пользователь не найден. "
                 "Пожалуйста, нажмите \"Изменить группу\" и введите номер группы/ФИО преподавателя снова."
             ]
-        
