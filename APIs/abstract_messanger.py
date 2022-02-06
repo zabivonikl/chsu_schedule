@@ -19,7 +19,7 @@ class Messanger:
     def get_admins() -> list:
         pass
 
-    async def confirm_event(self, callback_query_id, peer_id = None):
+    async def confirm_event(self, callback_query_id: str, peer_id: int = None) -> None:
         pass
 
     async def send_message(self, message: str, peer_ids: list, keyboard: str) -> None:

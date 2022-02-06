@@ -2,7 +2,6 @@ import asyncio
 import hashlib
 from asyncio import AbstractEventLoop
 from datetime import datetime
-from re import match
 
 from APIs.Chsu.schedule import Schedule
 from Wrappers.AIOHttp.aiohttp import AIOHttpWrapper

@@ -24,7 +24,7 @@ class Telegram(Messanger):
     def get_keyboard_inst() -> Keyboard:
         return TelegramKeyboard()
 
-    async def confirm_event(self, callback_query_id, peer_id=None):
+    async def confirm_event(self, callback_query_id: str, peer_id: int = None) -> None:
         await self._call_get_method("answerCallbackQuery", {"callback_query_id": callback_query_id})
 
     async def send_message(self, message: str, peer_ids: list, keyboard: str = None):

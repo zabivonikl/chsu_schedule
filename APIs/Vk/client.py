@@ -35,7 +35,7 @@ class Vk(Messanger):
     def get_keyboard_inst() -> Keyboard:
         return VkKeyboard()
 
-    async def confirm_event(self, callback_query_id, peer_id=None):
+    async def confirm_event(self, callback_query_id: str, peer_id: int = None) -> None:
         await self._api.messages.sendMessageEventAnswer(event_id=callback_query_id, peer_id=peer_id, user_id=peer_id)
 
     async def send_message(self, message: str, peer_ids: list, keyboard: str) -> None:
