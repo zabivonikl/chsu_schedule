@@ -20,6 +20,8 @@ class EventHandler:
         self._current_date = None
 
     async def handle_event(self, event):
+        if not event:
+            return
         self._current_date = event['time']
 
         self._id_by_professors = await self._chsu_api.get_id_by_professors_list()
@@ -39,26 +41,6 @@ class EventHandler:
         else:
             kb = self._keyboard.get_change_group_keyboard()
             await self._chat_platform.send_message("Кто вы?", [event['from_id']], kb)
-
-    async def _send_coords(self, event):
-        address = event['payload'][event['payload'].find('(') + 1:event['payload'].find(')')] \
-            .replace("ул.", "").replace("пр.", "").replace("д.", "").replace(' ', '').split(",")
-        address_str = ""
-        for address_component in address:
-            address_str += f"{address_component}, "
-        buildings = {
-            'Советский, 8': (59.12047482336482, 37.93102001811573),
-            'Победы, 12': (59.133350120818704, 37.90253587101461),
-            'М.Горького, 14': (59.12470566799802, 37.92012233131044),
-            'Дзержинского, 30': (59.12339489869266, 37.9275337655467),
-            'Луначарского, 5А': (59.123787062658394, 37.92074409709377),
-            'Советский, 10': (59.120723715241255, 37.92954511882637),
-            'Советский, 25': (59.122360077173084, 37.92928885012067),
-            'Труда, 3': (59.11757126831587, 37.92001688361389),
-            'Чкалова, 31А': (59.12975151805174, 37.87396552737589)
-        }
-        await self._chat_platform.confirm_event(event['event_id'], event['from_id'])
-        await self._chat_platform.send_coords([event['from_id']], *buildings[address_str[:-2]])
 
     async def _handle_message_to_admin(self, event):
         if event['text'] and event['text'][0] != ';':
@@ -232,6 +214,26 @@ class EventHandler:
         await self._chat_platform.send_message(
             "Такой команды нет. Проверьте правильность ввода.", [event['from_id']], kb
         )
+
+    async def _send_coords(self, event):
+        address = event['payload'][event['payload'].find('(') + 1:event['payload'].find(')')] \
+            .replace("ул.", "").replace("пр.", "").replace("д.", "").replace(' ', '').split(",")
+        address_str = ""
+        for address_component in address:
+            address_str += f"{address_component}, "
+        buildings = {
+            'Советский, 8': (59.12047482336482, 37.93102001811573),
+            'Победы, 12': (59.133350120818704, 37.90253587101461),
+            'М.Горького, 14': (59.12470566799802, 37.92012233131044),
+            'Дзержинского, 30': (59.12339489869266, 37.9275337655467),
+            'Луначарского, 5А': (59.123787062658394, 37.92074409709377),
+            'Советский, 10': (59.120723715241255, 37.92954511882637),
+            'Советский, 25': (59.122360077173084, 37.92928885012067),
+            'Труда, 3': (59.11757126831587, 37.92001688361389),
+            'Чкалова, 31А': (59.12975151805174, 37.87396552737589)
+        }
+        await self._chat_platform.confirm_event(event['event_id'], event['from_id'])
+        await self._chat_platform.send_coords([event['from_id']], *buildings[address_str[:-2]])
 
     async def _handle_custom_date(self, from_id, start_date, end_date=None):
         resp = []
