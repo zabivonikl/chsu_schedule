@@ -216,11 +216,6 @@ class EventHandler:
         )
 
     async def _send_coords(self, event):
-        address = event['payload'][event['payload'].find('(') + 1:event['payload'].find(')')] \
-            .replace("ул.", "").replace("пр.", "").replace("д.", "").replace(' ', '').split(",")
-        address_str = ""
-        for address_component in address:
-            address_str += f"{address_component}, "
         buildings = {
             'Советский, 8': (59.12047482336482, 37.93102001811573),
             'Победы, 12': (59.133350120818704, 37.90253587101461),
@@ -233,7 +228,7 @@ class EventHandler:
             'Чкалова, 31А': (59.12975151805174, 37.87396552737589)
         }
         await self._chat_platform.confirm_event(event['event_id'], event['from_id'])
-        await self._chat_platform.send_coords([event['from_id']], *buildings[address_str[:-2]])
+        await self._chat_platform.send_coords([event['from_id']], *list(buildings.values())[int(event['payload'])])
 
     async def _handle_custom_date(self, from_id, start_date, end_date=None):
         resp = []
@@ -245,9 +240,9 @@ class EventHandler:
         finally:
             for day in resp:
                 if len(set(filter(lambda x: x is not None, day['callback_data']))) > 0:
-                    kb = self._keyboard.get_geo_request_keyboard(
-                        list(set(filter(lambda x: x is not None, day['callback_data'])))
-                    )
+                    addresses = list(set(filter(lambda x: x is not None, day['callback_data'])))
+                    address_codes = list(map(lambda a: self._get_address_code(a), addresses))
+                    kb = self._keyboard.get_geo_request_keyboard(addresses, address_codes)
                 else:
                     kb = self._keyboard.get_standard_keyboard()
                 await self._chat_platform.send_message(day['text'], [from_id], kb)
@@ -300,3 +295,14 @@ class EventHandler:
                 "Пользователь не найден. "
                 "Пожалуйста, нажмите \"Изменить группу\" и введите номер группы/ФИО преподавателя снова."
             ]
+
+    @staticmethod
+    def _get_address_code(address):
+        address = address[address.find('(') + 1:address.find(')')]\
+            .replace("ул.", "").replace("пр.", "").replace("д.", "").replace(' ', '').split(",")
+        address_str = ""
+        for address_component in address:
+            address_str += f"{address_component}, "
+        buildings = ['Советский, 8', 'Победы, 12', 'М.Горького, 14', 'Дзержинского, 30', 'Луначарского, 5А',
+                     'Советский, 10', 'Советский, 25', 'Труда, 3', 'Чкалова, 31А']
+        return buildings.index(address_str[:-2])

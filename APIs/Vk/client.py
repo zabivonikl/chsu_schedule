@@ -14,9 +14,9 @@ from Keyboards.vk import VkKeyboard
 class Vk(Messanger):
     def __init__(self, token: str, event_loop: AbstractEventLoop) -> None:
         super().__init__()
-        self._session = TokenSession(access_token=token, driver=HttpDriver(loop=event_loop))
-        self._session.API_VERSION = "5.131"
-        self._api = API(self._session)
+        session = TokenSession(access_token=token, driver=HttpDriver(loop=event_loop))
+        session.API_VERSION = "5.131"
+        self._api = API(session)
 
     async def get_status(self) -> str:
         try:
