@@ -5,6 +5,7 @@ from datetime import timedelta
 from APIs.Chsu.client import Chsu
 from APIs.Telegram.client import Telegram
 from APIs.Vk.client import Vk
+from Handlers.event import EventHandler
 from Wrappers.MongoDb.database import MongoDB
 
 
@@ -136,6 +137,6 @@ class ScheduleChecker:
             for index, message in enumerate(response):
                 await api.send_message(
                     message, [user['id']],
-                    kb.get_geo_request_keyboard(callbacks[index]) if len(callbacks[index]) > 0
+                    kb.get_geo_request_keyboard(callbacks[index], EventHandler.get_address_code(callbacks[index])) if len(callbacks[index]) > 0
                     else kb.get_standard_keyboard()
                 )

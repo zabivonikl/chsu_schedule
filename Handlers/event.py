@@ -238,14 +238,7 @@ class EventHandler:
         except ValueError:
             resp = [{"text": "Введена некорректная дата.", 'callback_data': []}]
         finally:
-            for day in resp:
-                if len(set(filter(lambda x: x is not None, day['callback_data']))) > 0:
-                    addresses = list(set(filter(lambda x: x is not None, day['callback_data'])))
-                    address_codes = list(map(lambda a: self._get_address_code(a), addresses))
-                    kb = self._keyboard.get_geo_request_keyboard(addresses, address_codes)
-                else:
-                    kb = self._keyboard.get_standard_keyboard()
-                await self._chat_platform.send_message(day['text'], [from_id], kb)
+            await self._send_schedule(from_id, resp)
 
     def _get_full_date(self, initial_date_string, final_date_string=None):
         initial_date = self._parse_date_string(initial_date_string)
@@ -282,10 +275,6 @@ class EventHandler:
                 else self._id_by_professors[db_response["professor_name"]]
             return await self._chsu_api.get_schedule_list_string(university_id, start_date, last_date)
         except ConnectionError as err:
-            kb = self._keyboard.get_standard_keyboard()
-            await self._chat_platform.send_message(
-                f"У {from_id} произошла ошибка {err}.", self._chat_platform.get_admins(), kb
-            )
             return [
                 f"Произошла ошибка при запросе расписания: {err}. "
                 f"Попробуйте запросить его снова или свяжитесь с администратором."
@@ -297,7 +286,7 @@ class EventHandler:
             ]
 
     @staticmethod
-    def _get_address_code(address):
+    def get_address_code(address):
         address = address[address.find('(') + 1:address.find(')')]\
             .replace("ул.", "").replace("пр.", "").replace("д.", "").replace(' ', '').split(",")
         address_str = ""
@@ -306,3 +295,13 @@ class EventHandler:
         buildings = ['Советский, 8', 'Победы, 12', 'М.Горького, 14', 'Дзержинского, 30', 'Луначарского, 5А',
                      'Советский, 10', 'Советский, 25', 'Труда, 3', 'Чкалова, 31А']
         return buildings.index(address_str[:-2])
+
+    async def _send_schedule(self, from_id, resp):
+        for day in resp:
+            addresses = list(set(filter(lambda x: x is not None, day['callback_data'])))
+            if len(addresses) > 0:
+                address_codes = list(map(lambda a: self.get_address_code(a), addresses))
+                kb = self._keyboard.get_geo_request_keyboard(addresses, address_codes)
+            else:
+                kb = self._keyboard.get_standard_keyboard()
+            await self._chat_platform.send_message(day['text'], [from_id], kb)
