@@ -70,3 +70,14 @@ class Schedule:
 
     def _get_address(self):
         return f"{self._couple['build']['title']}, аудитория {self._couple['auditory']['title']}\n"
+
+    @staticmethod
+    def get_address_code(address):
+        address = address[address.find('(') + 1:address.find(')')]\
+            .replace("ул.", "").replace("пр.", "").replace("д.", "").replace(' ', '').split(",")
+        address_str = ""
+        for address_component in address:
+            address_str += f"{address_component}, "
+        buildings = ['Советский, 8', 'Победы, 12', 'М.Горького, 14', 'Дзержинского, 30', 'Луначарского, 5А',
+                     'Советский, 10', 'Советский, 25', 'Труда, 3', 'Чкалова, 31А']
+        return buildings.index(address_str[:-2])

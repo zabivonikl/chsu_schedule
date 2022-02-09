@@ -2,6 +2,7 @@ from datetime import timedelta, datetime
 from re import match
 
 from APIs.Chsu.client import Chsu
+from APIs.Chsu.schedule import Schedule
 from APIs.abstract_messanger import Messanger
 from Wrappers.MongoDb.database import MongoDB
 from Wrappers.MongoDb.exceptions import EmptyResponse as MongoDBEmptyRespException
@@ -285,22 +286,11 @@ class EventHandler:
                 "Пожалуйста, нажмите \"Изменить группу\" и введите номер группы/ФИО преподавателя снова."
             ]
 
-    @staticmethod
-    def get_address_code(address):
-        address = address[address.find('(') + 1:address.find(')')]\
-            .replace("ул.", "").replace("пр.", "").replace("д.", "").replace(' ', '').split(",")
-        address_str = ""
-        for address_component in address:
-            address_str += f"{address_component}, "
-        buildings = ['Советский, 8', 'Победы, 12', 'М.Горького, 14', 'Дзержинского, 30', 'Луначарского, 5А',
-                     'Советский, 10', 'Советский, 25', 'Труда, 3', 'Чкалова, 31А']
-        return buildings.index(address_str[:-2])
-
     async def _send_schedule(self, from_id, resp):
         for day in resp:
             addresses = list(set(filter(lambda x: x is not None, day['callback_data'])))
             if len(addresses) > 0:
-                address_codes = list(map(lambda a: self.get_address_code(a), addresses))
+                address_codes = list(map(lambda a: Schedule.get_address_code(a), addresses))
                 kb = self._keyboard.get_geo_request_keyboard(addresses, address_codes)
             else:
                 kb = self._keyboard.get_standard_keyboard()

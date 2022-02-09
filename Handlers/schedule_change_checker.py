@@ -3,9 +3,9 @@ from asyncio import AbstractEventLoop
 from datetime import timedelta
 
 from APIs.Chsu.client import Chsu
+from APIs.Chsu.schedule import Schedule
 from APIs.Telegram.client import Telegram
 from APIs.Vk.client import Vk
-from Handlers.event import EventHandler
 from Wrappers.MongoDb.database import MongoDB
 
 
@@ -95,7 +95,7 @@ class ScheduleChecker:
                 await self._check_updates()
             except ConnectionError as err:
                 print(err)
-            await asyncio.sleep(59)
+            await asyncio.sleep(1)
 
     async def _check_updates(self):
         if await self.is_beginning_of_the_hour():
@@ -105,7 +105,7 @@ class ScheduleChecker:
                 await self._check_and_send_updates_for_group(group, ids[group])
 
     async def is_beginning_of_the_hour(self):
-        return self._get_time().second == 0 and self._get_time().hour != 0 and self._get_time().minute == 0
+        return self._get_time().second == 0 and self._get_time().hour != 0 and self._get_time().minute % 20 == 0
 
     async def _check_and_send_updates_for_group(self, group, group_id):
         users = await self._database.get_check_changes_members(group)
@@ -140,7 +140,7 @@ class ScheduleChecker:
                     kb.get_geo_request_keyboard(
                         callbacks[index],
                         list(map(
-                            lambda a: EventHandler.get_address_code(a), callbacks[index])
-                        ) if len(callbacks[index]) > 0 else kb.get_standard_keyboard()
+                            lambda a: Schedule.get_address_code(a), callbacks[index]
+                        )) if len(callbacks[index]) > 0 else kb.get_standard_keyboard()
                     )
                 )
