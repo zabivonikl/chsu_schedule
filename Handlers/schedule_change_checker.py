@@ -95,7 +95,7 @@ class ScheduleChecker:
                 await self._check_updates()
             except ConnectionError as err:
                 print(err)
-            await asyncio.sleep(1)
+            await asyncio.sleep(59)
 
     async def _check_updates(self):
         if await self.is_beginning_of_the_hour():
@@ -137,6 +137,10 @@ class ScheduleChecker:
             for index, message in enumerate(response):
                 await api.send_message(
                     message, [user['id']],
-                    kb.get_geo_request_keyboard(callbacks[index], EventHandler.get_address_code(callbacks[index])) if len(callbacks[index]) > 0
-                    else kb.get_standard_keyboard()
+                    kb.get_geo_request_keyboard(
+                        callbacks[index],
+                        list(map(
+                            lambda a: EventHandler.get_address_code(a), callbacks[index])
+                        ) if len(callbacks[index]) > 0 else kb.get_standard_keyboard()
+                    )
                 )
