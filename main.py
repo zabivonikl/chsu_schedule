@@ -161,68 +161,41 @@ async def mailing():
 
 
 def get_responsibility_chain(m: Messanger) -> AbstractHandler:
-    callback_event = CallbackHandler(m, mongo_db_api, chsu_api)
+    handlers = [
+        CallbackHandler(m, mongo_db_api, chsu_api),
+        StartHandler(m, mongo_db_api, chsu_api),
+        SettingsHandler(m, mongo_db_api, chsu_api),
+        CancelHandler(m, mongo_db_api, chsu_api),
 
-    start_event = StartHandler(m, mongo_db_api, chsu_api)
+        ChangeGroupHandler(m, mongo_db_api, chsu_api),
+        ChooseGroupHandler(m, mongo_db_api, chsu_api),
+        ChooseProfessorHandler(m, mongo_db_api, chsu_api),
+        GroupOrProfessorNameHandler(m, mongo_db_api, chsu_api),
 
-    settings_event = SettingsHandler(m, mongo_db_api, chsu_api)
+        AdminsMessageHandler(m, mongo_db_api, chsu_api),
+        UserMessageHandler(m, mongo_db_api, chsu_api),
 
-    admins_message = AdminsMessageHandler(m, mongo_db_api, chsu_api)
-    user_message_event = UserMessageHandler(m, mongo_db_api, chsu_api)
+        ScheduleChangesHandler(m, mongo_db_api, chsu_api),
+        SetCheckChangesHandler(m, mongo_db_api, chsu_api),
+        UnsetCheckChangesHandler(m, mongo_db_api, chsu_api),
 
-    cancel_event = CancelHandler(m, mongo_db_api, chsu_api)
+        MailingHandler(m, mongo_db_api, chsu_api),
+        UnsubscribeHandler(m, mongo_db_api, chsu_api),
+        TimeStampHandler(m, mongo_db_api, chsu_api),
 
-    change_group_event = ChangeGroupHandler(m, mongo_db_api, chsu_api)
-    choose_group_event = ChooseGroupHandler(m, mongo_db_api, chsu_api)
-    choose_professor_event = ChooseProfessorHandler(m, mongo_db_api, chsu_api)
-    group_or_professor_name_event = GroupOrProfessorNameHandler(m, mongo_db_api, chsu_api)
+        ScheduleForTodayHandler(m, mongo_db_api, chsu_api),
+        ScheduleForTomorrowHandler(m, mongo_db_api, chsu_api),
+        ScheduleForAnotherDayHandler(m, mongo_db_api, chsu_api),
+        SingleDateHandler(m, mongo_db_api, chsu_api),
+        DoubleDateHandler(m, mongo_db_api, chsu_api),
 
-    check_changes_event = ScheduleChangesHandler(m, mongo_db_api, chsu_api)
-    set_check_changes_event = SetCheckChangesHandler(m, mongo_db_api, chsu_api)
-    unset_check_changes_event = UnsetCheckChangesHandler(m, mongo_db_api, chsu_api)
+        AnotherEventHandler(m, mongo_db_api, chsu_api)
+    ]
 
-    mailing_event = MailingHandler(m, mongo_db_api, chsu_api)
-    unsubscribe_event = UnsubscribeHandler(m, mongo_db_api, chsu_api)
-    timestamp_event = TimeStampHandler(m, mongo_db_api, chsu_api)
+    for i in range(len(handlers) - 2, 0):
+        handlers[i].set_next(handlers[i + 1])
 
-    schedule_for_today_event = ScheduleForTodayHandler(m, mongo_db_api, chsu_api)
-    schedule_for_tomorrow_event = ScheduleForTomorrowHandler(m, mongo_db_api, chsu_api)
-    schedule_for_another_day_event = ScheduleForAnotherDayHandler(m, mongo_db_api, chsu_api)
-    single_date_event = SingleDateHandler(m, mongo_db_api, chsu_api)
-    double_date_event = DoubleDateHandler(m, mongo_db_api, chsu_api)
-
-    another_event = AnotherEventHandler(m, mongo_db_api, chsu_api)
-
-    admins_message.set_next(another_event)
-    user_message_event.set_next(admins_message)
-
-    single_date_event.set_next(user_message_event)
-    double_date_event.set_next(single_date_event)
-    schedule_for_another_day_event.set_next(double_date_event)
-    schedule_for_tomorrow_event.set_next(schedule_for_another_day_event)
-    schedule_for_today_event.set_next(schedule_for_tomorrow_event)
-
-    mailing_event.set_next(schedule_for_today_event)
-    unsubscribe_event.set_next(mailing_event)
-    timestamp_event.set_next(unsubscribe_event)
-
-    check_changes_event.set_next(timestamp_event)
-    set_check_changes_event.set_next(check_changes_event)
-    unset_check_changes_event.set_next(set_check_changes_event)
-
-    group_or_professor_name_event.set_next(unset_check_changes_event)
-    choose_professor_event.set_next(group_or_professor_name_event)
-    choose_group_event.set_next(choose_professor_event)
-    change_group_event.set_next(choose_group_event)
-    cancel_event.set_next(change_group_event)
-
-    settings_event.set_next(cancel_event)
-
-    start_event.set_next(settings_event)
-
-    callback_event.set_next(start_event)
-
-    return callback_event
+    return handlers[0]
 
 
 if __name__ == "__main__":
