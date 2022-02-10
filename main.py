@@ -20,6 +20,7 @@ from Handlers.Events.check_changes_event import ScheduleChangesHandler
 from Handlers.Events.choose_group_event import ChooseGroupHandler
 from Handlers.Events.choose_professor_event import ChooseProfessorHandler
 from Handlers.Events.double_date_event import DoubleDateHandler
+from Handlers.Events.event_interface import Handler
 from Handlers.Events.group_or_professor_name_event import GroupOrProfessorNameHandler
 from Handlers.Events.mailing_event import MailingHandler
 from Handlers.Events.schedule_for_another_day_event import ScheduleForAnotherDayHandler
@@ -160,7 +161,7 @@ async def mailing():
         await asyncio.sleep(60)
 
 
-def get_responsibility_chain(m: Messanger) -> AbstractHandler:
+def get_responsibility_chain(m: Messanger) -> Handler:
     params = (m, mongo_db_api, chsu_api)
 #     return CallbackHandler(*params) \
 #         .set_next(StartHandler(*params)) \

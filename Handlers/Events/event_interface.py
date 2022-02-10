@@ -10,5 +10,5 @@ class Handler(ABC):
         pass
 
     @abstractmethod
-    def handle(self, request) -> Optional[str]:
+    async def handle_event(self, request) -> None:
         pass
