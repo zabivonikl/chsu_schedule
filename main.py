@@ -162,11 +162,54 @@ async def mailing():
 
 def get_responsibility_chain(m: Messanger) -> AbstractHandler:
     params = (m, mongo_db_api, chsu_api)
+#     return CallbackHandler(*params) \
+#         .set_next(StartHandler(*params)) \
+#         .set_next(SettingsHandler(*params)) \
+#         .set_next(CancelHandler(*params)) \
+#  \
+#         .set_next(ChangeGroupHandler(*params)) \
+#         .set_next(ChooseGroupHandler(*params)) \
+#         .set_next(ChooseProfessorHandler(*params)) \
+#         .set_next(GroupOrProfessorNameHandler(*params)) \
+# \
+#         .set_next(AdminsMessageHandler(*params)) \
+#         .set_next(UserMessageHandler(*params)) \
+# \
+#         .set_next(ScheduleChangesHandler(*params)) \
+#         .set_next(SetCheckChangesHandler(*params)) \
+#         .set_next(UnsetCheckChangesHandler(*params)) \
+# \
+#         .set_next(DoubleDateHandler(*params))\
+#         .set_next(SingleDateHandler(*params)) \
+#         .set_next(ScheduleForAnotherDayHandler(*params)) \
+#         .set_next(ScheduleForTomorrowHandler(*params)) \
+#         .set_next(ScheduleForTodayHandler(*params)) \
+# \
+#         .set_next(TimeStampHandler(*params)) \
+#         .set_next(UnsubscribeHandler(*params)) \
+#         .set_next(MailingHandler(*params)) \
+# \
+#         .set_next(UnsetCheckChangesHandler(*params)) \
+#         .set_next(SetCheckChangesHandler(*params)) \
+#         .set_next(ScheduleChangesHandler(*params)) \
+# \
+#         .set_next(UserMessageHandler(*params)) \
+#         .set_next(AdminsMessageHandler(*params)) \
+# \
+#         .set_next(GroupOrProfessorNameHandler(*params)) \
+#         .set_next(ChooseProfessorHandler(*params)) \
+#         .set_next(ChooseGroupHandler(*params)) \
+#         .set_next(ChangeGroupHandler(*params))\
+# \
+#         .set_next(CancelHandler(*params)) \
+#         .set_next(SettingsHandler(*params)) \
+#         .set_next(StartHandler(*params)) \
+#         .set_next(CallbackHandler(*params)) \
     return CallbackHandler(*params) \
         .set_next(StartHandler(*params)) \
         .set_next(SettingsHandler(*params)) \
         .set_next(CancelHandler(*params)) \
- \
+\
         .set_next(ChangeGroupHandler(*params)) \
         .set_next(ChooseGroupHandler(*params)) \
         .set_next(ChooseProfessorHandler(*params)) \
@@ -178,7 +221,7 @@ def get_responsibility_chain(m: Messanger) -> AbstractHandler:
         .set_next(ScheduleChangesHandler(*params)) \
         .set_next(SetCheckChangesHandler(*params)) \
         .set_next(UnsetCheckChangesHandler(*params)) \
-\
+ \
         .set_next(MailingHandler(*params)) \
         .set_next(UnsubscribeHandler(*params)) \
         .set_next(TimeStampHandler(*params)) \

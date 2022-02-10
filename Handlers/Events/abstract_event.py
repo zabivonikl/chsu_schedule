@@ -22,6 +22,7 @@ class AbstractHandler:
         return self._next_handler
 
     async def handle_event(self, event: dict) -> None:
+        print(self.__class__.__name__, self.__class__.__base__.__name__)
         if self._can_handle(event):
             await self._handle(event)
         else:
