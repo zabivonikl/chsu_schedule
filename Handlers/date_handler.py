@@ -29,15 +29,15 @@ class DateHandler:
     def _get_full_date(self, dates: list) -> None:
         date_list = [self._parse_date_string(dates[0])]
 
-        if self._is_date_less_current(dates[0]):
+        if self._is_date_less_current(date_list[0]):
             date_list[0] = self._add_year(date_list[0])
 
         if dates[1]:
             date_list.append(self._parse_date_string(dates[1]))
-            if self._is_final_date_less(dates[1], dates[0]):
+            if self._is_final_date_less(date_list[1], date_list[0]):
                 date_list[1] = self._add_year(dates[1])
 
-        self._date_tuple = (dates[0], date_list[1] if dates[1] else None)
+        self._date_tuple = (date_list[0], date_list[1] if dates[1] else None)
 
     def _parse_date_string(self, string: str) -> datetime:
         return datetime.strptime(f"{string}.{self._current_date.year}", "%d.%m.%Y")

@@ -172,14 +172,14 @@ class EventHandler:
             await self._handle_date(event)
         else:
             self._date_handler.parse_double_date(event['text'])
-            await self._get_schedule(event['from_id'], *self._date_handler.get_string())
+            await self._chat_platform.send_message(await self._get_schedule(event['from_id'], *self._date_handler.get_string()), [event['from_id'], self._keyboard.get_standard_keyboard()])
 
     async def _handle_date(self, event):
         if not match(r'^(0[1-9]|1\d|2\d|3[0-1])[.](0[1-9]|1[0-2])$', event['text']):
             await self._handle_schedule_for_today(event)
         else:
             self._date_handler.parse_single_date(event['text'])
-            await self._get_schedule(event['from_id'], *self._date_handler.get_string())
+            await self._send_schedule([event['from_id']], await self._get_schedule(event['from_id'], *self._date_handler.get_string()))
 
     async def _handle_schedule_for_today(self, event):
         if event['text'] != "Расписание на сегодня":
