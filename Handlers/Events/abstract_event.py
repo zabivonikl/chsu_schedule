@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from abc import ABC
 
 from APIs.Chsu.client import Chsu
@@ -20,7 +22,7 @@ class AbstractHandler(Handler, ABC):
         self._chsu_api = ch
         self._keyboard = self._chat_platform.get_keyboard_inst()
 
-    def set_next(self, handler):
+    def set_next(self, handler: Handler) -> Handler:
         self._next_handler = handler
         return handler
 
