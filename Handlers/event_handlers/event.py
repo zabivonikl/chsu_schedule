@@ -23,7 +23,7 @@ class EventHandler:
         if not event:
             return
 
-        self._date_handler = DateHandler(event['time'])
+        self._date_handler = DateHandler()
 
         self._id_by_professors = await self._chsu_api.get_id_by_professors_list()
         self._id_by_groups = await self._chsu_api.get_id_by_groups_list()
