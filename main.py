@@ -8,6 +8,12 @@ import tokens
 from APIs.Chsu.client import Chsu
 from APIs.Telegram.client import Telegram
 from APIs.Vk.client import Vk
+from APIs.abstract_messanger import Messanger
+from Handlers.Events.admins_message_event import AdminsMessageHandler
+from Handlers.Events.another_event import AnotherEventHandler
+from Handlers.Events.callback_event import CallbackHandler
+from Handlers.Events.cancel_event import CancelHandler
+from Handlers.Events.change_group_event import ChangeGroupHandler
 from Handlers.schedule_change_checker import ScheduleChecker
 from Wrappers.MongoDb.database import MongoDB
 from Handlers.Events.event import EventHandler
@@ -132,6 +138,14 @@ async def mailing():
             elif user[1] == vk_api.get_name():
                 await EventHandler(vk_api, mongo_db_api, chsu_api).handle_event(event)
         await asyncio.sleep(60)
+
+
+def get_responsibility_chain(m: Messanger):
+    admins_message = AdminsMessageHandler(m, mongo_db_api, chsu_api)
+    another_event = AnotherEventHandler(m, mongo_db_api, chsu_api)
+    callback_event = CallbackHandler(m, mongo_db_api, chsu_api)
+    cancel_event = CancelHandler(m, mongo_db_api, chsu_api)
+    change_group_event = ChangeGroupHandler(m, mongo_db_api, chsu_api)
 
 
 if __name__ == "__main__":
