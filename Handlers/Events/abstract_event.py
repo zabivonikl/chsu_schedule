@@ -15,6 +15,7 @@ class AbstractHandler:
         self._chat_platform = a
         self._database = db
         self._chsu_api = ch
+        self._keyboard = self._chat_platform.get_keyboard_inst()
 
     def set_next(self, handler):
         self._next_handler = handler

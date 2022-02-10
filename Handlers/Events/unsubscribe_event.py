@@ -4,7 +4,7 @@ from Handlers.Events.abstract_event import AbstractHandler
 from Wrappers.MongoDb.database import MongoDB
 
 
-class ChangeGroupHandler(AbstractHandler):
+class UnsubscribeHandler(AbstractHandler):
     def __init__(
             self,
             m: Messanger = None,
@@ -15,8 +15,9 @@ class ChangeGroupHandler(AbstractHandler):
 
     @staticmethod
     def _can_handle(event) -> bool:
-        return event['text'] == "Изменить группу"
+        return event['text'] == "Отписаться"
 
     def _handle(self, event) -> None:
-        kb = self._chat_platform.get_keyboard_inst().get_change_group_keyboard()
-        await self._chat_platform.send_message("Кто вы?", [event['from_id']], kb)
+        await self._database.set_mailing_time(event['from_id'], self._chat_platform.get_name())
+        kb = self._chat_platform.get_keyboard_inst().get_standard_keyboard()
+        await self._chat_platform.send_message(f"Вы отписались от рассылки.", [event['from_id']], kb)

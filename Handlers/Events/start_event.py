@@ -15,7 +15,7 @@ class StartEvent(AbstractHandler):
 
     @staticmethod
     def _can_handle(event) -> bool:
-        return event['text'] not in ['Начать', "/start"]
+        return event['text'] in ['Начать', "/start"]
 
     def _handle(self, event) -> None:
         kb = self._chat_platform.get_keyboard_inst().get_start_keyboard()
