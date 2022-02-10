@@ -1,4 +1,3 @@
-from abc import ABC
 from re import match
 
 from APIs.Chsu.client import Chsu
@@ -7,7 +6,7 @@ from Handlers.Events.double_date_event import DoubleDateHandler
 from Wrappers.MongoDb.database import MongoDB
 
 
-class SingleDateHandler(DoubleDateHandler, ABC):
+class SingleDateHandler(DoubleDateHandler):
     def __init__(
             self,
             m: Messanger = None,

@@ -1,12 +1,10 @@
-from abc import ABC
-
 from APIs.Chsu.client import Chsu
 from APIs.abstract_messanger import Messanger
 from Handlers.Events.abstract_event import AbstractHandler
 from Wrappers.MongoDb.database import MongoDB
 
 
-class ChangeGroupHandler(AbstractHandler, ABC):
+class ChangeGroupHandler(AbstractHandler):
     def __init__(
             self,
             m: Messanger = None,

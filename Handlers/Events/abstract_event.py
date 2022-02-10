@@ -22,7 +22,7 @@ class AbstractHandler(Handler, ABC):
 
     def set_next(self, handler):
         self._next_handler = handler
-        return self._next_handler
+        return handler
 
     async def handle_event(self, event: dict) -> None:
         print(self.__class__.__name__, self.__class__.__base__.__name__)

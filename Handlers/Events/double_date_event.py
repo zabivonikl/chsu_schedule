@@ -1,4 +1,3 @@
-from abc import ABC
 from re import match
 
 from APIs.Chsu.client import Chsu
@@ -10,7 +9,7 @@ from Wrappers.MongoDb.database import MongoDB
 from Wrappers.MongoDb.exceptions import EmptyResponse as MongoDBEmptyRespException
 
 
-class DoubleDateHandler(AbstractHandler, ABC):
+class DoubleDateHandler(AbstractHandler):
     def __init__(
             self,
             m: Messanger = None,
