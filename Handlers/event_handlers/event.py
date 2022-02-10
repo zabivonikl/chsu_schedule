@@ -172,7 +172,8 @@ class EventHandler:
             await self._handle_date(event)
         else:
             self._date_handler.parse_double_date(event['text'])
-            await self._chat_platform.send_message(await self._get_schedule(event['from_id'], *self._date_handler.get_string()), [event['from_id'], self._keyboard.get_standard_keyboard()])
+            schedule = await self._get_schedule(event['from_id'], *self._date_handler.get_string())
+            await self._send_schedule([event['from_id']], await self._get_schedule(event['from_id'], *self._date_handler.get_string()))
 
     async def _handle_date(self, event):
         if not match(r'^(0[1-9]|1\d|2\d|3[0-1])[.](0[1-9]|1[0-2])$', event['text']):
@@ -186,7 +187,7 @@ class EventHandler:
             await self._handle_schedule_for_tomorrow(event)
         else:
             self._date_handler.parse_today_word()
-            event['text'] = self._date_handler.get_string()[0]
+            event['text'] = self._date_handler.get_string()[0][:-5]
             await self._handle_date(event)
 
     async def _handle_schedule_for_tomorrow(self, event):
@@ -194,7 +195,7 @@ class EventHandler:
             await self._send_message_from_admin(event)
         else:
             self._date_handler.parse_tomorrow_word()
-            event['text'] = self._date_handler.get_string()[0]
+            event['text'] = self._date_handler.get_string()[0][:-5]
             await self._handle_date(event)
 
     async def _send_message_from_admin(self, event):
