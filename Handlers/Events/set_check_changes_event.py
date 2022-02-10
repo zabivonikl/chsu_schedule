@@ -4,7 +4,7 @@ from Handlers.Events.abstract_event import AbstractHandler
 from Wrappers.MongoDb.database import MongoDB
 
 
-class UnsubscribeHandler(AbstractHandler):
+class SetCheckChangesHandler(AbstractHandler):
     def __init__(
             self,
             m: Messanger = None,

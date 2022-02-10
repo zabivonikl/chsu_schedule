@@ -4,7 +4,7 @@ from Handlers.Events.abstract_event import AbstractHandler
 from Wrappers.MongoDb.database import MongoDB
 
 
-class StartEvent(AbstractHandler):
+class StartHandler(AbstractHandler):
     def __init__(
             self,
             m: Messanger = None,
