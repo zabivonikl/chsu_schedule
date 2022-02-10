@@ -193,8 +193,13 @@ def get_responsibility_chain(m: Messanger) -> AbstractHandler:
         AnotherEventHandler(*params)
     ]
 
-    for i in range(len(handlers) - 2, 0):
-        handlers[i].set_next(handlers[i + 1])
+    print(handlers)
+
+    handlers.reverse()
+    for i in range(1, len(handlers)):
+        handlers[i].set_next(handlers[i - 1])
+
+    print(handlers)
 
     return handlers[0]
 
