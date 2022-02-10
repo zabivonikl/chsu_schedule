@@ -9,7 +9,6 @@ from APIs.Chsu.client import Chsu
 from APIs.Telegram.client import Telegram
 from APIs.Vk.client import Vk
 from APIs.abstract_messanger import Messanger
-from Handlers.Events.abstract_event import AbstractHandler
 
 from Handlers.Events.admins_message_event import AdminsMessageHandler
 from Handlers.Events.another_event import AnotherEventHandler
