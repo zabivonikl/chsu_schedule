@@ -96,8 +96,8 @@ async def telegram_event(request):
 @routes.get('/telegram/webhook/set/fake')
 async def set_webhook(request):
     response = await telegram_api.set_webhook(
-            f"https://{request.url.host}/telegram/callback/fake"
-        )
+        f"https://{request.url.host}/telegram/callback/fake"
+    )
     return web.Response(status=response['status'], text=response['text'])
 
 
@@ -134,8 +134,8 @@ async def get_webhook(request):
 @routes.get('/telegram/webhook/set')
 async def set_webhook(request):
     response = await telegram_api.set_webhook(
-            f"https://{request.url.host}/telegram/callback"
-        )
+        f"https://{request.url.host}/telegram/callback"
+    )
     return web.Response(status=response['status'], text=response['text'])
 
 
@@ -162,41 +162,34 @@ async def mailing():
 
 def get_responsibility_chain(m: Messanger) -> AbstractHandler:
     params = (m, mongo_db_api, chsu_api)
-    handlers = [
-        CallbackHandler(*params),
-        StartHandler(*params),
-        SettingsHandler(*params),
-        CancelHandler(*params),
-
-        ChangeGroupHandler(*params),
-        ChooseGroupHandler(*params),
-        ChooseProfessorHandler(*params),
-        GroupOrProfessorNameHandler(*params),
-
-        AdminsMessageHandler(*params),
-        UserMessageHandler(*params),
-
-        ScheduleChangesHandler(*params),
-        SetCheckChangesHandler(*params),
-        UnsetCheckChangesHandler(*params),
-
-        MailingHandler(*params),
-        UnsubscribeHandler(*params),
-        TimeStampHandler(*params),
-
-        ScheduleForTodayHandler(*params),
-        ScheduleForTomorrowHandler(*params),
-        ScheduleForAnotherDayHandler(*params),
-        SingleDateHandler(*params),
-        DoubleDateHandler(*params),
-
-        AnotherEventHandler(*params)
-    ]
-
-    for i in range(1, len(handlers)):
-        handlers[i].set_next(handlers[i - 1])
-
-    return handlers[0]
+    return CallbackHandler(*params) \
+        .set_next(StartHandler(*params)) \
+        .set_next(SettingsHandler(*params)) \
+        .set_next(CancelHandler(*params)) \
+ \
+        .set_next(ChangeGroupHandler(*params)) \
+        .set_next(ChooseGroupHandler(*params)) \
+        .set_next(ChooseProfessorHandler(*params)) \
+        .set_next(GroupOrProfessorNameHandler(*params)) \
+\
+        .set_next(AdminsMessageHandler(*params)) \
+        .set_next(UserMessageHandler(*params)) \
+\
+        .set_next(ScheduleChangesHandler(*params)) \
+        .set_next(SetCheckChangesHandler(*params)) \
+        .set_next(UnsetCheckChangesHandler(*params)) \
+\
+        .set_next(MailingHandler(*params)) \
+        .set_next(UnsubscribeHandler(*params)) \
+        .set_next(TimeStampHandler(*params)) \
+\
+        .set_next(ScheduleForTodayHandler(*params)) \
+        .set_next(ScheduleForTomorrowHandler(*params)) \
+        .set_next(ScheduleForAnotherDayHandler(*params)) \
+        .set_next(SingleDateHandler(*params)) \
+        .set_next(DoubleDateHandler(*params)) \
+\
+        .set_next(AnotherEventHandler(*params))
 
 
 if __name__ == "__main__":

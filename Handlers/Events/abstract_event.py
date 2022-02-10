@@ -19,6 +19,7 @@ class AbstractHandler:
 
     def set_next(self, handler):
         self._next_handler = handler
+        return self._next_handler
 
     async def handle_event(self, event: dict) -> None:
         if self._can_handle(event):
