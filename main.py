@@ -161,35 +161,36 @@ async def mailing():
 
 
 def get_responsibility_chain(m: Messanger) -> AbstractHandler:
+    params = (m, mongo_db_api, chsu_api)
     handlers = [
-        CallbackHandler(m, mongo_db_api, chsu_api),
-        StartHandler(m, mongo_db_api, chsu_api),
-        SettingsHandler(m, mongo_db_api, chsu_api),
-        CancelHandler(m, mongo_db_api, chsu_api),
+        CallbackHandler(*params),
+        StartHandler(*params),
+        SettingsHandler(*params),
+        CancelHandler(*params),
 
-        ChangeGroupHandler(m, mongo_db_api, chsu_api),
-        ChooseGroupHandler(m, mongo_db_api, chsu_api),
-        ChooseProfessorHandler(m, mongo_db_api, chsu_api),
-        GroupOrProfessorNameHandler(m, mongo_db_api, chsu_api),
+        ChangeGroupHandler(*params),
+        ChooseGroupHandler(*params),
+        ChooseProfessorHandler(*params),
+        GroupOrProfessorNameHandler(*params),
 
-        AdminsMessageHandler(m, mongo_db_api, chsu_api),
-        UserMessageHandler(m, mongo_db_api, chsu_api),
+        AdminsMessageHandler(*params),
+        UserMessageHandler(*params),
 
-        ScheduleChangesHandler(m, mongo_db_api, chsu_api),
-        SetCheckChangesHandler(m, mongo_db_api, chsu_api),
-        UnsetCheckChangesHandler(m, mongo_db_api, chsu_api),
+        ScheduleChangesHandler(*params),
+        SetCheckChangesHandler(*params),
+        UnsetCheckChangesHandler(*params),
 
-        MailingHandler(m, mongo_db_api, chsu_api),
-        UnsubscribeHandler(m, mongo_db_api, chsu_api),
-        TimeStampHandler(m, mongo_db_api, chsu_api),
+        MailingHandler(*params),
+        UnsubscribeHandler(*params),
+        TimeStampHandler(*params),
 
-        ScheduleForTodayHandler(m, mongo_db_api, chsu_api),
-        ScheduleForTomorrowHandler(m, mongo_db_api, chsu_api),
-        ScheduleForAnotherDayHandler(m, mongo_db_api, chsu_api),
-        SingleDateHandler(m, mongo_db_api, chsu_api),
-        DoubleDateHandler(m, mongo_db_api, chsu_api),
+        ScheduleForTodayHandler(*params),
+        ScheduleForTomorrowHandler(*params),
+        ScheduleForAnotherDayHandler(*params),
+        SingleDateHandler(*params),
+        DoubleDateHandler(*params),
 
-        AnotherEventHandler(m, mongo_db_api, chsu_api)
+        AnotherEventHandler(*params)
     ]
 
     for i in range(len(handlers) - 2, 0):
