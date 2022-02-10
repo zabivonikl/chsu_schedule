@@ -1,3 +1,4 @@
+from abc import ABC
 from re import match
 
 from APIs.Chsu.client import Chsu
@@ -6,7 +7,7 @@ from Handlers.Events.abstract_event import AbstractHandler
 from Wrappers.MongoDb.database import MongoDB
 
 
-class TimeStampHandler(AbstractHandler):
+class TimeStampHandler(AbstractHandler, ABC):
     def __init__(
             self,
             m: Messanger = None,

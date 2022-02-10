@@ -1,3 +1,5 @@
+from abc import ABC
+
 from APIs.Chsu.client import Chsu
 from APIs.abstract_messanger import Messanger
 from Handlers.date_handler import DateHandler
@@ -5,7 +7,7 @@ from Handlers.Events.abstract_event import AbstractHandler
 from Wrappers.MongoDb.database import MongoDB
 
 
-class ScheduleForTomorrowHandler(AbstractHandler):
+class ScheduleForTomorrowHandler(AbstractHandler, ABC):
     def __init__(
             self,
             m: Messanger = None,

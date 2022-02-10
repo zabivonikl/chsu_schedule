@@ -1,9 +1,12 @@
+from abc import ABC
+
 from APIs.Chsu.client import Chsu
 from APIs.abstract_messanger import Messanger
+from Handlers.Events.event_interface import Handler
 from Wrappers.MongoDb.database import MongoDB
 
 
-class AbstractHandler:
+class AbstractHandler(Handler, ABC):
     def __init__(
             self,
             a: Messanger = None,
