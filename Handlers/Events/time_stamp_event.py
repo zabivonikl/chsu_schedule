@@ -16,7 +16,7 @@ class TimeStampHandler(AbstractHandler):
         super().__init__(m, db, ch)
 
     @staticmethod
-    def _can_handle(event) -> bool:
+    async def _can_handle(event) -> bool:
         return match(r'^(0\d|1\d|2[0-3])[:][0-5]\d$', event['text']) is not None
 
     async def _handle(self, event) -> None:

@@ -14,7 +14,7 @@ class UserMessageHandler(AbstractHandler):
         super().__init__(m, db, ch)
 
     @staticmethod
-    def _can_handle(event) -> bool:
+    async def _can_handle(event) -> bool:
         return event['text'] and event['text'][0] == ';'
 
     async def _handle(self, event) -> None:

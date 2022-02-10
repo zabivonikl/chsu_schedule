@@ -75,14 +75,12 @@ async def vk_event(request):
         event = {
             'from_id': data['object']['peer_id'],
             'payload': data['object']['payload']['address'],
-            'time': get_time(),
             'event_id': data['object']["event_id"]
         }
     else:
         event = {
             'from_id': data['object']['message']['from_id'],
-            'text': data['object']['message']['text'],
-            'time': get_time()
+            'text': data['object']['message']['text']
         }
     if "X-Retry-Counter" not in request.headers:
         event_loop.create_task(vk_handler.handle_event(event))
@@ -110,13 +108,11 @@ async def telegram_event(request):
             event = {
                 "from_id": data['message']['from']['id'],
                 "text": data['message']['text'],
-                'time': get_time()
             }
         elif 'callback_query' in data:
             event = {
                 "from_id": data['callback_query']['from']['id'],
                 "payload": data['callback_query']['data'],
-                'time': get_time(),
                 'event_id': data['callback_query']["id"]
             }
         else:

@@ -28,16 +28,19 @@ class AbstractHandler(Handler, ABC):
 
     async def handle_event(self, event: dict) -> None:
         try:
-            print(self.__class__.__name__, self.__class__.__base__.__name__)
-            if self._can_handle(event):
+            if await self._can_handle(event):
                 await self._handle(event)
             else:
                 await self._next_handler.handle_event(event)
         except Exception as err:
-            pass
+            await self._chat_platform.send_message(
+                f"{self.__class__.__name__} : {self.__class__.__base__.__name__}\n\n{event}\n\n{err}",
+                self._chat_platform.get_admins(),
+                self._chat_platform.get_keyboard_inst().get_standard_keyboard()
+            )
 
     @staticmethod
-    def _can_handle(event) -> bool:
+    async def _can_handle(event) -> bool:
         pass
 
     async def _handle(self, event) -> None:

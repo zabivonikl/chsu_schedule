@@ -16,10 +16,10 @@ class ScheduleForTomorrowHandler(AbstractHandler):
         self._date_handler = DateHandler()
 
     @staticmethod
-    def _can_handle(event) -> bool:
+    async def _can_handle(event) -> bool:
         return event['text'] == "Расписание на завтра"
 
     async def _handle(self, event) -> None:
         self._date_handler.parse_tomorrow_word()
-        event['text'] = self._date_handler.get_string()[0]
+        event['text'] = self._date_handler.get_string()[0][:-5]
         await self._next_handler.handle_event(event)

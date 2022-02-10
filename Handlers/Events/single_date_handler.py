@@ -16,7 +16,7 @@ class SingleDateHandler(DoubleDateHandler):
         super().__init__(m, db, ch)
 
     @staticmethod
-    def _can_handle(event) -> bool:
+    async def _can_handle(event) -> bool:
         return match(
             r'^(0[1-9]|1\d|2\d|3[0-1])[.](0[1-9]|1[0-2])$', event['text']
         ) is not None

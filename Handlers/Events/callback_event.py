@@ -14,7 +14,7 @@ class CallbackHandler(AbstractHandler):
         super().__init__(m, db, ch)
 
     @staticmethod
-    def _can_handle(event) -> bool:
+    async def _can_handle(event) -> bool:
         return 'payload' in event
 
     async def _handle(self, event) -> None:

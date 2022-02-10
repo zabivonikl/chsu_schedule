@@ -14,7 +14,7 @@ class SettingsHandler(AbstractHandler):
         super().__init__(m, db, ch)
 
     @staticmethod
-    def _can_handle(event) -> bool:
+    async def _can_handle(event) -> bool:
         return event['text'] == "Настройки"
 
     async def _handle(self, event) -> None:

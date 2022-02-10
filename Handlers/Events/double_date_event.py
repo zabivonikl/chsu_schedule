@@ -20,7 +20,7 @@ class DoubleDateHandler(AbstractHandler):
         self._date_handler = DateHandler()
 
     @staticmethod
-    def _can_handle(event) -> bool:
+    async def _can_handle(event) -> bool:
         return match(
             r'^(0[1-9]|1\d|2\d|3[0-1])[.](0[1-9]|1[0-2])-(0[1-9]|1\d|2\d|3[0-1]).(0[1-9]|1[0-2])$', event['text']
         ) is not None

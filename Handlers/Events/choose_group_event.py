@@ -14,8 +14,8 @@ class ChooseGroupHandler(AbstractHandler):
         super().__init__(m, db, ch)
 
     @staticmethod
-    def _can_handle(event) -> bool:
-        return event['text'] == 'Преподаватель'
+    async def _can_handle(event) -> bool:
+        return event['text'] == 'Студент'
 
     async def _handle(self, event) -> None:
         kb = self._chat_platform.get_keyboard_inst().get_empty_keyboard()

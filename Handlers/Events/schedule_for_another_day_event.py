@@ -14,7 +14,7 @@ class ScheduleForAnotherDayHandler(AbstractHandler):
         super().__init__(m, db, ch)
 
     @staticmethod
-    def _can_handle(event) -> bool:
+    async def _can_handle(event) -> bool:
         return event['text'] == "Расписание на другой день"
 
     async def _handle(self, event) -> None:

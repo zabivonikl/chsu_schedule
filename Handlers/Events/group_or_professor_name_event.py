@@ -5,6 +5,9 @@ from Wrappers.MongoDb.database import MongoDB
 
 
 class GroupOrProfessorNameHandler(AbstractHandler):
+    _id_by_professors: dict = None
+    _id_by_groups: dict = None
+
     def __init__(
             self,
             m: Messanger = None,
@@ -12,13 +15,14 @@ class GroupOrProfessorNameHandler(AbstractHandler):
             ch: Chsu = None
     ):
         super().__init__(m, db, ch)
-        self._id_by_professors = None
-        self._id_by_groups = None
 
     async def _can_handle(self, event) -> bool:
         self._id_by_professors = await self._chsu_api.get_id_by_professors_list()
         self._id_by_groups = await self._chsu_api.get_id_by_groups_list()
-        return event['text'] in {**self._id_by_groups, **self._id_by_professors}
+        return event['text'] in {
+            **self._id_by_groups,
+            **self._id_by_professors
+        }
 
     async def _handle(self, event) -> None:
         await self._database.set_user_data(
