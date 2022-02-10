@@ -6,6 +6,7 @@ from APIs.Chsu.client import Chsu
 from APIs.Chsu.schedule import Schedule
 from APIs.Telegram.client import Telegram
 from APIs.Vk.client import Vk
+from Handlers.date_handler import DateHandler
 from Wrappers.MongoDb.database import MongoDB
 
 
@@ -16,14 +17,13 @@ class ScheduleChecker:
             telegram: Telegram,
             database: MongoDB,
             chsu_api: Chsu,
-            event_loop: AbstractEventLoop,
-            get_time
+            event_loop: AbstractEventLoop
     ):
         self._vk = vk
         self._telegram = telegram
         self._database = database
         self._chsu_api = chsu_api
-        self._get_time = get_time
+        self._date_handler = DateHandler()
         self.updating = event_loop.create_task(self._daily_updating_process())
         self.checking = event_loop.create_task(self._check_updates_process())
 
@@ -46,7 +46,9 @@ class ScheduleChecker:
                 await self._update_group_and_get_changes(group, ids[group])
 
     async def _is_midnight(self):
-        return self._get_time().hour == 0 and self._get_time().minute == 0
+        return \
+            self._date_handler.get_current_date_object().hour == 0 and \
+            self._date_handler.get_current_date_object().minute == 0
 
     async def _get_id_list(self):
         return {
@@ -55,8 +57,8 @@ class ScheduleChecker:
         }
 
     async def _update_group_and_get_changes(self, group_name, group_id):
-        start_time = self._get_time().strftime("%d.%m.%Y")
-        end_time = (self._get_time(0) + timedelta(days=14, hours=3)).strftime("%d.%m.%Y")
+        start_time = self._date_handler.get_current_date_object().strftime("%d.%m.%Y")
+        end_time = (self._date_handler.get_current_date_object() + timedelta(days=14, hours=3)).strftime("%d.%m.%Y")
         new_hashes = await self._chsu_api.get_schedule_list_hash(group_id, start_time, end_time)
         group_obj = await self._database.get_group_hashes(group_name)
         await self._database.set_group_hashes(new_hashes, group_name)
@@ -95,6 +97,7 @@ class ScheduleChecker:
                 await self._check_updates()
             except ConnectionError as err:
                 print(err)
+            self._date_handler = DateHandler()
             await asyncio.sleep(1)
 
     async def _check_updates(self):
@@ -105,7 +108,10 @@ class ScheduleChecker:
                 await self._check_and_send_updates_for_group(group, ids[group])
 
     async def is_beginning_of_the_hour(self):
-        return self._get_time().second == 0 and self._get_time().hour != 0 and self._get_time().minute % 20 == 0
+        return \
+            self._date_handler.get_current_date_object().second == 0 and \
+            self._date_handler.get_current_date_object().hour != 0 and \
+            self._date_handler.get_current_date_object().minute % 20 == 0
 
     async def _check_and_send_updates_for_group(self, group, group_id):
         users = await self._database.get_check_changes_members(group)

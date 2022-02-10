@@ -212,7 +212,7 @@ if __name__ == "__main__":
     event_loop.create_task(mailing())
 
     print("Starting schedule checker...")
-    checker = ScheduleChecker(vk_api, telegram_api, mongo_db_api, chsu_api, event_loop, get_time)
+    checker = ScheduleChecker(vk_api, telegram_api, mongo_db_api, chsu_api, event_loop)
     print("Done")
 
     # init server
