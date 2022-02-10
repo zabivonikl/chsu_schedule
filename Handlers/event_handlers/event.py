@@ -1,15 +1,16 @@
-from datetime import timedelta, datetime
 from re import match
 
 from APIs.Chsu.client import Chsu
 from APIs.Chsu.schedule import Schedule
 from APIs.abstract_messanger import Messanger
+from Handlers.date_handler import DateHandler
 from Wrappers.MongoDb.database import MongoDB
 from Wrappers.MongoDb.exceptions import EmptyResponse as MongoDBEmptyRespException
 
 
 class EventHandler:
     def __init__(self, api: Messanger, database: MongoDB, chsu_api: Chsu):
+        self._date_handler: DateHandler = DateHandler()
         self._chat_platform = api
         self._database = database
         self._chsu_api = chsu_api
@@ -18,12 +19,11 @@ class EventHandler:
         self._id_by_groups = None
         self._id_by_professors = None
 
-        self._current_date = None
-
     async def handle_event(self, event):
         if not event:
             return
-        self._current_date = event['time']
+
+        self._date_handler = DateHandler(event['time'])
 
         self._id_by_professors = await self._chsu_api.get_id_by_professors_list()
         self._id_by_groups = await self._chsu_api.get_id_by_groups_list()
@@ -171,26 +171,30 @@ class EventHandler:
         if not match(regex, event['text']):
             await self._handle_date(event)
         else:
-            await self._handle_custom_date(event['from_id'], event['text'].split('-')[0], event['text'].split('-')[1])
+            self._date_handler.parse_double_date(event['text'])
+            await self._get_schedule(event['from_id'], *self._date_handler.get_string())
 
     async def _handle_date(self, event):
         if not match(r'^(0[1-9]|1\d|2\d|3[0-1])[.](0[1-9]|1[0-2])$', event['text']):
             await self._handle_schedule_for_today(event)
         else:
-            await self._handle_custom_date(event['from_id'], event['text'])
+            self._date_handler.parse_single_date(event['text'])
+            await self._get_schedule(event['from_id'], *self._date_handler.get_string())
 
     async def _handle_schedule_for_today(self, event):
         if event['text'] != "Расписание на сегодня":
             await self._handle_schedule_for_tomorrow(event)
         else:
-            event['text'] = self._current_date.strftime('%d.%m')
+            self._date_handler.parse_today_word()
+            event['text'] = self._date_handler.get_string()[0]
             await self._handle_date(event)
 
     async def _handle_schedule_for_tomorrow(self, event):
         if event['text'] != "Расписание на завтра":
             await self._send_message_from_admin(event)
         else:
-            event['text'] = (self._current_date + timedelta(days=1)).strftime('%d.%m')
+            self._date_handler.parse_tomorrow_word()
+            event['text'] = self._date_handler.get_string()[0]
             await self._handle_date(event)
 
     async def _send_message_from_admin(self, event):
@@ -231,46 +235,10 @@ class EventHandler:
         await self._chat_platform.confirm_event(event['event_id'], event['from_id'])
         await self._chat_platform.send_coords([event['from_id']], *list(buildings.values())[int(event['payload'])])
 
-    async def _handle_custom_date(self, from_id, start_date, end_date=None):
-        resp = []
-        try:
-            dates = self._get_full_date(start_date, end_date)
-            resp = await self._get_schedule(from_id, dates[0], dates[1])
-        except ValueError:
-            resp = [{"text": "Введена некорректная дата.", 'callback_data': []}]
-        finally:
-            await self._send_schedule(from_id, resp)
-
-    def _get_full_date(self, initial_date_string, final_date_string=None):
-        initial_date = self._parse_date_string(initial_date_string)
-        if self._is_date_less_current(initial_date):
-            initial_date = self._add_year(initial_date)
-        if final_date_string:
-            final_date = self._parse_date_string(final_date_string)
-            if self._is_final_date_less(final_date, initial_date):
-                final_date = self._add_year(final_date)
-            return [initial_date.strftime("%d.%m.%Y"), final_date.strftime("%d.%m.%Y")]
-        else:
-            return [initial_date.strftime("%d.%m.%Y"), None]
-
-    def _parse_date_string(self, string):
-        return datetime.strptime(f"{string}.{self._current_date.year}", "%d.%m.%Y")
-
-    def _is_date_less_current(self, date):
-        return date.month - self._current_date.month < 0
-
-    @staticmethod
-    def _is_final_date_less(final_date, initial_date):
-        return (final_date - initial_date).days < 0
-
-    @staticmethod
-    def _add_year(date):
-        return datetime(year=date.year + 1, month=date.month, day=date.day)
-
     async def _get_schedule(self, from_id, start_date, last_date=None):
         try:
             db_response = await self._database.get_user_data(
-                from_id, self._chat_platform.get_name(), self._current_date
+                from_id, self._chat_platform.get_name(), self._date_handler.get_current_date_object()
             )
             university_id = self._id_by_groups[db_response["group_name"]] if "group_name" in db_response \
                 else self._id_by_professors[db_response["professor_name"]]
