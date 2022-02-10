@@ -1,9 +1,9 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 
 class DateHandler:
-    def __init__(self, date: datetime = None):
-        self._current_date: datetime = date
+    def __init__(self):
+        self._current_date: datetime = datetime.now(timezone(timedelta(hours=float(3.0))))
         self._date_tuple = ()
 
     def parse_today_word(self) -> None:
