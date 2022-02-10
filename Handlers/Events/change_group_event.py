@@ -17,6 +17,6 @@ class ChangeGroupHandler(AbstractHandler):
     def _can_handle(event) -> bool:
         return event['text'] == "Изменить группу"
 
-    def _handle(self, event) -> None:
+    async def _handle(self, event) -> None:
         kb = self._chat_platform.get_keyboard_inst().get_change_group_keyboard()
         await self._chat_platform.send_message("Кто вы?", [event['from_id']], kb)

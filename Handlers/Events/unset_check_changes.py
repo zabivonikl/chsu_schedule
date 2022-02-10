@@ -17,7 +17,7 @@ class UnsetCheckChangesHandler(AbstractHandler):
     def _can_handle(event) -> bool:
         return event['text'] == "Не отслеживать изменения"
 
-    def _handle(self, event) -> None:
+    async def _handle(self, event) -> None:
         await self._database.set_check_changes_member(event['from_id'], self._chat_platform.get_name())
         kb = self._chat_platform.get_keyboard_inst().get_standard_keyboard()
         await self._chat_platform.send_message(

@@ -17,7 +17,7 @@ class UnsubscribeHandler(AbstractHandler):
     def _can_handle(event) -> bool:
         return event['text'] == "Отписаться"
 
-    def _handle(self, event) -> None:
+    async def _handle(self, event) -> None:
         await self._database.set_mailing_time(event['from_id'], self._chat_platform.get_name())
         kb = self._chat_platform.get_keyboard_inst().get_standard_keyboard()
         await self._chat_platform.send_message(f"Вы отписались от рассылки.", [event['from_id']], kb)

@@ -15,12 +15,12 @@ class GroupOrProfessorNameHandler(AbstractHandler):
         self._id_by_professors = None
         self._id_by_groups = None
 
-    def _can_handle(self, event) -> bool:
+    async def _can_handle(self, event) -> bool:
         self._id_by_professors = await self._chsu_api.get_id_by_professors_list()
         self._id_by_groups = await self._chsu_api.get_id_by_groups_list()
         return event['text'] in {**self._id_by_groups, **self._id_by_professors}
 
-    def _handle(self, event) -> None:
+    async def _handle(self, event) -> None:
         await self._database.set_user_data(
             event['from_id'],
             self._chat_platform.get_name(),

@@ -17,7 +17,7 @@ class MailingHandler(AbstractHandler):
     def _can_handle(event) -> bool:
         return event['text'] == "Рассылка"
 
-    def _handle(self, event) -> None:
+    async def _handle(self, event) -> None:
         kb = self._chat_platform.get_keyboard_inst().get_canceling_subscribe_keyboard()
         text = "Введите время рассылки\nПример: 08:36"
         await self._chat_platform.send_message(text, [event['from_id']], kb)

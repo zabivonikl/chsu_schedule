@@ -17,6 +17,6 @@ class ChooseProfessorHandler(AbstractHandler):
     def _can_handle(event) -> bool:
         return event['text'] == 'Преподаватель'
 
-    def _handle(self, event) -> None:
+    async def _handle(self, event) -> None:
         kb = self._chat_platform.get_keyboard_inst().get_empty_keyboard()
         await self._chat_platform.send_message(f"Введите ФИО.", [event['from_id']], kb)

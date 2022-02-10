@@ -17,7 +17,7 @@ class CallbackHandler(AbstractHandler):
     def _can_handle(event) -> bool:
         return 'payload' in event
 
-    def _handle(self, event) -> None:
+    async def _handle(self, event) -> None:
         buildings = {
             'Советский, 8': (59.12047482336482, 37.93102001811573),
             'Победы, 12': (59.133350120818704, 37.90253587101461),

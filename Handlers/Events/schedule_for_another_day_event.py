@@ -17,7 +17,7 @@ class ScheduleForAnotherDayHandler(AbstractHandler):
     def _can_handle(event) -> bool:
         return event['text'] == "Расписание на другой день"
 
-    def _handle(self, event) -> None:
+    async def _handle(self, event) -> None:
         kb = self._chat_platform.get_keyboard_inst().get_canceling_keyboard()
         text = "Введите дату:\nПример: 08.02 - запрос расписания для конкретного дня.\n" \
                "31.10-07.11 - запрос расписания для заданного интервала дат."

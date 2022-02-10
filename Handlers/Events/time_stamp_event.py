@@ -19,7 +19,7 @@ class TimeStampHandler(AbstractHandler):
     def _can_handle(event) -> bool:
         return match(r'^(0\d|1\d|2[0-3])[:][0-5]\d$', event['text']) is not None
 
-    def _handle(self, event) -> None:
+    async def _handle(self, event) -> None:
         await self._database.set_mailing_time(
             event['from_id'], self._chat_platform.get_name(), event['text']
         )

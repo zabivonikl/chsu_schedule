@@ -17,7 +17,7 @@ class UserMessageHandler(AbstractHandler):
     def _can_handle(event) -> bool:
         return event['text'] and event['text'][0] == ';'
 
-    def _handle(self, event) -> None:
+    async def _handle(self, event) -> None:
         kb = self._chat_platform.get_keyboard_inst().get_standard_keyboard()
         await self._chat_platform.send_message(
             f"Сообщение от пользователя: {event['text'][1:]}\n\n"

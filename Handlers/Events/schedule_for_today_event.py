@@ -19,7 +19,7 @@ class ScheduleForTodayHandler(AbstractHandler):
     def _can_handle(event) -> bool:
         return event['text'] == "Расписание на сегодня"
 
-    def _handle(self, event) -> None:
+    async def _handle(self, event) -> None:
         self._date_handler.parse_today_word()
         event['text'] = self._date_handler.get_string()[0]
         await self._next_handler.handle_event(event)
