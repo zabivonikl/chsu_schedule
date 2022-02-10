@@ -172,7 +172,6 @@ class EventHandler:
             await self._handle_date(event)
         else:
             self._date_handler.parse_double_date(event['text'])
-            schedule = await self._get_schedule(event['from_id'], *self._date_handler.get_string())
             await self._send_schedule([event['from_id']], await self._get_schedule(event['from_id'], *self._date_handler.get_string()))
 
     async def _handle_date(self, event):
