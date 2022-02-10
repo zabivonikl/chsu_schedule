@@ -34,7 +34,7 @@ class AbstractHandler(Handler, ABC):
                 await self._next_handler.handle_event(event)
         except Exception as err:
             await self._chat_platform.send_message(
-                f"{self.__class__.__name__} : {self.__class__.__base__.__name__}\n\n{event}\n\n{err}",
+                f"Ошибка в {self.__class__.__name__}: {err}\n\nСобытие: {event}",
                 self._chat_platform.get_admins(),
                 self._chat_platform.get_keyboard_inst().get_standard_keyboard()
             )

@@ -26,10 +26,18 @@ class DoubleDateHandler(AbstractHandler):
         ) is not None
 
     async def _handle(self, event) -> None:
-        self._date_handler.parse_double_date(event['text'])
-        await self._send_schedule(
-            [event['from_id']], await self._get_schedule(event['from_id'], *self._date_handler.get_string())
-        )
+        try:
+            self._date_handler.parse_double_date(event['text'])
+            await self._send_schedule(
+                [event['from_id']], await self._get_schedule(event['from_id'], *self._date_handler.get_string())
+            )
+        except ValueError:
+            await self._chat_platform.send_message(
+                "Введена некорректная дата.",
+                [event['from_id']],
+                self._keyboard.get_standard_keyboard()
+            )
+
 
     async def _get_schedule(self, from_id, start_date, last_date=None):
         self._id_by_professors = await self._chsu_api.get_id_by_professors_list()

@@ -22,7 +22,14 @@ class SingleDateHandler(DoubleDateHandler):
         ) is not None
 
     async def _handle(self, event) -> None:
-        self._date_handler.parse_single_date(event['text'])
-        await self._send_schedule(
-            [event['from_id']], await self._get_schedule(event['from_id'], *self._date_handler.get_string())
-        )
+        try:
+            self._date_handler.parse_single_date(event['text'])
+            await self._send_schedule(
+                [event['from_id']], await self._get_schedule(event['from_id'], *self._date_handler.get_string())
+            )
+        except ValueError:
+            await self._chat_platform.send_message(
+                "Введена некорректная дата.",
+                [event['from_id']],
+                self._keyboard.get_standard_keyboard()
+            )
