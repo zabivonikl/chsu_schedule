@@ -10,7 +10,7 @@ from APIs.Telegram.client import Telegram
 from APIs.Vk.client import Vk
 from Handlers.schedule_change_checker import ScheduleChecker
 from Wrappers.MongoDb.database import MongoDB
-from Handlers.event_handlers.event import EventHandler
+from Handlers.Events.event import EventHandler
 
 routes = web.RouteTableDef()
 event_loop = asyncio.get_event_loop()
