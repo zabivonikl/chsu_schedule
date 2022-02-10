@@ -27,11 +27,14 @@ class AbstractHandler(Handler, ABC):
         return handler
 
     async def handle_event(self, event: dict) -> None:
-        print(self.__class__.__name__, self.__class__.__base__.__name__)
-        if self._can_handle(event):
-            await self._handle(event)
-        else:
-            await self._next_handler.handle_event(event)
+        try:
+            print(self.__class__.__name__, self.__class__.__base__.__name__)
+            if self._can_handle(event):
+                await self._handle(event)
+            else:
+                await self._next_handler.handle_event(event)
+        except Exception as err:
+            pass
 
     @staticmethod
     def _can_handle(event) -> bool:
