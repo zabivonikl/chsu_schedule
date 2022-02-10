@@ -9,14 +9,14 @@ from Wrappers.MongoDb.database import MongoDB
 
 
 class AbstractHandler(Handler, ABC):
+    _next_handler: Handler = None
+
     def __init__(
             self,
             a: Messanger = None,
             db: MongoDB = None,
             ch: Chsu = None
     ):
-        self._next_handler = None
-
         self._chat_platform = a
         self._database = db
         self._chsu_api = ch
