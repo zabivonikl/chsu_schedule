@@ -65,4 +65,3 @@ class DoubleDateHandler(AbstractHandler):
             address_codes = list(map(lambda a: Schedule.get_address_code(a), addresses))
             kb = self._keyboard.get_geo_request_keyboard(addresses, address_codes)
         await self._chat_platform.send_message(day['text'], [from_id], kb)
-

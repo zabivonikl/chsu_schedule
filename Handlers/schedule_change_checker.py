@@ -62,8 +62,7 @@ class ScheduleChecker:
         new_hashes = await self._chsu_api.get_schedule_list_hash(group_id, start_time, end_time)
         group_obj = await self._database.get_group_hashes(group_name)
         await self._database.set_group_hashes(new_hashes, group_name)
-        response = self._get_difference_dates(new_hashes, group_obj)
-        return response
+        return self._get_difference_dates(new_hashes, group_obj)
 
     def _get_difference_dates(self, hashes: list, group: dict) -> list:
         if 'hashes' in group:
