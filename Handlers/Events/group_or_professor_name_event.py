@@ -5,9 +5,6 @@ from Wrappers.MongoDb.database import MongoDB
 
 
 class GroupOrProfessorNameHandler(AbstractHandler):
-    _id_by_professors: dict = None
-    _id_by_groups: dict = None
-
     def __init__(
             self,
             m: Messanger = None,

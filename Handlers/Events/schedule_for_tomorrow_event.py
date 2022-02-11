@@ -1,6 +1,5 @@
 from APIs.Chsu.client import Chsu
 from APIs.abstract_messanger import Messanger
-from Handlers.date_handler import DateHandler
 from Handlers.Events.abstract_event import AbstractHandler
 from Wrappers.MongoDb.database import MongoDB
 
@@ -13,7 +12,6 @@ class ScheduleForTomorrowHandler(AbstractHandler):
             ch: Chsu = None
     ):
         super().__init__(m, db, ch)
-        self._date_handler = DateHandler()
 
     @staticmethod
     async def _can_handle(event) -> bool:

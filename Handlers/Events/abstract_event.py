@@ -1,5 +1,6 @@
 from APIs.Chsu.client import Chsu
 from APIs.abstract_messanger import Messanger
+from Handlers.date_handler import DateHandler
 from Wrappers.MongoDb.database import MongoDB
 
 
@@ -16,6 +17,8 @@ class AbstractHandler:
         self._database = db
         self._chsu_api = ch
         self._keyboard = self._chat_platform.get_keyboard_inst()
+
+        self._date_handler = DateHandler()
 
     def set_next(self, handler):
         self._next_handler = handler

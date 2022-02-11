@@ -7,18 +7,19 @@ class DateHandler:
         self._date_tuple = ()
 
     def parse_today_word(self) -> None:
+        self._update_date()
         self._date_tuple = (self._current_date, None)
 
     def parse_tomorrow_word(self):
+        self._update_date()
         self._date_tuple = (self._current_date + timedelta(days=1), None)
 
-    def parse_double_date(self, string: str) -> None:
-        self._get_full_date([string.split('-')[0], string.split('-')[1]])
-
-    def parse_single_date(self, string: str) -> None:
-        self._get_full_date([string, None])
+    def parse_date(self, string: str) -> None:
+        self._update_date()
+        self._get_full_date(string.split('-'))
 
     def get_current_date_object(self) -> datetime:
+        self._update_date()
         return self._current_date
 
     def get_string(self) -> tuple:
@@ -26,17 +27,19 @@ class DateHandler:
             self._date_tuple[0].strftime("%d.%m.%Y"), \
             self._date_tuple[1].strftime("%d.%m.%Y") if self._date_tuple[1] else None
 
+    def _update_date(self):
+        self._current_date: datetime = datetime.now(timezone(timedelta(hours=float(3.0))))
+
     def _get_full_date(self, dates: list) -> None:
         date_list = [self._parse_date_string(dates[0])]
-
         if self._is_date_less_current(date_list[0]):
             date_list[0] = self._add_year(date_list[0])
-
+        if len(dates) < 2:
+            dates.append(None)
         if dates[1]:
             date_list.append(self._parse_date_string(dates[1]))
             if self._is_final_date_less(date_list[1], date_list[0]):
                 date_list[1] = self._add_year(dates[1])
-
         self._date_tuple = (date_list[0], date_list[1] if dates[1] else None)
 
     def _parse_date_string(self, string: str) -> datetime:
