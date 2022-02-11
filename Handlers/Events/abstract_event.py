@@ -1,28 +1,25 @@
 from __future__ import annotations
 
-from abc import ABC
-
 from APIs.Chsu.client import Chsu
 from APIs.abstract_messanger import Messanger
-from Handlers.Events.event_interface import Handler
 from Wrappers.MongoDb.database import MongoDB
 
 
-class AbstractHandler(Handler, ABC):
-    _next_handler: Handler = None
-
+class AbstractHandler:
     def __init__(
             self,
             a: Messanger = None,
             db: MongoDB = None,
             ch: Chsu = None
     ):
+        self._next_handler = None
+
         self._chat_platform = a
         self._database = db
         self._chsu_api = ch
         self._keyboard = self._chat_platform.get_keyboard_inst()
 
-    def set_next(self, handler: Handler) -> Handler:
+    def set_next(self, handler):
         self._next_handler = handler
         return handler
 
@@ -34,7 +31,7 @@ class AbstractHandler(Handler, ABC):
                 await self._next_handler.handle_event(event)
         except Exception as err:
             await self._chat_platform.send_message(
-                f"Ошибка в {self.__class__.__name__}: {err}\n\nСобытие: {event}",
+                f"Ошибка в {self.__class__.__name__}:\n{err.__class__.__qualname__}: {err}\n\nСобытие: {event}",
                 self._chat_platform.get_admins(),
                 self._chat_platform.get_keyboard_inst().get_standard_keyboard()
             )
