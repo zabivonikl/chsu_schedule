@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from APIs.Chsu.client import Chsu
 from APIs.abstract_messanger import Messanger
 from Wrappers.MongoDb.database import MongoDB
