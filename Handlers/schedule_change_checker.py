@@ -102,42 +102,40 @@ class ScheduleChecker:
         return \
             self._date_handler.get_current_date_object().second == 0 and \
             self._date_handler.get_current_date_object().hour != 0 and \
-            self._date_handler.get_current_date_object().minute % 20 == 0
+            self._date_handler.get_current_date_object().minute % 2 == 0
 
     async def _check_and_send_updates_for_group(self, group):
         users = await self._database.get_check_changes_members(group)
         response = await self._get_new_schedules(group)
-        await self._send_response(users, *response)
+        await self._send_responses(users, response)
 
     async def _get_new_schedules(self, group):
-        update_times = await self._update_group_and_get_changes(group) or []
         response = []
-        callbacks = []
-        for update_time in update_times:
-            schedule = (await self._chsu_api.get_schedule_list_string(group, update_time))
-            response += list(map(lambda day: f"Обновленное расписание:\n\n{day['text']}", schedule))
-            callbacks += map(
-                lambda x: list(set(filter(
-                    lambda i: i is not None, x
-                ))), map(
-                    lambda day: day['callback_data'], schedule
-                ))
-        return response, callbacks
+        for time in await self._update_group_and_get_changes(group) or []:
+            for schedule in await self._chsu_api.get_schedule_list_string(group, time):
+                response.append(
+                    (f"Обновленное расписание:\n\n{schedule['text']}", set(schedule['callback_data']))
+                )
+        return response
 
-    async def _send_response(self, users, response, callbacks):
+    async def _send_responses(self, users, response):
         for user in users:
             if user['platform'] == self._vk.get_name():
                 api = self._vk
             else:
                 api = self._telegram
-            kb = api.get_keyboard_inst()
-            for index, message in enumerate(response):
-                await api.send_message(
-                    message, [user['id']],
-                    kb.get_geo_request_keyboard(
-                        callbacks[index],
-                        list(map(
-                            lambda a: Schedule.get_address_code(a), callbacks[index]
-                        )) if len(callbacks[index]) > 0 else kb.get_standard_keyboard()
-                    )
+            for message in response:
+                await self._send_response(api, user['id'], message)
+
+    @staticmethod
+    async def _send_response(api, user, message):
+        kb = api.get_keyboard_inst().get_geo_request_keyboard(
+            message[1],
+            list(
+                map(
+                    lambda a: Schedule.get_address_code(a),
+                    message[1]
                 )
+            )
+        )
+        await api.send_message(message[0], [user], kb)

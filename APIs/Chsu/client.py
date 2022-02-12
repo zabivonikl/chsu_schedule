@@ -48,9 +48,10 @@ class Chsu:
     async def get_user_type(self, name: str):
         if name not in (await self._get_id_by_groups_list()).keys():
             return None
-        return "student" \
-            if name in (await self._get_id_by_groups_list()).keys() \
-            else "professor"
+        elif name in (await self._get_id_by_groups_list()).keys():
+            return "student"
+        else:
+            return "professor"
 
     async def _get_id_by_professors_list(self):
         if self._id_by_professors is None:
@@ -69,15 +70,17 @@ class Chsu:
         return self._id_by_groups
 
     async def get_schedule_list_hash(self, name: str, start_date: str, last_date: str = None):
-        response = []
-        schedules = await self.get_schedule_list_string(name, start_date, last_date)
-        for schedule in schedules:
-            if len(schedule['text'].split(', ')) > 1:
-                response.append({
+        return list(
+            map(
+                lambda schedule: {
                     "time": datetime.strptime(schedule['text'].split(', ')[1][0:10], "%d.%m.%Y"),
                     "hash": hashlib.sha256(schedule['text'].encode()).hexdigest()
-                })
-        return response
+                }, filter(
+                    lambda schedule: len(schedule['text'].split(', ')) > 1,
+                    await self.get_schedule_list_string(name, start_date, last_date)
+                )
+            )
+        )
 
     async def get_schedule_list_string(self, name: str, start_date: str, last_date: str = None):
         return Schedule(
@@ -86,10 +89,14 @@ class Chsu:
         )
 
     async def _get_schedule_json(self, name: str, start_date: str, last_date: str = None):
-        university_id = await self._get_chsu_id(name)
-        user_type = "groupId" if await self.get_user_type(name) == "student" else "lecturerId"
-        query = f"/timetable/v1/from/{start_date}/to/{last_date or start_date}/{user_type}/{university_id}/"
-        response = await self._client.get(self._base_url + query, headers=self._headers)
+        response = await self._client.get(
+            f"{self._base_url}/timetable/v1/"
+            f"from/{start_date}/"
+            f"to/{last_date or start_date}/"
+            f"{(await self.get_user_type(name)).replace('student', 'groupId').replace('professor', 'lecturerId')}/"
+            f"{await self._get_chsu_id(name)}/",
+            headers=self._headers
+        )
         if 'description' in response:
             raise ConnectionError(f"{response['code']}: {response['description']}")
         return response
