@@ -32,6 +32,7 @@ from Handlers.Events.time_stamp_event import TimeStampHandler
 from Handlers.Events.unset_check_changes import UnsetCheckChangesHandler
 from Handlers.Events.unsubscribe_event import UnsubscribeHandler
 from Handlers.Events.user_message_event import UserMessageHandler
+from Handlers.date_handler import DateHandler
 
 from Handlers.schedule_change_checker import ScheduleChecker
 
@@ -41,17 +42,13 @@ routes = web.RouteTableDef()
 event_loop = asyncio.get_event_loop()
 
 
-def get_time(tz=3):
-    return datetime.now(timezone(timedelta(hours=float(tz))))
-
-
 @routes.get("/")
 async def index(request):
     return web.Response(text=json.dumps({
         "Server": "working",
-        "Server datetime:": get_time().strftime("%d.%m.%Y %H:%M:%S.%f"),
+        "Server datetime:": date_handler.get_current_date_object().strftime("%d.%m.%Y %H:%M:%S.%f"),
         "Server start datetime:": start_time.strftime("%d.%m.%Y %H:%M:%S.%f"),
-        "Server uptime:": str(get_time() - start_time),
+        "Server uptime:": str(date_handler.get_current_date_object() - start_time),
         f'CHSU API': f'{await chsu_api.get_status()}',
         f'Database': f'{await mongo_db_api.get_status()}',
         f'VK': f'{await vk_api.get_status()}',
@@ -141,13 +138,15 @@ async def delete_webhook(request):
 
 
 async def mailing():
-    while get_time().second != 0:
+    while date_handler.get_current_date_object().second != 0:
         await asyncio.sleep(.5)
-    print(f'Mailing started at: {get_time().strftime("%d.%m.%Y %H:%M:%S.%f")}')
+    print(f'Mailing started at: {date_handler.get_current_date_object().strftime("%d.%m.%Y %H:%M:%S.%f")}')
     while True:
-        users = await mongo_db_api.get_mailing_subscribers_by_time(get_time().strftime("%H:%M"))
+        users = await mongo_db_api.get_mailing_subscribers_by_time(
+            date_handler.get_current_date_object().strftime("%H:%M")
+        )
         for user in users:
-            event = {"from_id": user[0], "text": "Расписание на завтра", 'time': get_time()}
+            event = {"from_id": user[0], "text": "Расписание на завтра", 'time': date_handler.get_current_date_object()}
             if user[1] == telegram_api.get_name():
                 await telegram_handler.handle_event(event)
             elif user[1] == vk_api.get_name():
@@ -189,13 +188,12 @@ def get_responsibility_chain(m: Messanger):
 
 
 if __name__ == "__main__":
-    start_time = get_time()
-    print(f"Start time: {start_time.strftime('%d.%m.%Y %H:%M:%S.%f')}")
 
     # init services
     print("Starting services...")
     chsu_api = Chsu(event_loop)
     mongo_db_api = MongoDB(tokens.MONGO_DB_LOGIN, tokens.MONGO_DB_PASSWORD, tokens.MONGO_DB_NAME)
+    date_handler = DateHandler()
     print("Done")
 
     # init messangers
@@ -219,3 +217,6 @@ if __name__ == "__main__":
     app = web.Application()
     app.add_routes(routes)
     web.run_app(app, port=8080, host="127.0.0.1", loop=event_loop)
+
+    start_time = date_handler.get_current_date_object()
+    print(f"Start time: {start_time.strftime('%d.%m.%Y %H:%M:%S.%f')}")
