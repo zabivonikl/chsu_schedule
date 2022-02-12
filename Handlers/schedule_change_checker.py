@@ -58,10 +58,7 @@ class ScheduleChecker:
         return self._get_difference_dates(new_hashes, group_obj)
 
     def _get_difference_dates(self, hashes: list, group: dict) -> list:
-        if 'hashes' in group:
-            return self._get_difference_dates_and_update_hashes(group['hashes'], hashes)
-        else:
-            return []
+        return self._get_difference_dates_and_update_hashes(group['hashes'], hashes) if 'hashes' in group else []
 
     def _get_difference_dates_and_update_hashes(self, old_hashes: list, new_hashes: list) -> list:
         hashes = self._get_difference(old_hashes, new_hashes)
@@ -114,28 +111,33 @@ class ScheduleChecker:
         for time in await self._update_group_and_get_changes(group) or []:
             for schedule in await self._chsu_api.get_schedule_list_string(group, time):
                 response.append(
-                    (f"Обновленное расписание:\n\n{schedule['text']}", set(schedule['callback_data']))
+                    (f"Обновленное расписание:\n\n{schedule['text']}", list(set(schedule['callback_data'])))
                 )
         return response
 
     async def _send_responses(self, users, response):
-        for user in users:
-            if user['platform'] == self._vk.get_name():
-                api = self._vk
-            else:
-                api = self._telegram
-            for message in response:
-                await self._send_response(api, user['id'], message)
+        for message in response:
+            await self._send_response(
+                self._vk,
+                list(map(lambda u: u["id"], filter(lambda u: u['platform'] == self._vk.get_name(), users))),
+                message
+            )
+            await self._send_response(
+                self._telegram,
+                list(map(lambda u: u["id"],filter(lambda u: u['platform'] == self._telegram.get_name(), users))),
+                message
+            )
 
     @staticmethod
-    async def _send_response(api, user, message):
-        kb = api.get_keyboard_inst().get_geo_request_keyboard(
-            message[1],
-            list(
-                map(
+    async def _send_response(api, users, message):
+        await api.send_message(
+            message[0],
+            users,
+            api.get_keyboard_inst().get_geo_request_keyboard(
+                message[1],
+                list(map(
                     lambda a: Schedule.get_address_code(a),
                     message[1]
-                )
+                ))
             )
         )
-        await api.send_message(message[0], [user], kb)
