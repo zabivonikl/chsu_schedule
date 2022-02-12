@@ -14,12 +14,7 @@ class GroupOrProfessorNameHandler(AbstractHandler):
         super().__init__(m, db, ch)
 
     async def _can_handle(self, event) -> bool:
-        self._id_by_professors = await self._chsu_api.get_id_by_professors_list()
-        self._id_by_groups = await self._chsu_api.get_id_by_groups_list()
-        return event['text'] in {
-            **self._id_by_groups,
-            **self._id_by_professors
-        }
+        return await self._chsu_api.get_user_type(event['text']) is not None
 
     async def _handle(self, event) -> None:
         await self._database.set_user_data(
@@ -27,7 +22,7 @@ class GroupOrProfessorNameHandler(AbstractHandler):
             self._chat_platform.get_name(),
             **(
                 dict(professor_name=event['text'])
-                if event['text'] in self._id_by_professors
+                if await self._chsu_api.get_user_type(event['text']) == "professor"
                 else dict(group_name=event['text'])
             )
         )

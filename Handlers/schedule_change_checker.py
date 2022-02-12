@@ -41,25 +41,18 @@ class ScheduleChecker:
     async def _update_hashes(self):
         if await self._is_midnight():
             group_list = await self._database.get_groups_list()
-            ids = await self._get_id_list()
             for group in group_list:
-                await self._update_group_and_get_changes(group, ids[group])
+                await self._update_group_and_get_changes(group)
 
     async def _is_midnight(self):
         return \
             self._date_handler.get_current_date_object().hour == 0 and \
             self._date_handler.get_current_date_object().minute == 0
 
-    async def _get_id_list(self):
-        return {
-            **(await self._chsu_api.get_id_by_groups_list()),
-            **(await self._chsu_api.get_id_by_professors_list())
-        }
-
-    async def _update_group_and_get_changes(self, group_name, group_id):
+    async def _update_group_and_get_changes(self, group_name):
         start_time = self._date_handler.get_current_date_object().strftime("%d.%m.%Y")
         end_time = (self._date_handler.get_current_date_object() + timedelta(days=14, hours=3)).strftime("%d.%m.%Y")
-        new_hashes = await self._chsu_api.get_schedule_list_hash(group_id, start_time, end_time)
+        new_hashes = await self._chsu_api.get_schedule_list_hash(group_name, start_time, end_time)
         group_obj = await self._database.get_group_hashes(group_name)
         await self._database.set_group_hashes(new_hashes, group_name)
         return self._get_difference_dates(new_hashes, group_obj)
@@ -102,9 +95,8 @@ class ScheduleChecker:
     async def _check_updates(self):
         if await self.is_beginning_of_the_hour():
             group_list = await self._database.get_groups_list()
-            ids = await self._get_id_list()
             for group in group_list:
-                await self._check_and_send_updates_for_group(group, ids[group])
+                await self._check_and_send_updates_for_group(group)
 
     async def is_beginning_of_the_hour(self):
         return \
@@ -112,17 +104,17 @@ class ScheduleChecker:
             self._date_handler.get_current_date_object().hour != 0 and \
             self._date_handler.get_current_date_object().minute % 20 == 0
 
-    async def _check_and_send_updates_for_group(self, group, group_id):
+    async def _check_and_send_updates_for_group(self, group):
         users = await self._database.get_check_changes_members(group)
-        response = await self._get_new_schedules(group, group_id)
+        response = await self._get_new_schedules(group)
         await self._send_response(users, *response)
 
-    async def _get_new_schedules(self, group, group_id):
-        update_times = await self._update_group_and_get_changes(group, group_id) or []
+    async def _get_new_schedules(self, group):
+        update_times = await self._update_group_and_get_changes(group) or []
         response = []
         callbacks = []
         for update_time in update_times:
-            schedule = (await self._chsu_api.get_schedule_list_string(group_id, update_time))
+            schedule = (await self._chsu_api.get_schedule_list_string(group, update_time))
             response += list(map(lambda day: f"Обновленное расписание:\n\n{day['text']}", schedule))
             callbacks += map(
                 lambda x: list(set(filter(

@@ -29,7 +29,8 @@ class DoubleDateHandler(AbstractHandler):
 
     async def _handle_request(self, from_id, date):
         try:
-            await self._send_messages([from_id], await self._get_schedule(from_id, *date))
+            schedule = await self._get_schedule(from_id, *date)
+            await self._send_messages([from_id], schedule)
             return
         except ValueError:
             text = "Введена некорректная дата."
@@ -42,17 +43,12 @@ class DoubleDateHandler(AbstractHandler):
         await self._chat_platform.send_message(text, [from_id], self._keyboard.get_standard_keyboard())
 
     async def _get_schedule(self, from_id, start_date, last_date=None):
-        self._id_by_professors = await self._chsu_api.get_id_by_professors_list()
-        self._id_by_groups = await self._chsu_api.get_id_by_groups_list()
-
         db_response = await self._database.get_user_data(
-            from_id, self._chat_platform.get_name(), self._date_handler.get_current_date_object()
+            from_id, self._chat_platform.get_name(),
+            self._date_handler.get_current_date_object()
         )
-        university_id = \
-            self._id_by_groups[db_response["group_name"]] \
-            if "group_name" in db_response \
-            else self._id_by_professors[db_response["professor_name"]]
-        return await self._chsu_api.get_schedule_list_string(university_id, start_date, last_date)
+        name = db_response["group_name" if "group_name" in db_response else "professor_name"]
+        return await self._chsu_api.get_schedule_list_string(name, start_date, last_date)
 
     async def _send_messages(self, from_id, resp):
         for day in resp:

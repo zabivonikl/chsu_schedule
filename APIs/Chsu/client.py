@@ -25,8 +25,7 @@ class Chsu:
 
     async def _updating_token(self):
         while True:
-            if "Authorization" in self._headers:
-                self._headers.pop("Authorization")
+            self._headers.pop("Authorization", '')
             response = await self._client.post(
                 f"{self._base_url}auth/signin",
                 self._login_and_password,
@@ -46,7 +45,14 @@ class Chsu:
         else:
             return 'working'
 
-    async def get_id_by_professors_list(self):
+    async def get_user_type(self, name: str):
+        if name not in (await self._get_id_by_groups_list()).keys():
+            return None
+        return "student" \
+            if name in (await self._get_id_by_groups_list()).keys() \
+            else "professor"
+
+    async def _get_id_by_professors_list(self):
         if self._id_by_professors is None:
             teachers = await self._client.get(self._base_url + "/teacher/v1", headers=self._headers)
             self._id_by_professors = {}
@@ -54,7 +60,7 @@ class Chsu:
                 self._id_by_professors[teacher["fio"]] = teacher['id']
         return self._id_by_professors
 
-    async def get_id_by_groups_list(self):
+    async def _get_id_by_groups_list(self):
         if self._id_by_groups is None:
             groups = await self._client.get(self._base_url + "/group/v1", headers=self._headers)
             self._id_by_groups = {}
@@ -62,12 +68,9 @@ class Chsu:
                 self._id_by_groups[group["title"]] = group['id']
         return self._id_by_groups
 
-    async def get_user_type(self, chsu_id: str):
-        return "student" if chsu_id in (await self.get_id_by_groups_list()).values() else "professor"
-
-    async def get_schedule_list_hash(self, university_id: str, start_date: str, last_date: str = None):
+    async def get_schedule_list_hash(self, name: str, start_date: str, last_date: str = None):
         response = []
-        schedules = await self.get_schedule_list_string(university_id, start_date, last_date)
+        schedules = await self.get_schedule_list_string(name, start_date, last_date)
         for schedule in schedules:
             if len(schedule['text'].split(', ')) > 1:
                 response.append({
@@ -76,16 +79,23 @@ class Chsu:
                 })
         return response
 
-    async def get_schedule_list_string(self, university_id: str, start_date: str, last_date: str = None):
+    async def get_schedule_list_string(self, name: str, start_date: str, last_date: str = None):
         return Schedule(
-            await self.get_user_type(university_id),
-            await self._get_schedule_json(university_id, start_date, last_date)
+            await self.get_user_type(name),
+            await self._get_schedule_json(name, start_date, last_date)
         )
 
-    async def _get_schedule_json(self, university_id: str, start_date: str, last_date: str = None):
-        user_type = "groupId" if await self.get_user_type(university_id) == "student" else "lecturerId"
+    async def _get_schedule_json(self, name: str, start_date: str, last_date: str = None):
+        university_id = await self._get_chsu_id(name)
+        user_type = "groupId" if await self.get_user_type(name) == "student" else "lecturerId"
         query = f"/timetable/v1/from/{start_date}/to/{last_date or start_date}/{user_type}/{university_id}/"
         response = await self._client.get(self._base_url + query, headers=self._headers)
         if 'description' in response:
             raise ConnectionError(f"{response['code']}: {response['description']}")
         return response
+
+    async def _get_chsu_id(self, name: str):
+        return {
+            **(await self._get_id_by_groups_list()),
+            **(await self._get_id_by_professors_list())
+        }[name]
