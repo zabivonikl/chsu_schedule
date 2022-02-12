@@ -99,7 +99,7 @@ class ScheduleChecker:
         return \
             self._date_handler.get_current_date_object().second == 0 and \
             self._date_handler.get_current_date_object().hour != 0 and \
-            self._date_handler.get_current_date_object().minute % 2 == 0
+            self._date_handler.get_current_date_object().minute % 20 == 0
 
     async def _check_and_send_updates_for_group(self, group):
         users = await self._database.get_check_changes_members(group)
