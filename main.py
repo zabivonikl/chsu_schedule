@@ -212,11 +212,11 @@ if __name__ == "__main__":
     checker = ScheduleChecker(vk_api, telegram_api, mongo_db_api, chsu_api, event_loop)
     print("Done")
 
+    start_time = date_handler.get_current_date_object()
+    print(f"Start time: {start_time.strftime('%d.%m.%Y %H:%M:%S.%f')}")
+
     # init server
     print("Starting web app...")
     app = web.Application()
     app.add_routes(routes)
     web.run_app(app, port=8080, host="127.0.0.1", loop=event_loop)
-
-    start_time = date_handler.get_current_date_object()
-    print(f"Start time: {start_time.strftime('%d.%m.%Y %H:%M:%S.%f')}")

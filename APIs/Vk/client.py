@@ -39,13 +39,15 @@ class Vk(Messanger):
         await self._api.messages.sendMessageEventAnswer(event_id=callback_query_id, peer_id=peer_id, user_id=peer_id)
 
     async def send_message(self, message: str, peer_ids: list, keyboard: str) -> None:
-        args = dict(message=message, peer_ids=peer_ids, random_id=randint(0, 4096))
-        if keyboard:
-            args['keyboard'] = keyboard
-        await self._api.messages.send(**args)
+        for peer_id in peer_ids:
+            args = dict(message=message, peer_ids=peer_id, random_id=randint(0, 4096))
+            if keyboard:
+                args['keyboard'] = keyboard
+            await self._api.messages.send(**args)
 
     async def send_coords(self, peer_ids: list, lat: int, lon: int, keyboard: str = None):
-        args = dict(peer_ids=peer_ids, random_id=randint(0, 4096), lat=lat, long=lon)
-        if keyboard:
-            args['keyboard'] = keyboard
-        await self._api.messages.send(**args)
+        for peer_id in peer_ids:
+            args = dict(peer_ids=peer_id, random_id=randint(0, 4096), lat=lat, long=lon)
+            if keyboard:
+                args['keyboard'] = keyboard
+            await self._api.messages.send(**args)
