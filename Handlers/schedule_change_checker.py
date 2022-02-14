@@ -111,7 +111,10 @@ class ScheduleChecker:
         for time in await self._update_group_and_get_changes(group) or []:
             for schedule in await self._chsu_api.get_schedule_list_string(group, time):
                 response.append(
-                    (f"Обновленное расписание:\n\n{schedule['text']}", list(set(schedule['callback_data'])))
+                    (f"Обновленное расписание:\n\n{schedule['text']}", list(set(filter(
+                        lambda c: c is not None,
+                        schedule['callback_data']
+                    ))))
                 )
         return response
 
@@ -124,7 +127,7 @@ class ScheduleChecker:
             )
             await self._send_response(
                 self._telegram,
-                list(map(lambda u: u["id"],filter(lambda u: u['platform'] == self._telegram.get_name(), users))),
+                list(map(lambda u: u["id"], filter(lambda u: u['platform'] == self._telegram.get_name(), users))),
                 message
             )
 

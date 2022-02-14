@@ -46,12 +46,12 @@ class Chsu:
             return 'working'
 
     async def get_user_type(self, name: str):
-        if name not in ({**(await self._get_id_by_groups_list()), **(await self._get_id_by_professors_list())}).keys():
-            return None
+        if name in (await self._get_id_by_professors_list()).keys():
+            return "professor"
         elif name in (await self._get_id_by_groups_list()).keys():
             return "student"
         else:
-            return "professor"
+            return None
 
     async def _get_id_by_professors_list(self):
         if self._id_by_professors is None:
