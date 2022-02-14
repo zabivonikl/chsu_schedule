@@ -8,6 +8,7 @@ class Schedule:
         for self._couple in self._response_json:
             self._split_if_another_day()
             self._add_couple_to_string(id_type)
+            self._delete_address_duplicates()
 
     def __iter__(self):
         return (i for i in self._response or [{"text": "Расписание не найдено.\n", 'callback_data': []}])
@@ -40,9 +41,8 @@ class Schedule:
         self._response[-1]["text"] += self._get_discipline_string()
         self._response[-1]["text"] += self._get_professors_names() if id_type == 'student' else self._get_groups_names()
         self._response[-1]["text"] += self._get_location()
-        self._response[-1]["callback_data"].append(
-            self._couple['build']['title'] if self._couple['online'] != 1 else None
-        )
+        if self._couple['online'] != 1:
+            self._response[-1]["callback_data"].append(self._couple['build']['title'])
         self._response[-1]["text"] += "\n"
 
     def _get_couple_time(self):
@@ -70,6 +70,9 @@ class Schedule:
 
     def _get_address(self):
         return f"{self._couple['build']['title']}, аудитория {self._couple['auditory']['title']}\n"
+
+    def _delete_address_duplicates(self):
+        self._response[-1]["callback_data"] = list(set(self._response[-1]["callback_data"]))
 
     @staticmethod
     def get_address_code(address):

@@ -111,10 +111,7 @@ class ScheduleChecker:
         for time in await self._update_group_and_get_changes(group) or []:
             for schedule in await self._chsu_api.get_schedule_list_string(group, time):
                 response.append(
-                    (f"Обновленное расписание:\n\n{schedule['text']}", list(set(filter(
-                        lambda c: c is not None,
-                        schedule['callback_data']
-                    ))))
+                    (f"Обновленное расписание:\n\n{schedule['text']}", schedule['callback_data'])
                 )
         return response
 

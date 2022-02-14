@@ -56,8 +56,7 @@ class DoubleDateHandler(AbstractHandler):
 
     async def _send_message(self, from_id, day):
         kb = self._keyboard.get_standard_keyboard()
-        addresses = list(set(filter(lambda x: x is not None, day['callback_data'])))
-        if len(addresses) > 0:
-            address_codes = list(map(lambda a: Schedule.get_address_code(a), addresses))
-            kb = self._keyboard.get_geo_request_keyboard(addresses, address_codes)
+        if len(day['callback_data']) > 0:
+            address_codes = list(map(lambda a: Schedule.get_address_code(a), day['callback_data']))
+            kb = self._keyboard.get_geo_request_keyboard(day['callback_data'], address_codes)
         await self._chat_platform.send_message(day['text'], [from_id], kb)
