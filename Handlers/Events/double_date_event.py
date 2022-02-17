@@ -24,7 +24,6 @@ class DoubleDateHandler(AbstractHandler):
         ) is not None
 
     async def _handle(self, event) -> None:
-        text = None
         try:
             self._date_handler.parse_date(event['text'])
             schedule = await self._get_schedule(event['from_id'], *self._date_handler.get_string())
@@ -38,8 +37,7 @@ class DoubleDateHandler(AbstractHandler):
         except ConnectionError as err:
             text = f"Произошла ошибка при запросе расписания: {err}. " \
                    f"Попробуйте запросить его снова или свяжитесь с администратором."
-        finally:
-            await self._chat_platform.send_message(text, [event['from_id']], self._keyboard.get_standard_keyboard())
+        await self._chat_platform.send_message(text, [event['from_id']], self._keyboard.get_standard_keyboard())
 
     async def _get_schedule(self, from_id, start_date, last_date=None):
         db_response = await self._database.get_user_data(
