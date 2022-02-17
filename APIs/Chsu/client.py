@@ -5,6 +5,7 @@ from datetime import datetime
 
 from APIs.Chsu.schedule import Schedule
 from Wrappers.AIOHttp.aiohttp import AIOHttpWrapper
+from Wrappers.MongoDb.exceptions import EmptyResponse
 
 
 class Chsu:
@@ -89,6 +90,8 @@ class Chsu:
         )
 
     async def _get_schedule_json(self, name: str, start_date: str, last_date: str = None):
+        if await self.get_user_type(name) is None:
+            raise EmptyResponse()
         response = await self._client.get(
             f"{self._base_url}/timetable/v1/"
             f"from/{start_date}/"
