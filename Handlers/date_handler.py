@@ -18,6 +18,10 @@ class DateHandler:
         self._update_date()
         self._get_full_date(string.split('-'))
 
+    def parse_interval(self, **interval):
+        self._update_date()
+        self._date_tuple = (self._current_date, self._current_date + timedelta(**interval))
+
     def get_current_date_object(self) -> datetime:
         self._update_date()
         return self._current_date

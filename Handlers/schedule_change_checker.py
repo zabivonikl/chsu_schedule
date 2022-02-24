@@ -50,9 +50,8 @@ class ScheduleChecker:
             self._date_handler.get_current_date_object().minute == 0
 
     async def _update_group_and_get_changes(self, group_name):
-        start_time = self._date_handler.get_current_date_object().strftime("%d.%m.%Y")
-        end_time = (self._date_handler.get_current_date_object() + timedelta(days=14, hours=3)).strftime("%d.%m.%Y")
-        new_hashes = await self._chsu_api.get_schedule_list_hash(group_name, start_time, end_time)
+        self._date_handler.parse_interval(days=14)
+        new_hashes = await self._chsu_api.get_schedule_list_hash(group_name, *self._date_handler.get_string())
         group_obj = await self._database.get_group_hashes(group_name)
         await self._database.set_group_hashes(new_hashes, group_name)
         return self._get_difference_dates(new_hashes, group_obj)

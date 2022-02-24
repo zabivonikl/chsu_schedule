@@ -30,6 +30,8 @@ class AbstractHandler:
                 await self._handle(event)
             else:
                 await self._next_handler.handle_event(event)
+        except TypeError:
+            return
         except Exception as err:
             await self._chat_platform.send_message(
                 f"Ошибка в {self.__class__.__name__}:\n{err.__class__.__qualname__}: {err}\n\nСобытие: {event}",
