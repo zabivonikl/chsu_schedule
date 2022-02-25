@@ -1,5 +1,6 @@
 import asyncio
 from asyncio import AbstractEventLoop
+from datetime import timedelta
 
 from APIs.Chsu.client import Chsu
 from APIs.Chsu.schedule import Schedule
