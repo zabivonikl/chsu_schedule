@@ -43,7 +43,7 @@ class DateHandler:
         if dates[1]:
             date_list.append(self._parse_date_string(dates[1]))
             if self._is_final_date_less(date_list[1], date_list[0]):
-                date_list[1] = self._add_year(dates[1])
+                date_list[1] = self._add_year(date_list[1])
         self._date_tuple = (date_list[0], date_list[1] if dates[1] else None)
 
     def _parse_date_string(self, string: str) -> datetime:
