@@ -38,6 +38,11 @@ class AbstractHandler:
                 self._chat_platform.get_admins(),
                 self._chat_platform.get_keyboard_inst().get_standard_keyboard()
             )
+            await self._chat_platform.send_message(
+                f"Произошла ошибка: {err.__class__.__qualname__}.",
+                [event["from_id"]],
+                self._chat_platform.get_keyboard_inst().get_standard_keyboard()
+            )
 
     @staticmethod
     async def _can_handle(event) -> bool:
