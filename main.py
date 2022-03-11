@@ -55,7 +55,7 @@ async def index(request):
             'is working': await telegram_api.get_status(),
             'is set webhook': await telegram_api.get_webhook() != ""
         },
-        f'Mailing': 'working',
+        f'Mailing': f"{'not ' if mailing.done() else ''}working",
         f'Update checking': checker.get_status()
     }))
 
@@ -205,7 +205,7 @@ if __name__ == "__main__":
 
     # init mailing
     print("Starting mailing...")
-    event_loop.create_task(mailing())
+    mailing = event_loop.create_task(mailing())
 
     print("Starting schedule checker...")
     checker = ScheduleChecker(vk_api, telegram_api, mongo_db_api, chsu_api, event_loop)
