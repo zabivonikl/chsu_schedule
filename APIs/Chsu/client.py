@@ -54,7 +54,7 @@ class Chsu:
         elif name in (await self._get_id_by_groups_list()).keys():
             return "student"
         else:
-            return None
+            raise EmptyResponse(f"{name} not in groups/professors list.")
 
     async def _get_id_by_professors_list(self):
         if self._id_by_professors is None:
@@ -98,8 +98,6 @@ class Chsu:
         )
 
     async def _get_schedule_json(self, name: str, start_date: str, last_date: str = None):
-        if await self.get_user_type(name) is None:
-            raise EmptyResponse(f"{name} not in groups/professors list.")
         response = await self._client.get(
             f"{self._base_url}/timetable/v1/"
             f"from/{start_date}/"

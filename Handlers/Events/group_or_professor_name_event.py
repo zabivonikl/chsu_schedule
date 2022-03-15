@@ -2,6 +2,7 @@ from APIs.Chsu.client import Chsu
 from APIs.abstract_messanger import Messanger
 from Handlers.Events.abstract_event import AbstractHandler
 from Wrappers.MongoDb.database import MongoDB
+from Wrappers.MongoDb.exceptions import EmptyResponse
 
 
 class GroupOrProfessorNameHandler(AbstractHandler):
@@ -14,7 +15,10 @@ class GroupOrProfessorNameHandler(AbstractHandler):
         super().__init__(m, db, ch)
 
     async def _can_handle(self, event) -> bool:
-        return await self._chsu_api.get_user_type(event['text']) is not None
+        try:
+            return await self._chsu_api.get_user_type(event['text'])
+        except EmptyResponse:
+            return False
 
     async def _handle(self, event) -> None:
         await self._database.set_user_data(
