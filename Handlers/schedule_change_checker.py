@@ -1,6 +1,5 @@
 import asyncio
 from asyncio import AbstractEventLoop
-from datetime import timedelta
 
 from APIs.Chsu.client import Chsu
 from APIs.Chsu.schedule import Schedule
@@ -8,6 +7,7 @@ from APIs.Telegram.client import Telegram
 from APIs.Vk.client import Vk
 from Handlers.date_handler import DateHandler
 from Wrappers.MongoDb.database import MongoDB
+from Wrappers.MongoDb.exceptions import EmptyResponse
 
 
 class ScheduleChecker:
@@ -51,10 +51,14 @@ class ScheduleChecker:
 
     async def _update_group_and_get_changes(self, group_name):
         self._date_handler.parse_interval(days=14)
-        new_hashes = await self._chsu_api.get_schedule_list_hash(group_name, *self._date_handler.get_string())
-        group_obj = await self._database.get_group_hashes(group_name)
-        await self._database.set_group_hashes(new_hashes, group_name)
-        return self._get_difference_dates(new_hashes, group_obj)
+        try:
+            new_hashes = await self._chsu_api.get_schedule_list_hash(group_name, *self._date_handler.get_string())
+            group_obj = await self._database.get_group_hashes(group_name)
+            await self._database.set_group_hashes(new_hashes, group_name)
+            return self._get_difference_dates(new_hashes, group_obj)
+        except EmptyResponse as err:
+            print(f"{err.__class__.__name__}: {err}")
+            return []
 
     def _get_difference_dates(self, hashes: list, group: dict) -> list:
         return self._get_difference_dates_and_update_hashes(group['hashes'], hashes) if 'hashes' in group else []
