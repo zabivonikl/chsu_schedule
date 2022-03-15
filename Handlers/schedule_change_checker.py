@@ -7,7 +7,7 @@ from APIs.Telegram.client import Telegram
 from APIs.Vk.client import Vk
 from Handlers.date_handler import DateHandler
 from Wrappers.MongoDb.database import MongoDB
-from Wrappers.MongoDb.exceptions import EmptyResponse
+from Exceptions.empty_response import EmptyResponse
 
 
 class ScheduleChecker:

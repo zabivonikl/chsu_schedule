@@ -5,7 +5,7 @@ from APIs.Chsu.schedule import Schedule
 from APIs.abstract_messanger import Messanger
 from Handlers.Events.abstract_event import AbstractHandler
 from Wrappers.MongoDb.database import MongoDB
-from Wrappers.MongoDb.exceptions import EmptyResponse as MongoDBEmptyRespException
+from Exceptions.empty_response import EmptyResponse as MongoDBEmptyRespException
 
 
 class DoubleDateHandler(AbstractHandler):

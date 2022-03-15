@@ -5,7 +5,7 @@ from datetime import datetime
 
 from APIs.Chsu.schedule import Schedule
 from Wrappers.AIOHttp.aiohttp import AIOHttpWrapper
-from Wrappers.MongoDb.exceptions import EmptyResponse
+from Exceptions.empty_response import EmptyResponse
 
 
 class Chsu:
