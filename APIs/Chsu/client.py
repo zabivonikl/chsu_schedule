@@ -34,6 +34,8 @@ class Chsu:
             )
             if 'data' in response:
                 self._headers["Authorization"] = f'''Bearer {response['data']}'''
+                await self._refresh_groups_list()
+                await self._refresh_professors_list()
                 await asyncio.sleep(59 * 60)
             else:
                 print(response)
@@ -56,19 +58,25 @@ class Chsu:
 
     async def _get_id_by_professors_list(self):
         if self._id_by_professors is None:
-            teachers = await self._client.get(self._base_url + "/teacher/v1", headers=self._headers)
-            self._id_by_professors = {}
-            for teacher in teachers:
-                self._id_by_professors[teacher["fio"]] = teacher['id']
+            await self._refresh_professors_list()
         return self._id_by_professors
+
+    async def _refresh_professors_list(self):
+        teachers = await self._client.get(self._base_url + "/teacher/v1", headers=self._headers)
+        self._id_by_professors = {}
+        for teacher in teachers:
+            self._id_by_professors[teacher["fio"]] = teacher['id']
 
     async def _get_id_by_groups_list(self):
         if self._id_by_groups is None:
-            groups = await self._client.get(self._base_url + "/group/v1", headers=self._headers)
-            self._id_by_groups = {}
-            for group in groups:
-                self._id_by_groups[group["title"]] = group['id']
+            await self._refresh_groups_list()
         return self._id_by_groups
+
+    async def _refresh_groups_list(self):
+        groups = await self._client.get(self._base_url + "/group/v1", headers=self._headers)
+        self._id_by_groups = {}
+        for group in groups:
+            self._id_by_groups[group["title"]] = group['id']
 
     async def get_schedule_list_hash(self, name: str, start_date: str, last_date: str = None):
         return list(
