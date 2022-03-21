@@ -25,7 +25,7 @@ class ScheduleChecker:
         self._chsu_api = chsu_api
         self._date_handler = DateHandler()
         self.checking = event_loop.create_task(self._check_updates_process())
-        self._is_updated = True
+        self._is_updated = False
 
     def get_status(self):
         return 'working' if not self.checking.done() else 'not working'
@@ -54,9 +54,9 @@ class ScheduleChecker:
             self._date_handler.get_current_date_object().minute % 20 == 0
 
     async def _check_and_send_updates_for_group(self, group):
+        users = await self._database.get_check_changes_members(group)
+        response = await self._get_new_schedules(group)
         if not self._is_updated:
-            users = await self._database.get_check_changes_members(group)
-            response = await self._get_new_schedules(group)
             await self._send_responses(users, response)
 
     async def _get_new_schedules(self, group):
