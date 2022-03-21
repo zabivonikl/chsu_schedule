@@ -1,5 +1,4 @@
 import asyncio
-import traceback
 from asyncio import AbstractEventLoop
 
 from APIs.Chsu.client import Chsu
