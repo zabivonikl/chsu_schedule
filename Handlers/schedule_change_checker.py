@@ -1,4 +1,5 @@
 import asyncio
+import traceback
 from asyncio import AbstractEventLoop
 
 from APIs.Chsu.client import Chsu
@@ -25,7 +26,7 @@ class ScheduleChecker:
         self._chsu_api = chsu_api
         self._date_handler = DateHandler()
         self.checking = event_loop.create_task(self._check_updates_process())
-        self._is_updated = False
+        self._is_updated = True
 
     def get_status(self):
         return 'working' if not self.checking.done() else 'not working'
@@ -51,7 +52,7 @@ class ScheduleChecker:
         return \
             self._date_handler.get_current_date_object().second == 0 and \
             self._date_handler.get_current_date_object().hour != 0 and \
-            self._date_handler.get_current_date_object().minute % 20 == 0
+            self._date_handler.get_current_date_object().minute % 10 == 0
 
     async def _check_and_send_updates_for_group(self, group):
         users = await self._database.get_check_changes_members(group)
@@ -76,8 +77,10 @@ class ScheduleChecker:
             await self._database.set_group_hashes(new_hashes, group_name)
             return list(filter(
                 lambda x:
-                x != self._date_handler.parse_interval(days=14)[1].strftime("%d.%m.%Y") and
-                self._date_handler.get_current_date_object().hour == 0,
+                not (
+                    x == self._date_handler.get_string()[1] and
+                    self._date_handler.get_current_date_object().hour == 0
+                ),
                 self._get_difference_dates(new_hashes, group_obj)
             ))
         except EmptyResponse as err:
