@@ -3,6 +3,8 @@ import hashlib
 from asyncio import AbstractEventLoop
 from datetime import datetime
 
+from aiohttp import ClientConnectorError
+
 from APIs.Chsu.schedule import Schedule
 from Wrappers.AIOHttp.aiohttp import AIOHttpWrapper
 from Exceptions.empty_response import EmptyResponse
@@ -26,27 +28,35 @@ class Chsu:
 
     async def _updating_token(self):
         while True:
-            self._headers.pop("Authorization", '')
-            response = await self._client.post(
-                f"{self._base_url}auth/signin",
-                self._login_and_password,
-                self._headers
-            )
-            if 'data' in response:
-                self._headers["Authorization"] = f'''Bearer {response['data']}'''
-                await self._refresh_groups_list()
-                await self._refresh_professors_list()
-                await asyncio.sleep(59 * 60)
-            else:
-                print(response)
+            try:
+                self._headers.pop("Authorization", '')
+                response = await self._client.post(
+                    f"{self._base_url}auth/signin",
+                    self._login_and_password,
+                    self._headers
+                )
+                if 'data' in response:
+                    self._headers["Authorization"] = f'''Bearer {response['data']}'''
+                    await self._refresh_groups_list()
+                    await self._refresh_professors_list()
+                    await asyncio.sleep(59 * 60)
+                    continue
+                else:
+                    print(response)
+            except Exception as err:
+                print(f"{err.__class__.__name__}: {err}")
+            finally:
                 await asyncio.sleep(5)
 
     async def get_status(self):
-        response = await self._client.post(f"{self._base_url}auth/signin", self._login_and_password, self._headers)
-        if 'description' in response:
-            return f"{response['code']}: {response['description']}"
-        else:
-            return 'working'
+        try:
+            response = await self._client.post(f"{self._base_url}auth/signin", self._login_and_password, self._headers)
+            if 'description' in response:
+                return f"{response['code']}: {response['description']}"
+            else:
+                return 'working'
+        except Exception as err:
+            return f"{err.__class__.__name__}: {err}"
 
     async def get_user_type(self, name: str):
         if name in (await self._get_id_by_professors_list()).keys():
