@@ -3,8 +3,6 @@ import hashlib
 from asyncio import AbstractEventLoop
 from datetime import datetime
 
-from aiohttp import ClientConnectorError
-
 from APIs.Chsu.schedule import Schedule
 from Wrappers.AIOHttp.aiohttp import AIOHttpWrapper
 from Exceptions.empty_response import EmptyResponse
